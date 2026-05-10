@@ -1,0 +1,8 @@
+/opt/dashboard/templates/config/
+├── svxlink.conf.template
+├── simplex_logic.template
+├── repeater_logic.template
+├── reflector_logic.template
+├── module_echolink.template
+├── module_metar.template
+└── macros.template
