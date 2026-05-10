@@ -54,7 +54,9 @@
                        maxlength="10"
                        autocomplete="off"
                        value="{{ model.echolink.callsign or '' }}"
-                       placeholder="Example: G1ABC-L">
+                       placeholder="Example: G1ABC-L"
+                       style="text-transform: uppercase;"
+                    oninput="this.value = this.value.toUpperCase()">
 
                 <div class="note">
                     EchoLink requires a suffix of -L or -R.
