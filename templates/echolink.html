@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>EchoLink Configuration</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="card">
+
+        <div class="page-header">
+
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>EchoLink Configuration</h1>
+
+                <p>
+                    Configure EchoLink access credentials and
+                    node identification.
+                </p>
+            </div>
+
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/echolink" method="post">
+
+            <div class="field-group">
+
+                <label class="label"
+                       for="echolink_callsign">
+                    EchoLink callsign
+                </label>
+
+                <input class="input-field"
+                       type="text"
+                       id="echolink_callsign"
+                       name="echolink_callsign"
+                       maxlength="10"
+                       autocomplete="off"
+                       value="{{ model.echolink.callsign or '' }}"
+                       placeholder="Example: G1ABC-L">
+
+                <div class="note">
+                    EchoLink requires a suffix of -L or -R.
+                </div>
+
+            </div>
+
+            <div class="field-group">
+
+                <label class="label"
+                       for="echolink_password">
+                    EchoLink password
+                </label>
+
+                <input class="input-field"
+                       type="password"
+                       id="echolink_password"
+                       name="echolink_password"
+                       autocomplete="off"
+                       value="{{ model.echolink.password or '' }}">
+
+            </div>
+
+            <div class="field-group">
+
+                <label class="label"
+                       for="echolink_sysopname">
+                    Sysop name
+                </label>
+
+                <input class="input-field"
+                       type="text"
+                       id="echolink_sysopname"
+                       name="echolink_sysopname"
+                       maxlength="32"
+                       autocomplete="off"
+                       value="{{ model.echolink.sysopname or '' }}"
+                       placeholder="Your name">
+
+            </div>
+
+            <div class="field-group">
+
+                <label class="label"
+                       for="echolink_frequency">
+                    Frequency text
+                </label>
+
+                <input class="input-field"
+                       type="text"
+                       id="echolink_frequency"
+                       name="echolink_frequency"
+                       maxlength="8"
+                       autocomplete="off"
+                       value="{{ model.echolink.frequency or '' }}"
+                       placeholder="70cm">
+
+                <div class="note">
+                    Used in the EchoLink location line.
+                </div>
+
+            </div>
+
+            <div class="field-group">
+
+                <label class="label"
+                       for="echolink_town">
+                    Town / location
+                </label>
+
+                <input class="input-field"
+                       type="text"
+                       id="echolink_town"
+                       name="echolink_town"
+                       maxlength="10"
+                       autocomplete="off"
+                       value="{{ model.echolink.town or '' }}"
+                       placeholder="London">
+
+                <div class="note">
+                    Final location format:
+                    [Svx] Freq, Town
+                </div>
+
+                <div class="note">
+                    Maximum total length is 17 characters.
+                </div>
+
+            </div>
+
+            <div class="button-row">
+
+                <a class="button-secondary"
+                   href="/modules">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+</body>
+</html>
