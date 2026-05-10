@@ -37,15 +37,23 @@ def save_node_model(model):
 def load_node_model():
     ensure_config_dir()
 
-    if not MODEL_FILE.exists():
+    if not MODEL_FILE.exists() or MODEL_FILE.stat().st_size == 0:
         model = create_default_model()
         save_node_model(model)
         return model
 
-    return json.loads(
-        MODEL_FILE.read_text(encoding="utf-8")
-    )
+    try:
+        return json.loads(
+            MODEL_FILE.read_text(encoding="utf-8")
+        )
 
+    except json.JSONDecodeError:
+        corrupt_file = MODEL_FILE.with_suffix(".json.corrupt")
+        MODEL_FILE.rename(corrupt_file)
+
+        model = create_default_model()
+        save_node_model(model)
+        return model
 
 def reset_node_model():
     model = create_default_model()
