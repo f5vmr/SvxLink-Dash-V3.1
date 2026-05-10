@@ -67,8 +67,8 @@ DEFAULT_MODEL = {
         "auth_key": None,
     },
 
-    "ident": {
-        "short": {
+        "ident": {
+            "short": {
             "mode": "cw",
             "interval": 15,
         },
@@ -77,8 +77,8 @@ DEFAULT_MODEL = {
             "interval": 60,
         },
     },
-    "gpio": {
-        "sql": {
+        "gpio": {
+            "sql": {
             "chip": "gpiochip0",
             "line": 203,
             "active": "high",

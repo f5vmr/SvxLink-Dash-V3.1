@@ -245,7 +245,7 @@ def interface_page():
         try:
             from models.node_model import set_interface_mode
             set_interface_mode(model, interface_mode)
-            save_node_model(model)
+            _model(model)
             return redirect(url_for("squelch_page"))
         except ValueError as exc:
             error = str(exc)
@@ -314,19 +314,27 @@ def modules_page():
             "ModuleParrot",
         ]
 
-        if request.form.get("module_echolink") == "yes":
+        echolink_enabled = request.form.get("module_echolink") == "yes"
+        metar_enabled = request.form.get("module_metar") == "yes"
+
+        if echolink_enabled:
             modules.append("ModuleEchoLink")
 
-        if request.form.get("module_metar") == "yes":
+        if metar_enabled:
             modules.append("ModuleMetarInfo")
 
         model["modules"]["enabled"] = modules
+        model["echolink"]["enabled"] = echolink_enabled
+        model["metar"]["enabled"] = metar_enabled
+
         save_node_model(model)
+
+        if metar_enabled:
+            return redirect(url_for("metar_page"))
 
         return redirect(url_for("reflector_page"))
 
     return render_template("modules.html", model=model)
-
 
 @app.route("/reflector", methods=["GET", "POST"])
 def reflector_page():
