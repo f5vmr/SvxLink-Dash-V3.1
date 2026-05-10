@@ -145,15 +145,20 @@ DEFAULT_MODEL = {
             "town": None,
             "location": None,
     },
-    "modules": {
-        "enabled": [
+        "metar": {
+            "enabled": False,
+            "region": None,
+            "startdefault": None,
+            "airports": [],
+            "custom_startdefault": None,
+    },  
+        "modules": {
+            "enabled": [
             "ModuleHelp",
             "ModuleParrot",
         ],
     },
 }
-
-
 
 def new_node_model(platform=None):
     """

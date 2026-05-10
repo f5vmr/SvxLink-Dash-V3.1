@@ -11,6 +11,7 @@ from services.model_store import (
 )
 import subprocess
 import hw_platforms
+from data.metar_airports import METAR_REGIONS
 
 
 

@@ -1,0 +1,19 @@
+[ModuleMetarInfo]
+NAME=MetarInfo
+ID=5
+TIMEOUT=120
+MUTE_LOGIC_LINKING=1
+TYPE=XML
+SERVER=https://aviationweather.gov
+LINK=/api/data/metar?format=xml&ids=
+STARTDEFAULT={{METAR_STARTDEFAULT}}
+#LONGMESSAGES=1
+#REMARKS=1
+#DEBUG=1
+
+# Insert ICAO airport shortcuts here. You can
+# request the METAR by sending DTMF commands as
+# follows:
+#
+#         1#   2#   3#   4#   5#  6#   7#   8#
+AIRPORTS={{METAR_AIRPORTS}}
