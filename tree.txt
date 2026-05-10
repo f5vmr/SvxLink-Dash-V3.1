@@ -4,7 +4,7 @@
 │   └── node_model.json
 ├── models/
 │   └── node_model.py
-├── platform/
+├── hw_platforms/
 │   ├── __init__.py
 │   ├── raspberry.py
 │   └── nanopi.py
@@ -34,7 +34,7 @@
 │   └── site.css
 └── logic/
 1. models/node_model.py
-2. platform/nanopi.py and platform/raspberry.py
+2. hw_platforms/nanopi.py and hw_platforms/raspberry.py
 3. services/svxlink_service.py
 4. renderers/global_renderer.py
 5. renderers/simplex_renderer.py

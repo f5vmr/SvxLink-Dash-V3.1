@@ -5,7 +5,7 @@ Platform detection and profile selection for SvxLink-Dash-V3.
 """
 
 from pathlib import Path
-import platform as py_platform
+import hw_platforms as py_platform
 
 from .nanopi import PROFILE as NANOPI_PROFILE
 from .raspberry import PROFILE as RASPBERRY_PROFILE
