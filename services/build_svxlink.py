@@ -18,7 +18,7 @@ from pathlib import Path
 
 from models.node_model import validate_model
 
-from platforms import (
+from platform import (
     validate_platform_model,
 )
 

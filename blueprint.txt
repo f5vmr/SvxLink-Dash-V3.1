@@ -392,7 +392,7 @@ Recommended initial structure:
 ```text
 /app.py
 
-/platforms/
+/platform/
     nanopi.py
     raspberrypi.py
 
