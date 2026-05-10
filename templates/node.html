@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Node Type</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink_logo.png') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Node Type</h1>
+                <p>Choose the type of SvxLink station you are building.</p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/node" method="post">
+            <div class="option-group">
+                <div class="radio-row">
+                    <input type="radio" id="simplex" name="node_type" value="simplex"
+                           {% if model.node.type != 'repeater' %}checked{% endif %}>
+                    <label for="simplex">Simplex node</label>
+                </div>
+
+                <div class="radio-row">
+                    <input type="radio" id="repeater" name="node_type" value="repeater"
+                           {% if model.node.type == 'repeater' %}checked{% endif %}>
+                    <label for="repeater">Repeater node</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="callsign">Callsign</label>
+                <input class="input-field"
+                       type="text"
+                       id="callsign"
+                       name="callsign"
+                       value="{{ model.node.callsign or '' }}"
+                       placeholder="Enter callsign"
+                       autocomplete="off"
+                       oninput="this.value = this.value.toUpperCase();">
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="/platform">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

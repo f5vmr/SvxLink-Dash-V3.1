@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>SvxLink-Dash-V3 Setup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink_logo.png') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>SvxLink-Dash-V3</h1>
+                <p>This wizard will guide you through creating a valid SvxLink node configuration.</p>
+            </div>
+        </div>
+
+        <div class="note">
+            The system will ask one group of questions at a time. Your answers are saved as you proceed.
+        </div>
+
+        <div class="note">
+            No active SvxLink configuration will be changed until the final build stage.
+        </div>
+
+        <form action="/start" method="post">
+            <button class="button-primary" type="submit">Start Setup</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

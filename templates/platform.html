@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Platform Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink_logo.png') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Platform Detection</h1>
+                <p>The dashboard has detected the hardware profile for this installation.</p>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <div class="label">Detected platform</div>
+            <p>{{ model.platform.name }}</p>
+        </div>
+
+        {% if not model.platform.supported %}
+            <p class="error">This platform is not currently supported by SvxLink-Dash-V3.</p>
+        {% else %}
+            <p class="success">This platform is supported.</p>
+        {% endif %}
+
+        <form action="/platform" method="post">
+            <div class="button-row">
+                <a class="button-secondary" href="/start">Back</a>
+                <button class="button-primary" type="submit" {% if not model.platform.supported %}disabled{% endif %}>
+                    Continue
+                </button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>

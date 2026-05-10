@@ -55,9 +55,9 @@ DEFAULT_MODEL = {
         "language": "en_US",
     },
     "interface": {
-        "mode": None,
-        "sql_source": None,
-        "ptt_source": None,
+        "mode": "gpiod",
+        "sql_source": "gpiod",
+        "ptt_source": "gpiod",
     },
     "reflector": {
         "enabled": False,
@@ -77,16 +77,65 @@ DEFAULT_MODEL = {
             "interval": 60,
         },
     },
+    "gpio": {
+        "sql": {
+            "chip": "gpiochip0",
+            "line": 203,
+            "active": "high",
+            "physical_pin": 7,
+        },
+        "ptt": {
+            "chip": "gpiochip0",
+            "line": 6,
+            "physical_pin": 12,
+            },
+        },
 
-    "roger": {
-        "mode": "none",
-    },
+        "hidraw": {
+            "device": "/dev/hidraw0",
+            "sql_pin": "VOL_DN",
+            "ptt_pin": "GPIO3",
+        },
 
-    "squelch": {
-        "method": "gpiod",
-        "ctcss_freq": None,
-        "ctcss_tx": False,
-    },
+        "cw": {
+            "amp": -10,
+            "pitch": 650,
+            "cpm": 95,
+        },
+
+        "audio": {
+            "audio_dev": "alsa:plughw:0",
+            "audio_channel": 0,
+        },
+
+        "time_format": "24",
+
+        "fx_gain_normal": 0,
+        "fx_gain_low": -12,
+
+        "sql_hangtime": 20,
+        "sql_tail_elim": 270,
+
+        "idle_timeout": 10,
+        "sql_timeout": 180,
+
+        "tg_timeout": 60,
+
+        "tx_ctcss_mode": "ALWAYS",
+
+        "online_control": {
+            "enabled": False,
+            "command": None,
+        },
+        "roger": {
+            "mode": "none",
+        },
+
+        "squelch": {
+            "method": "gpiod",
+            "ctcss_freq": None,
+            "ctcss_tx": False,
+        },
 
     "modules": {
         "enabled": [

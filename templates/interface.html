@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Interface Mode</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink_logo.png') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Interface Mode</h1>
+                <p>Select how SQL and PTT control will be handled.</p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="/interface" method="post">
+            <div class="option-group">
+                <div class="radio-row">
+                    <input type="radio" id="gpiod" name="interface_mode" value="gpiod"
+                           {% if model.interface.mode in [None, 'gpiod'] %}checked{% endif %}>
+                    <label for="gpiod">GPIOD - SQL and PTT use GPIO lines</label>
+                </div>
+
+                {% if model.platform.id == 'raspberry_pi' %}
+                <div class="radio-row">
+                    <input type="radio" id="hidraw" name="interface_mode" value="hidraw"
+                           {% if model.interface.mode == 'hidraw' %}checked{% endif %}>
+                    <label for="hidraw">HIDRAW - SQL and PTT use CM108/CM119 or TOADS hardware</label>
+                </div>
+
+                <div class="radio-row">
+                    <input type="radio" id="hybrid" name="interface_mode" value="hybrid"
+                           {% if model.interface.mode == 'hybrid' %}checked{% endif %}>
+                    <label for="hybrid">Hybrid - SQL uses GPIOD, PTT uses HIDRAW</label>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if model.platform.id == 'nanopi_neo' %}
+                <div class="note">
+                    NanoPi-Neo uses the fixed GPIOD hardware layout supplied in the image.
+                </div>
+            {% endif %}
+
+            <div class="button-row">
+                <a class="button-secondary" href="/node">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>
