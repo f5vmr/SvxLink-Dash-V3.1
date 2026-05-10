@@ -42,13 +42,24 @@
                 </div>
             </div>
 
-            <div class="field-group">
-                <label class="label" for="ctcss_freq">CTCSS frequency</label>
-                <input class="input-field" type="number" step="0.1" id="ctcss_freq" name="ctcss_freq"
-                       value="{{ model.squelch.ctcss_freq or '' }}"
-                       placeholder="Example: 136.5">
-                <div class="note">Only required when CTCSS is selected.</div>
-            </div>
+            <<div class="field-group">
+    <label class="label">CTCSS frequency</label>
+
+    <div class="radio-group">
+        {% for freq in ctcss_frequencies %}
+        <div class="radio-row">
+            <input type="radio"
+                   id="ctcss_{{ freq }}"
+                   name="ctcss_freq"
+                   value="{{ freq }}"
+                   {% if model.squelch.ctcss_freq|string == freq|string %}checked{% endif %}>
+            <label for="ctcss_{{ freq }}">{{ freq }} Hz</label>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="note">Only required when CTCSS is selected.</div>
+    </div>
 
             <div class="option-group">
                 <div class="radio-row">
