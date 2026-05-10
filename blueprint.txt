@@ -471,3 +471,15 @@ Instead:
 The user describes the radio node they want.
 
 The framework constructs a valid operational system.
+Route Structure
+/start
+/platform
+/node
+/interface
+/squelch
+/ident
+/modules
+/reflector
+/review
+/build
+/done
