@@ -2,7 +2,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for
 from pathlib import Path
-from services.build_service import build_svxlink_configuration
+from services.build_svxlink import build_svxlink_configuration
 from services.svxlink_service import svxlink_status
 from services.model_store import (
     load_node_model,
@@ -87,7 +87,7 @@ def detect_platform():
 
     return {
         "id": "unknown",
-        "name": platform.machine(),
+        "name": hw_platforms.machine(),
         "supported": False,
     }
 
