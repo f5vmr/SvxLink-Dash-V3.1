@@ -332,7 +332,7 @@ def modules_page():
             return redirect(url_for("echolink_page"))
 
         if metar_enabled:
-            return redirect(url_for("metar_page"))
+            return redirect(url_for("metar_default_page"))
 
         return redirect(url_for("reflector_page"))
 
@@ -373,14 +373,14 @@ def echolink_page():
             save_node_model(model)
 
             if model["metar"]["enabled"]:
-                return redirect(url_for("metar_page"))
+                return redirect(url_for("metar_default_page"))
 
             return redirect(url_for("reflector_page"))
 
     return render_template("echolink.html", model=model, error=error)
 
-@app.route("/metar", methods=["GET", "POST"])
-def metar_page():
+@app.route("/metar-default", methods=["GET", "POST"])
+def metar_default_page():
     model = load_node_model()
     error = None
 
@@ -388,31 +388,53 @@ def metar_page():
     airports = METAR_REGIONS.get(region, {})
 
     if request.method == "POST":
-
         startdefault = request.form.get("startdefault", "").strip().upper()
 
-        selected_airports = request.form.getlist("airports")
-
-        if len(selected_airports) > 10:
-            error = "Please select a maximum of 10 airports."
-
-        elif startdefault and startdefault not in selected_airports:
-            error = "Default airport must also be selected."
-
+        if not startdefault:
+            error = "Please select a default airport."
+        elif startdefault not in airports:
+            error = "Selected airport is not valid for this region."
         else:
             model["metar"]["startdefault"] = startdefault
-            model["metar"]["airports"] = selected_airports
-
             save_node_model(model)
-
-            return redirect(url_for("reflector_page"))
+            return redirect(url_for("metar_airports_page"))
 
     return render_template(
-        "metar.html",
+        "metar_default.html",
         model=model,
         airports=airports,
         error=error,
     )
+
+
+@app.route("/metar-airports", methods=["GET", "POST"])
+def metar_airports_page():
+    model = load_node_model()
+    error = None
+
+    region = model["metar"].get("region", "ukwide")
+    airports = METAR_REGIONS.get(region, {})
+
+    startdefault = model["metar"].get("startdefault", "")
+
+    if request.method == "POST":
+        selected_airports = request.form.getlist("airports")
+
+        if len(selected_airports) > 6:
+            error = "Please select no more than 6 additional airports."
+        else:
+            model["metar"]["airports"] = selected_airports
+            save_node_model(model)
+            return redirect(url_for("reflector_page"))
+
+    return render_template(
+        "metar_airports.html",
+        model=model,
+        airports=airports,
+        startdefault=startdefault,
+        error=error,
+    )
+    
 @app.route("/reflector", methods=["GET", "POST"])
 def reflector_page():
     model = load_node_model()
