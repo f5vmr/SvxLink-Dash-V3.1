@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Zone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Time Zone</h1>
+
+                <p>
+                    Select the system time zone for this SvxLink node.
+                </p>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('timezone_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">
+                    Time zone
+                </label>
+
+                {% for tz_name, tz_label in timezones.items() %}
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="tz_{{ loop.index }}"
+                           name="timezone"
+                           value="{{ tz_name }}"
+                           {% if model.timezone.name == tz_name %}
+                               checked
+                           {% endif %}>
+
+                    <label for="tz_{{ loop.index }}">
+                        {{ tz_label }} — {{ tz_name }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('environment_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+</main>
+</body>
+</html>

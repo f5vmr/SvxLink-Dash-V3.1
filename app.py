@@ -12,6 +12,7 @@ from services.model_store import (
 import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
+from data.timezones import TIMEZONES
 
 
 
@@ -253,14 +254,54 @@ def environment_page():
 
             save_node_model(model)
 
-            return redirect(url_for("node_page"))
+            return redirect(url_for("timezone_page"))
 
     return render_template(
         "environment.html",
         model=model,
         error=error,
     )
-    
+@app.route("/timezone", methods=["GET", "POST"])
+def timezone_page():
+    model = load_node_model()
+    error = None
+
+    if "timezone" not in model:
+        model["timezone"] = {}
+
+    environment = (
+        model.get("environment", {})
+        .get("region", "british_isles")
+    )
+
+    timezones = TIMEZONES.get(environment, {})
+
+    if request.method == "POST":
+
+        timezone = request.form.get("timezone", "").strip()
+
+        if not timezone:
+            error = "Please select a time zone."
+
+        elif timezone not in timezones:
+            error = "Invalid time zone selection."
+
+        else:
+            model["timezone"] = {
+                "name": timezone,
+            }
+
+            save_node_model(model)
+
+            return redirect(url_for("node_page"))
+
+    return render_template(
+        "timezone.html",
+        model=model,
+        timezones=timezones,
+        error=error,
+    )
+        
 @app.route("/node", methods=["GET", "POST"])
 def node_page():
     model = load_node_model()
