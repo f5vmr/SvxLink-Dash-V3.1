@@ -183,6 +183,26 @@ def render_tx_ctcss_logic(model):
 
     return f"TX_CTCSS={mode}"
 
+def render_open_on_ctcss_line(model):
+    """
+    Render OPEN_ON_CTCSS for repeater logic only when CTCSS is used.
+
+    For non-CTCSS squelch methods, leave it commented.
+    """
+
+    node_type = model.get("node", {}).get("type")
+    squelch = model.get("squelch", {})
+
+    if node_type != "repeater":
+        return "#OPEN_ON_CTCSS=1000"
+
+    if squelch.get("method") not in ("ctcss", "gpiod_ctcss"):
+        return "#OPEN_ON_CTCSS=1000"
+
+    if not squelch.get("ctcss_freq"):
+        return "#OPEN_ON_CTCSS=1000"
+
+    return "OPEN_ON_CTCSS=1000"
 
 # =========================================================
 # RX rendering
@@ -449,7 +469,7 @@ def render_active_logic(model):
         "ONLINE_CONTROL_BLOCK": render_online_control(model),
 
         "IDLE_TIMEOUT": model.get("idle_timeout", 10),
-        "OPEN_ON_CTCSS_LINE": "#OPEN_ON_CTCSS=1000",
+        "OPEN_ON_CTCSS_LINE": render_open_on_ctcss_line(model),
         "REPEATER_SQL_TIMEOUT": model.get("sql_timeout", 180),
     }
 
