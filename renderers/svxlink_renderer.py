@@ -57,6 +57,7 @@ def render_echolink_module(model):
             "ECHOLINK_PASSWORD": echolink.get("password", ""),
             "ECHOLINK_SYSOPNAME": echolink.get("sysopname", ""),
             "ECHOLINK_LOCATION": echolink.get("location", ""),
+            "DEFAULT_LANG": get_default_language(model),
         }
     )
 
