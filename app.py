@@ -384,8 +384,17 @@ def metar_default_page():
     model = load_node_model()
     error = None
 
-    region = model["metar"].get("region", "ukwide")
-    airports = METAR_REGIONS.get(region, {})
+    if "metar" not in model:
+        model["metar"] = {}
+
+    region = model["metar"].get("region") or "ukwide"
+
+    if region not in METAR_REGIONS:
+        region = "ukwide"
+        model["metar"]["region"] = region
+        save_node_model(model)
+
+    airports = METAR_REGIONS[region]
 
     if request.method == "POST":
         startdefault = request.form.get("startdefault", "").strip().upper()
@@ -405,7 +414,6 @@ def metar_default_page():
         airports=airports,
         error=error,
     )
-
 
 @app.route("/metar-airports", methods=["GET", "POST"])
 def metar_airports_page():
