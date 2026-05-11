@@ -15,6 +15,7 @@ This is the authoritative build pipeline.
 """
 
 from pathlib import Path
+import subprocess
 
 from models.node_model import validate_model
 
@@ -24,6 +25,8 @@ from hw_platforms import (
 
 from renderers.svxlink_renderer import (
     render_svxlink_config,
+    render_echolink_module,
+    render_metar_module,
 )
 
 from services.svxlink_service import (
@@ -36,6 +39,7 @@ from services.svxlink_service import (
 
 from services.svxlink_service import (
     SVXLINK_CONF,
+    MODULE_DIR,
 )
 
 
@@ -101,10 +105,27 @@ def render_all(model):
 
     rendered = {}
 
+    # =====================================================
+    # Main SvxLink configuration
+    # =====================================================
+
     rendered["svxlink.conf"] = render_svxlink_config(model)
 
-    return rendered
+    # =====================================================
+    # Optional module configurations
+    # =====================================================
 
+    echolink_conf = render_echolink_module(model)
+
+    if echolink_conf:
+        rendered["ModuleEchoLink.conf"] = echolink_conf
+
+    metar_conf = render_metar_module(model)
+
+    if metar_conf:
+        rendered["ModuleMetarInfo.conf"] = metar_conf
+
+    return rendered
 
 # =========================================================
 # Deployment phase
@@ -120,6 +141,10 @@ def deploy_rendered_files(rendered_files):
 
     deployed = []
 
+    # =====================================================
+    # Main svxlink.conf
+    # =====================================================
+
     if "svxlink.conf" in rendered_files:
 
         write_text_file(
@@ -129,8 +154,28 @@ def deploy_rendered_files(rendered_files):
 
         deployed.append(str(SVXLINK_CONF))
 
-    return deployed
+    # =====================================================
+    # Optional module configuration files
+    # =====================================================
 
+    for filename in (
+        "ModuleEchoLink.conf",
+        "ModuleMetarInfo.conf",
+    ):
+
+        if filename not in rendered_files:
+            continue
+
+        target = MODULE_DIR / filename
+
+        write_text_file(
+            target,
+            rendered_files[filename]
+        )
+
+        deployed.append(str(target))
+
+    return deployed
 
 # =========================================================
 # Full build pipeline

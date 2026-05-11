@@ -435,7 +435,7 @@ def render_active_logic(model):
         "CW_PITCH": model.get("cw", {}).get("pitch", 650),
         "CW_CPM": model.get("cw", {}).get("cpm", 95),
 
-        "DEFAULT_LANG": model["node"].get("language", "en_GB"),
+        "DEFAULT_LANG": get_default_language(model),
 
         "RGR_SOUND_ALWAYS": model.get("roger", {}).get("mode") != "none" and 1 or 0,
 
@@ -498,7 +498,7 @@ def render_reflector_logic(model):
             "REFLECTOR_AUTH_KEY": reflector["auth_key"],
             "MONITOR_TGS": monitor_tgs,
             "TG_SELECT_TIMEOUT": model.get("tg_timeout", 60),
-            "DEFAULT_LANG": model["node"].get("language", "en_GB"),
+            "DEFAULT_LANG": get_default_language(model),
         }
     )
 
