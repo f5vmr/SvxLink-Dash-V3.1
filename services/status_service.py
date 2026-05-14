@@ -126,20 +126,3 @@ def get_runtime_status(model):
         "recent_log": get_recent_log_lines(),
     }
     
-    def get_recent_log_lines(limit=40):
-        log_file = Path("/var/log/svxlink.log")
-
-        if not log_file.exists():
-            return []
-
-        try:
-            lines = log_file.read_text(
-                encoding="utf-8",
-                errors="ignore"
-            ).splitlines()
-
-        except Exception:
-            return []
-
-        return lines[-limit:]
-    
