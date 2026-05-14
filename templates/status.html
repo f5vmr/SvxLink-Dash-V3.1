@@ -110,6 +110,22 @@
                 </table>
 
             </div>
+            <div class="dashboard-panel">
+
+    <div class="status-box-title">
+        Recent Activity
+    </div>
+
+    <div id="tail" class="hideScrollbar">
+
+{% for line in status.recent_log %}
+{{ line }}
+<br>
+{% endfor %}
+
+    </div>
+
+</div>
 
         </div>
 
