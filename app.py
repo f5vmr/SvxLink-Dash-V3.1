@@ -884,6 +884,41 @@ def talkgroups_page():
         model=model,
         talkgroups=talkgroups,
     )
+@app.route("/monitor-tgs", methods=["GET", "POST"])
+def monitor_tgs_page():
+    model = load_node_model()
+    error = None
+
+    environment = model.get("environment", {}).get(
+        "region",
+        "british_isles"
+    )
+
+    talkgroups = load_talkgroups(environment)
+
+    if "reflector" not in model:
+        model["reflector"] = {}
+
+    selected = model["reflector"].get("monitor_tgs", [])
+
+    if request.method == "POST":
+        selected = request.form.getlist("monitor_tgs")
+
+        if len(selected) > 6:
+            error = "Please select no more than six monitoring talkgroups."
+        else:
+            model["reflector"]["monitor_tgs"] = selected
+            save_node_model(model)
+            return redirect(url_for("status_page"))
+
+    return render_template(
+        "monitor_tgs.html",
+        model=model,
+        talkgroups=talkgroups,
+        selected=selected,
+        error=error,
+    )
+    
 @app.route("/dtmf", methods=["POST"])
 def dtmf_page():
     command = request.form.get("command", "").strip()

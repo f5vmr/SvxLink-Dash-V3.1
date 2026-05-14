@@ -501,14 +501,18 @@ def render_reflector_logic(model):
 
     host = reflector.get("host", "")
 
-    if "uk.wide" in host or "yorkshire" in host:
-        monitor_tgs = 235
-    elif "australia" in host:
-        monitor_tgs = 505
-    elif "north.america" in host:
-        monitor_tgs = 3100
-    else:
-        monitor_tgs = 0
+    monitor_tgs = reflector.get(
+    "monitor_tgs",
+    []
+)
+
+if isinstance(monitor_tgs, list):
+    monitor_tgs = ",".join(
+        str(x) for x in monitor_tgs
+    )
+
+if not monitor_tgs:
+    monitor_tgs = "0"
 
     return render_config_template(
         "reflector_logic.template",

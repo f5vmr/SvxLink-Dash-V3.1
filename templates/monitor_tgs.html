@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Monitoring Talkgroups</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+<section class="card dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>Monitoring Talkgroups</h1>
+
+        <p>
+            Select up to six monitored talkgroups.
+        </p>
+    </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+
+        <table class="dashboard-table">
+
+            <thead>
+                <tr>
+                    <th>Enable</th>
+                    <th>Talkgroup</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for tg in talkgroups %}
+
+                <tr>
+
+                    <td>
+                        <input type="checkbox"
+                               name="monitor_tgs"
+                               value="{{ tg.id }}"
+                               {% if tg.id in selected %}
+                                   checked
+                               {% endif %}>
+                    </td>
+
+                    <td>
+                        {{ tg.id }}
+                    </td>
+
+                    <td>
+                        {{ tg.label }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <div class="tg-button-row">
+
+            <button class="tg-button tg-green"
+                    type="submit">
+                Save Monitoring Talkgroups
+            </button>
+
+        </div>
+
+    </form>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
+    </footer>
+
+</section>
+
+</main>
+
+</body>
+</html>
