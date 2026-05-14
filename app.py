@@ -9,6 +9,7 @@ from services.model_store import (
     save_node_model,
     reset_node_model,
 )
+from services.talkgroup_service import load_talkgroups, save_talkgroups
 from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 import subprocess
@@ -835,15 +836,52 @@ def status_page():
         "british_isles"
     )
 
-    talkgroups = TALKGROUPS.get(
-        environment,
-        []
-    )
+    talkgroups = load_talkgroups(environment)
 
     return render_template(
         "status.html",
         model=model,
         status=status,
+        talkgroups=talkgroups,
+    )
+@app.route("/talkgroups", methods=["GET", "POST"])
+def talkgroups_page():
+    model = load_node_model()
+
+    environment = model.get(
+        "environment",
+        {}
+    ).get(
+        "region",
+        "british_isles"
+    )
+
+    talkgroups = load_talkgroups(environment)
+
+    if request.method == "POST":
+        updated = []
+
+        for index in range(len(talkgroups)):
+            tg_id = request.form.get(f"id_{index}", "").strip()
+            label = request.form.get(f"label_{index}", "").strip()
+            colour = request.form.get(f"colour_{index}", "").strip()
+            command = request.form.get(f"command_{index}", "").strip()
+
+            if tg_id and label and colour and command:
+                updated.append({
+                    "id": tg_id,
+                    "label": label,
+                    "colour": colour,
+                    "command": command,
+                })
+
+        save_talkgroups(environment, updated)
+
+        return redirect(url_for("status_page"))
+
+    return render_template(
+        "talkgroups.html",
+        model=model,
         talkgroups=talkgroups,
     )
 @app.route("/dtmf", methods=["POST"])

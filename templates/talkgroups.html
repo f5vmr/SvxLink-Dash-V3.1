@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Talkgroup Editor</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+<section class="card dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>Talkgroup Editor</h1>
+
+        <p>
+            Edit dashboard talkgroup buttons
+        </p>
+    </div>
+
+    <form method="post">
+
+        <table class="dashboard-table">
+
+            <thead>
+                <tr>
+                    <th>Talkgroup</th>
+                    <th>Label</th>
+                    <th>Colour</th>
+                    <th>Command</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for tg in talkgroups %}
+
+                <tr>
+
+                    <td>
+                        <input class="dtmf-command"
+                               type="text"
+                               name="id_{{ loop.index0 }}"
+                               value="{{ tg.id }}">
+                    </td>
+
+                    <td>
+                        <input class="dtmf-command"
+                               type="text"
+                               name="label_{{ loop.index0 }}"
+                               value="{{ tg.label }}">
+                    </td>
+
+                    <td>
+                        <input class="dtmf-command"
+                               type="text"
+                               name="colour_{{ loop.index0 }}"
+                               value="{{ tg.colour }}">
+                    </td>
+
+                    <td>
+                        <input class="dtmf-command"
+                               type="text"
+                               name="command_{{ loop.index0 }}"
+                               value="{{ tg.command }}">
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <div class="tg-button-row">
+
+            <button class="tg-button tg-green"
+                    type="submit">
+                Save Talkgroups
+            </button>
+
+        </div>
+
+    </form>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
+    </footer>
+
+</section>
+
+</main>
+
+</body>
+</html>
