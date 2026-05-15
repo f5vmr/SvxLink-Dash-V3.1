@@ -832,9 +832,12 @@ def status_page():
     status = get_runtime_status(model)
 
     environment = model.get(
-        "environment",
-        "british_isles"
-    )
+    "environment",
+    {}
+).get(
+    "region",
+    "british_isles"
+)
 
     talkgroups = load_talkgroups(environment)
 
