@@ -12,6 +12,7 @@ from services.model_store import (
 from services.talkgroup_service import load_talkgroups, save_talkgroups
 from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
+from services.activity_service import get_reflector_activity
 import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
@@ -830,6 +831,8 @@ def status_page():
     model = load_node_model()
 
     status = get_runtime_status(model)
+    
+    activity = get_reflector_activity()
 
     environment = model.get(
     "environment",
@@ -845,7 +848,9 @@ def status_page():
         "status.html",
         model=model,
         status=status,
+        activity=activity,
         talkgroups=talkgroups,
+        
     )
 @app.route("/talkgroups", methods=["GET", "POST"])
 def talkgroups_page():
