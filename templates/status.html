@@ -19,6 +19,15 @@
     <section class="card dashboard-container">
 
         <div class="dashboard-header">
+
+    <div class="page-header">
+
+        <img class="page-icon"
+             src="{{ url_for('static', filename='svxlink.ico') }}"
+             alt="SvxLink icon">
+
+        <div class="page-heading">
+
             <h1>
                 {{ status.callsign }} Node Status
             </h1>
@@ -26,7 +35,12 @@
             <p>
                 Live runtime monitoring
             </p>
+
         </div>
+
+    </div>
+
+</div>
          {% include "navbar.html" %}
         <div class="dashboard-grid">
 
