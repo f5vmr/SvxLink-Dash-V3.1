@@ -13,7 +13,7 @@ from data.talkgroups import TALKGROUPS
 CONFIG_DIR = Path("/opt/dashboard/config")
 
 TALKGROUP_FILE = CONFIG_DIR / "talkgroups.json"
-
+MAX_TALKGROUP_BUTTONS = 20
 
 def ensure_config_dir():
     """
@@ -44,16 +44,19 @@ def load_talkgroups(environment):
                 )
             )
 
-            return data.get(
-                environment,
-                TALKGROUPS.get(environment, [])
+            return pad_talkgroups(
+                data.get(
+                    environment,
+                    TALKGROUPS.get(environment, [])
+                )
             )
 
         except Exception:
             pass
 
-    return TALKGROUPS.get(environment, [])
-
+    return pad_talkgroups(
+        TALKGROUPS.get(environment, [])
+    )
 
 def save_talkgroups(environment, talkgroups):
     """
@@ -84,3 +87,20 @@ def save_talkgroups(environment, talkgroups):
     )
 
     return TALKGROUP_FILE
+
+def pad_talkgroups(talkgroups):
+    """
+    Ensure the dashboard always has 20 editable button slots.
+    """
+
+    padded = list(talkgroups[:MAX_TALKGROUP_BUTTONS])
+
+    while len(padded) < MAX_TALKGROUP_BUTTONS:
+        padded.append({
+            "id": "",
+            "label": "",
+            "colour": "tg-yellow",
+            "command": "",
+        })
+
+    return padded
