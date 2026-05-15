@@ -19,28 +19,20 @@
     <section class="card dashboard-container">
 
         <div class="dashboard-header">
+            <h1 class="status-title">
 
-    <div class="page-header">
+        <img class="status-title-icon"
+         src="{{ url_for('static', filename='svxlink.ico') }}"
+         alt="SvxLink icon">
 
-        <img class="page-icon"
-             src="{{ url_for('static', filename='svxlink.ico') }}"
-             alt="SvxLink icon">
+        {{ status.callsign }} Node Status
 
-        <div class="page-heading">
-
-            <h1>
-                {{ status.callsign }} Node Status
-            </h1>
+        </h1>
 
             <p>
                 Live runtime monitoring
             </p>
-
         </div>
-
-    </div>
-
-</div>
          {% include "navbar.html" %}
         <div class="dashboard-grid">
 
