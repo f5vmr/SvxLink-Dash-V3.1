@@ -4,7 +4,7 @@ from pyexpat import model
 
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
 from services.model_store import (
@@ -919,28 +919,28 @@ def authorise_page():
     error = None
 
     if request.method == "POST":
-            password = request.form.get("password", "")
-            auth = load_node_model().get(
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        auth = load_node_model().get(
             "dashboard_auth",
             {}
         )
 
-            stored_user = auth.get("username", "")
-            stored_hash = auth.get("password_hash", "")
-            from werkzeug.security import check_password_hash
-            username = request.form.get("username", "").strip()
-            password = request.form.get("password", "").strip()
+        stored_user = auth.get("username", "")
+        stored_hash = auth.get("password_hash", "")
 
-            if (
-                username == stored_user
-                and check_password_hash(stored_hash, password)
-            ):
-                session.permanent = True
-                session["authorised"] = True
+        if (
+            username == stored_user
+            and stored_hash
+            and check_password_hash(stored_hash, password)
+        ):
+            session.permanent = True
+            session["authorised"] = True
 
             return redirect(url_for("status_page"))
 
-            error = "Incorrect password."
+        error = "Incorrect username or password."
 
     return render_template(
         "authorise.html",
