@@ -1193,10 +1193,8 @@ def dtmf_page():
         send_dtmf(command)
 
     except Exception as exc:
-        return (
-            f"DTMF send failed: {exc}",
-            500,
-        )
+        print(f"DTMF send failed: {exc}")
+        return redirect(url_for("status_page"))
 
     return redirect(url_for("status_page"))
     
