@@ -1111,6 +1111,10 @@ def metar_edit_page():
         metar=metar,
         error=error,
     )
+@app.route("/logout", methods=["GET"])
+def logout_page():
+    session.pop("authorised", None)
+    return redirect(url_for("status_page"))
 
 @app.route("/dtmf", methods=["POST"])
 def dtmf_page():
