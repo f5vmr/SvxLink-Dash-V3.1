@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Node Information</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+<main class="page">
+
+<section class="card">
+
+    <div class="page-header">
+        <img class="page-icon"
+             src="{{ url_for('static', filename='svxlink.ico') }}"
+             alt="SvxLink icon">
+
+        <div class="page-heading">
+            <h1>Node Information</h1>
+            <p>Enter the public location and RF information for this node.</p>
+        </div>
+    </div>
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <div class="form-section">
+        <p>
+            These details are used to generate <strong>node_info.json</strong>
+            and the SvxLink location information.
+        </p>
+
+        <p>
+            You can obtain latitude, longitude and Maidenhead locator details from:
+            <a href="https://www.levinecentral.com/ham/grid_square.php"
+               target="_blank"
+               rel="noopener noreferrer">
+                LevineCentral Grid Square Locator
+            </a>
+        </p>
+
+        <p>
+            Use decimal latitude/longitude for node information, for example
+            <strong>55.1809</strong> and <strong>-1.54604</strong>.
+            If you also have degrees/minutes/seconds values, enter them below so
+            SvxLink location strings can be generated later.
+        </p>
+    </div>
+
+    <form method="post">
+
+        <div class="field-group">
+            <label class="label">Node Location / County</label>
+            <input class="input-field"
+                   type="text"
+                   name="node_location"
+                   value="{{ node_info.nodeLocation }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">QTH Name</label>
+            <input class="input-field"
+                   type="text"
+                   name="qth_name"
+                   value="{{ node_info.qth_name }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Sysop Callsign</label>
+            <input class="input-field"
+                   type="text"
+                   name="sysop"
+                   value="{{ node_info.sysop }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Latitude Decimal</label>
+            <input class="input-field"
+                   type="text"
+                   name="lat"
+                   value="{{ node_info.lat }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Longitude Decimal</label>
+            <input class="input-field"
+                   type="text"
+                   name="long"
+                   value="{{ node_info.long }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Maidenhead Locator</label>
+            <input class="input-field"
+                   type="text"
+                   name="locator"
+                   value="{{ node_info.locator }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Latitude DMS</label>
+            <input class="input-field"
+                   type="text"
+                   name="lat_dms"
+                   placeholder="55° 10' 51&quot; N"
+                   value="{{ node_info.lat_dms }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Longitude DMS</label>
+            <input class="input-field"
+                   type="text"
+                   name="long_dms"
+                   placeholder="1° 32' 45&quot; W"
+                   value="{{ node_info.long_dms }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">RX Frequency</label>
+            <input class="input-field"
+                   type="text"
+                   name="rx_freq"
+                   value="{{ node_info.rx_freq }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">TX Frequency</label>
+            <input class="input-field"
+                   type="text"
+                   name="tx_freq"
+                   value="{{ node_info.tx_freq }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">TX Power</label>
+            <input class="input-field"
+                   type="text"
+                   name="tx_power"
+                   value="{{ node_info.tx_power }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Antenna Description</label>
+            <input class="input-field"
+                   type="text"
+                   name="antenna"
+                   value="{{ node_info.antenna }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Antenna Height</label>
+            <input class="input-field"
+                   type="text"
+                   name="antenna_height"
+                   value="{{ node_info.antenna_height }}">
+        </div>
+
+        <div class="field-group">
+            <label class="label">Antenna Direction</label>
+            <input class="input-field"
+                   type="text"
+                   name="antenna_direction"
+                   value="{{ node_info.antenna_direction }}">
+        </div>
+
+        <div class="button-row">
+            <a class="button-secondary"
+               href="{{ url_for('setup_auth_page') }}">
+                Back
+            </a>
+
+            <button class="button-primary"
+                    type="submit">
+                Continue
+            </button>
+        </div>
+
+    </form>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
+    </footer>
+
+</section>
+
+</main>
+</body>
+</html>

@@ -782,6 +782,99 @@ def reflector_page():
         error=error,
     )
 
+@app.route("/node-info", methods=["GET", "POST"])
+def node_info_page():
+
+    model = load_node_model()
+
+    if "node_info" not in model:
+        model["node_info"] = {}
+
+    node_info = model["node_info"]
+
+    error = None
+
+    if request.method == "POST":
+
+        node_info["nodeLocation"] = request.form.get(
+            "node_location",
+            ""
+        ).strip()
+
+        node_info["qth_name"] = request.form.get(
+            "qth_name",
+            ""
+        ).strip()
+
+        node_info["sysop"] = request.form.get(
+            "sysop",
+            ""
+        ).strip().upper()
+
+        node_info["lat"] = request.form.get(
+            "lat",
+            ""
+        ).strip()
+
+        node_info["long"] = request.form.get(
+            "long",
+            ""
+        ).strip()
+
+        node_info["locator"] = request.form.get(
+            "locator",
+            ""
+        ).strip().upper()
+
+        node_info["lat_dms"] = request.form.get(
+            "lat_dms",
+            ""
+        ).strip()
+
+        node_info["long_dms"] = request.form.get(
+            "long_dms",
+            ""
+        ).strip()
+
+        node_info["rx_freq"] = request.form.get(
+            "rx_freq",
+            ""
+        ).strip()
+
+        node_info["tx_freq"] = request.form.get(
+            "tx_freq",
+            ""
+        ).strip()
+
+        node_info["tx_power"] = request.form.get(
+            "tx_power",
+            ""
+        ).strip()
+
+        node_info["antenna"] = request.form.get(
+            "antenna",
+            ""
+        ).strip()
+
+        node_info["antenna_height"] = request.form.get(
+            "antenna_height",
+            ""
+        ).strip()
+
+        node_info["antenna_direction"] = request.form.get(
+            "antenna_direction",
+            ""
+        ).strip()
+
+        save_node_model(model)
+
+        return redirect(url_for("setup_auth_page"))
+
+    return render_template(
+        "node_info.html",
+        node_info=node_info,
+        error=error,
+    )
 
 @app.route("/review", methods=["GET", "POST"])
 def review_page():
