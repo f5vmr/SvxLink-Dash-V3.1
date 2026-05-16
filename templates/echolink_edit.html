@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit EchoLink</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+<section class="card">
+
+    <div class="page-header">
+
+        <img class="page-icon"
+             src="{{ url_for('static', filename='svxlink.ico') }}"
+             alt="SvxLink icon">
+
+        <div class="page-heading">
+            <h1>EchoLink Configuration</h1>
+            <p>Edit EchoLink module settings.</p>
+        </div>
+
+    </div>
+
+    {% include "navbar.html" %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+
+        <div class="field-group">
+
+            <label class="checkbox-label">
+
+                <input type="checkbox"
+                       name="enabled"
+                       value="yes"
+                       {% if echolink.enabled %}checked{% endif %}>
+
+                Enable EchoLink
+
+            </label>
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                Callsign
+            </label>
+
+            <input class="input-field"
+                   type="text"
+                   name="callsign"
+                   value="{{ echolink.callsign }}">
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                Password
+            </label>
+
+            <input class="input-field"
+                   type="password"
+                   name="password"
+                   value="{{ echolink.password }}">
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                Sysop Name
+            </label>
+
+            <input class="input-field"
+                   type="text"
+                   name="sysopname"
+                   value="{{ echolink.sysopname }}">
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                Location
+            </label>
+
+            <input class="input-field"
+                   type="text"
+                   name="location"
+                   value="{{ echolink.location }}">
+
+        </div>
+
+        <div class="button-row">
+
+            <a class="button-secondary"
+               href="{{ url_for('status_page') }}">
+                Cancel
+            </a>
+
+            <button class="button-primary"
+                    type="submit">
+                Save EchoLink Settings
+            </button>
+
+        </div>
+
+    </form>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
+    </footer>
+
+</section>
+
+</main>
+
+</body>
+</html>

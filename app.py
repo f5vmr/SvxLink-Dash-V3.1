@@ -982,6 +982,56 @@ def monitor_tgs_page():
         model=model,
         monitor_rows=monitor_rows,
         error=error,
+    )
+@app.route("/edit/echolink", methods=["GET", "POST"])
+def echolink_edit_page():
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    model = load_node_model()
+
+    if "echolink" not in model:
+        model["echolink"] = {}
+
+    echolink = model["echolink"]
+
+    error = None
+
+    if request.method == "POST":
+
+        echolink["enabled"] = (
+            request.form.get("enabled") == "yes"
+        )
+
+        echolink["callsign"] = request.form.get(
+            "callsign",
+            ""
+        ).strip().upper()
+
+        echolink["password"] = request.form.get(
+            "password",
+            ""
+        ).strip()
+
+        echolink["sysopname"] = request.form.get(
+            "sysopname",
+            ""
+        ).strip()
+
+        echolink["location"] = request.form.get(
+            "location",
+            ""
+        ).strip()
+
+        save_node_model(model)
+
+        return redirect(url_for("status_page"))
+
+    return render_template(
+        "echolink_edit.html",
+        echolink=echolink,
+        error=error,
     )   
 @app.route("/dtmf", methods=["POST"])
 def dtmf_page():
