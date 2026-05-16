@@ -4,10 +4,58 @@
         Dashboard
     </a>
 
-    |
+    {% if session.get("authorised") %}
 
-    <a href="{{ url_for('authorise_page') }}">
-        Authorise
-    </a>
+        |
+
+        <a href="{{ url_for('talkgroups_page') }}">
+            Talkgroups
+        </a>
+
+        |
+
+        <a href="{{ url_for('monitor_tgs_page') }}">
+            Monitor TGs
+        </a>
+
+        |
+
+        <a href="{{ url_for('echolink_edit_page') }}">
+            EchoLink
+        </a>
+
+        |
+
+        <a href="{{ url_for('metar_edit_page') }}">
+            MetarInfo
+        </a>
+
+        |
+
+        <a href="/review">
+            Review
+        </a>
+
+        |
+
+        <a href="/build">
+            Re-Build
+        </a>
+
+        |
+
+        <a href="{{ url_for('logout_page') }}">
+            Logout
+        </a>
+
+    {% else %}
+
+        |
+
+        <a href="{{ url_for('authorise_page') }}">
+            Authorise
+        </a>
+
+    {% endif %}
 
 </div>
