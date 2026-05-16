@@ -21,7 +21,7 @@
 
     <div id="tail">
         {% for line in log_lines %}
-            {{ line }}<br>
+        {{ line }}
         {% endfor %}
     </div>
 
@@ -33,5 +33,10 @@
 </section>
 
 </main>
+<script>
+setTimeout(function() {
+    window.location.reload();
+}, 5000);
+</script>
 </body>
 </html>
