@@ -14,6 +14,7 @@ from services.talkgroup_service import load_talkgroups, save_talkgroups
 from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
+from services.hardware_service import get_system_info
 import subprocess
 import hw_platforms
 from data.metar_airports import METAR_REGIONS
@@ -830,6 +831,8 @@ def launch():
 @app.route("/status", methods=["GET"])
 def status_page():
     model = load_node_model()
+    
+    system_info = get_system_info()
 
     status = get_runtime_status(model)
     
@@ -851,7 +854,7 @@ def status_page():
         status=status,
         activity=activity,
         talkgroups=talkgroups,
-        
+        system_info=system_info,
     )
 @app.route("/api/status", methods=["GET"])
 def api_status_page():
@@ -859,10 +862,12 @@ def api_status_page():
 
     status = get_runtime_status(model)
     activity = get_reflector_activity()
+    system_info = get_system_info()
 
     return jsonify({
         "status": status,
         "activity": activity,
+        "system_info": system_info,
     })
 @app.route("/talkgroups", methods=["GET", "POST"])
 def talkgroups_page():
