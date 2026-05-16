@@ -183,8 +183,57 @@
                 {% endfor %}
 
         </div>
-        <div class="system-info-panel">
-    <div class="system-info-title">Hardware Info</div>
+        <div class="manual-dtmf-panel">
+
+            <div class="manual-dtmf-title">
+                Manual DTMF Command Entry
+            </div>
+        
+            <form action="{{ url_for('dtmf_page') }}"
+                  method="post"
+                  class="manual-dtmf-form">
+        
+                <input type="text"
+                       name="command"
+                       class="manual-dtmf-input"
+                       placeholder="Enter DTMF command">
+        
+                <button type="submit"
+                        class="button-primary">
+                    Send
+                </button>
+            
+            </form>
+        
+            <div class="manual-dtmf-help">
+            
+                <p>
+                    <strong>Talkgroups:</strong>
+                    Prefix the TG number with <strong>91</strong>
+                    and terminate with <strong>#</strong>.
+                    Example: <strong>91235#</strong>
+                </p>
+            
+                <p>
+                    <strong>EchoLink:</strong>
+                    Send <strong>2#</strong> to open the module,
+                    then send the EchoLink node number followed by <strong>#</strong>.
+                    Exit EchoLink using <strong>##</strong>.
+                </p>
+            
+                <p>
+                    <strong>METAR:</strong>
+                    Send <strong>5#</strong> to open the module.
+                    Use <strong>1#</strong>, <strong>2#</strong>,
+                    <strong>3#</strong> etc. for programmed airports.
+                    Exit METAR using <strong>#</strong>.
+                </p>
+            
+            </div>
+
+    </div>
+    <div class="system-info-panel">
+        <div class="system-info-title">Hardware Info</div>
 
         <div class="system-info-row">
             <span>Host: {{ system_info.hostname }}</span>
