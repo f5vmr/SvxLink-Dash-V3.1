@@ -141,7 +141,7 @@
 
         <tbody>
             {% for row in activity %}
-            <tr>
+            <tr class="{% if row.active %}activity-active{% endif %}">
                 <td>{{ row.time }}</td>
                 <td>{{ row.callsign }}</td>
                 <td>{{ row.tg }}</td>

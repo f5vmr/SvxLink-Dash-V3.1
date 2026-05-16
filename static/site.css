@@ -1152,3 +1152,13 @@ footer a:hover {
     width: 110px;
     height: 110px;
 }
+.activity-active td {
+    animation: activityFlash 1s infinite;
+    font-weight: bold;
+}
+
+@keyframes activityFlash {
+    0% { background: #fff3cd; }
+    50% { background: #ffcc00; }
+    100% { background: #fff3cd; }
+}
