@@ -3,7 +3,7 @@
 """
 SvxLink activity parser.
 
-Extracts operator-facing reflector activity from svxlink.log.
+Extracts operator-facing reflector talker activity from svxlink.log.
 """
 
 from pathlib import Path
@@ -15,10 +15,17 @@ LOG_FILE = Path("/var/log/svxlink.log")
 
 def get_reflector_activity(limit=10):
     """
-    Return recent reflector activity entries.
+    Return recent reflector talker activity.
 
-    Initial parser is deliberately conservative.
-    Unknown fields are filled with dashes.
+    Only parses lines such as:
+    ReflectorLogic: Talker start on TG #53573: NWAG
+    ReflectorLogic: Talker stop on TG #53573: NWAG
+
+    Ignores:
+    - Node joined
+    - Node left
+    - Selecting TG
+    - MultiTx events
     """
 
     if not LOG_FILE.exists():
@@ -33,33 +40,31 @@ def get_reflector_activity(limit=10):
     except Exception:
         return []
 
-    activity = []
+    talker_re = re.compile(
+        r"^(?P<time>.+?): ReflectorLogic: Talker "
+        r"(?P<state>start|stop) on TG #(?P<tg>[0-9]+): "
+        r"(?P<callsign>[A-Z0-9/-]+)"
+    )
 
-    # Example patterns will be refined against your actual log format.
-    callsign_re = re.compile(r"\b([A-Z0-9]{2,}[A-Z0-9/-]*)\b")
-    tg_re = re.compile(r"\bTG[# ]*([0-9]+)\b|talkgroup[: ]+([0-9]+)", re.IGNORECASE)
-    time_re = re.compile(r"\b([0-9]{2}:[0-9]{2}:[0-9]{2})\b")
+    activity = []
 
     for line in reversed(lines):
 
-        if "Reflector" not in line and "TG" not in line and "talkgroup" not in line.lower():
+        match = talker_re.search(line)
+
+        if not match:
             continue
 
-        time_match = time_re.search(line)
-        tg_match = tg_re.search(line)
-        call_match = callsign_re.search(line)
-
-        tg = "-"
-        if tg_match:
-            tg = tg_match.group(1) or tg_match.group(2)
+        state = match.group("state")
 
         activity.append({
-            "time": time_match.group(1) if time_match else "-",
-            "callsign": call_match.group(1) if call_match else "-",
-            "tg": tg,
-            "m": "OFF",
+            "time": match.group("time"),
+            "callsign": match.group("callsign"),
+            "tg": match.group("tg"),
+            "m": "ACTIVE" if state == "start" else "OFF",
             "a": "SVXRef",
             "name": "------",
+            "active": state == "start",
         })
 
         if len(activity) >= limit:
