@@ -1150,7 +1150,7 @@ footer a:hover {
 
 .status-title-icon {
     width: 110px;
-    height: 110px;
+    height: 90px;
 }
 .activity-active td {
     animation: activityFlash 1s infinite;
