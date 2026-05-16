@@ -172,7 +172,8 @@
                    value="{{ tg.command }}">
 
             <button class="tg-button {{ tg.colour }}"
-                    type="submit">
+                type="submit"
+                    {% if not tg.command %}disabled{% endif %}>
                 TG {{ tg.id }}<br>
                 {{ tg.label }}
             </button>
