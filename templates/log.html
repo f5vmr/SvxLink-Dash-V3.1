@@ -19,11 +19,9 @@
 
     {% include "navbar.html" %}
 
-    <div id="tail">
-        {% for line in log_lines %}
+    <pre id="tail">{% for line in log_lines %}
         {{ line }}
-        {% endfor %}
-    </div>
+        {% endfor %}</pre>
 
     <footer class="site-footer">
         SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
@@ -34,9 +32,37 @@
 
 </main>
 <script>
-setTimeout(function() {
-    window.location.reload();
-}, 5000);
+
+async function refreshLog() {
+
+    const tail = document.getElementById("tail");
+
+    const wasNearBottom =
+        tail.scrollHeight - tail.scrollTop - tail.clientHeight < 40;
+
+    try {
+
+        const response = await fetch("/log-data");
+
+        if (!response.ok) {
+            return;
+        }
+
+        const text = await response.text();
+
+        tail.textContent = text;
+
+        if (wasNearBottom) {
+            tail.scrollTop = tail.scrollHeight;
+        }
+
+    } catch (err) {
+        console.log("Log refresh failed", err);
+    }
+}
+
+setInterval(refreshLog, 5000);
+
 </script>
 </body>
 </html>

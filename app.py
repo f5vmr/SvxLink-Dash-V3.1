@@ -1357,6 +1357,30 @@ def log_page():
         "log.html",
         log_lines=log_lines,
     )
+@app.route("/log-data", methods=["GET"])
+def log_data():
+
+    if not session.get("authorised"):
+        return ""
+
+    log_file = Path("/var/log/svxlink.log")
+
+    try:
+
+        if log_file.exists():
+
+            lines = log_file.read_text(
+                encoding="utf-8",
+                errors="ignore",
+            ).splitlines()
+
+            return "\n".join(lines[-250:])
+
+    except Exception as exc:
+
+        return f"Failed to read log: {exc}"
+
+    return ""
 @app.route("/logout", methods=["GET"])
 def logout_page():
     session.pop("authorised", None)
