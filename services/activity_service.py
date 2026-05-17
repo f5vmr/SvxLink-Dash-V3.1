@@ -6,7 +6,6 @@ SvxLink activity parser.
 Extracts operator-facing reflector talker activity from svxlink.log.
 """
 
-from pathlib import Path
 import re
 from services.log_service import get_svxlink_log_path
 
@@ -47,15 +46,22 @@ def get_reflector_activity(limit=10):
     )
 
     activity = []
+    active_row_marked = False
 
     for line in reversed(lines):
 
         match = talker_re.search(line)
 
         if not match:
-            continue
+                continue
 
         state = match.group("state")
+
+        is_active = False
+
+        if state == "start" and not active_row_marked:
+            is_active = True
+            active_row_marked = True
 
         activity.append({
             "time": match.group("time"),
@@ -64,7 +70,7 @@ def get_reflector_activity(limit=10):
             "m": "ACTIVE" if state == "start" else "OFF",
             "a": "SVXRef",
             "name": "------",
-            "active": state == "start",
+            "active": is_active,
         })
 
         if len(activity) >= limit:
