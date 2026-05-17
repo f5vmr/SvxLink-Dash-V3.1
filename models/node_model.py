@@ -30,11 +30,14 @@ SUPPORTED_ROGER_MODES = {
     "morse_k",
 }
 
-SUPPORTED_SQUELCH_METHODS = {
+SUPPORTED_SQUELCH_METHODS = [
     "gpiod",
     "ctcss",
     "gpiod_ctcss",
-}
+    "serial",
+    "serial_ctcss",
+    "hidraw",
+]
 SUPPORTED_INTERFACE_MODES = {
     "gpiod",
     "hidraw",
@@ -96,7 +99,14 @@ DEFAULT_MODEL = {
             "sql_pin": "VOL_DN",
             "ptt_pin": "GPIO3",
         },
+        "serial": {
+            "sql_port": "/dev/ttyS0",
+            "sql_pin": "CTS",
+            "sql_set_pins": "DTR!RTS",
 
+            "ptt_port": "/dev/ttyS0",
+            "ptt_pin": "DTRRTS",
+        },
         "cw": {
             "amp": -10,
             "pitch": 650,

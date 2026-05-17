@@ -6,85 +6,209 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
 </head>
+
 <body>
 <main class="page">
-    <section class="card">
-        <div class="page-header">
-            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
-            <div class="page-heading">
-                <h1>Squelch Method</h1>
-                <p>Choose how SvxLink decides that a received signal is valid.</p>
-            </div>
+
+<section class="card">
+
+    <div class="page-header">
+        <img class="page-icon"
+             src="{{ url_for('static', filename='svxlink.ico') }}"
+             alt="SvxLink icon">
+
+        <div class="page-heading">
+            <h1>Squelch Method</h1>
+            <p>Choose how SvxLink decides that a received signal is valid.</p>
         </div>
-
-        {% if error %}
-            <p class="error">{{ error }}</p>
-        {% endif %}
-
-        <form action="/squelch" method="post">
-            <div class="option-group">
-                <div class="radio-row">
-                    <input type="radio" id="sq_gpiod" name="squelch_method" value="gpiod"
-                           {% if model.squelch.method == 'gpiod' %}checked{% endif %}>
-                    <label for="sq_gpiod">Carrier / hardware squelch only</label>
-                </div>
-
-                <div class="radio-row">
-                    <input type="radio" id="sq_ctcss" name="squelch_method" value="ctcss"
-                           {% if model.squelch.method == 'ctcss' %}checked{% endif %}>
-                    <label for="sq_ctcss">CTCSS tone only</label>
-                </div>
-
-                <div class="radio-row">
-                    <input type="radio" id="sq_both" name="squelch_method" value="gpiod_ctcss"
-                           {% if model.squelch.method == 'gpiod_ctcss' %}checked{% endif %}>
-                    <label for="sq_both">Carrier / hardware squelch plus CTCSS</label>
-                </div>
-            </div>
-
-            <<div class="field-group">
-    <label class="label">CTCSS frequency</label>
-
-    <div class="ctcss-grid">
-        {% for freq in ctcss_frequencies %}
-        <div class="radio-row">
-            <input type="radio"
-                   id="ctcss_{{ freq }}"
-                   name="ctcss_freq"
-                   value="{{ freq }}"
-                   {% if model.squelch.ctcss_freq|string == freq|string %}checked{% endif %}>
-            <label for="ctcss_{{ freq }}">{{ freq }} Hz</label>
-        </div>
-        {% endfor %}
     </div>
 
-    <div class="note">Only required when CTCSS is selected.</div>
-    </div>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
 
-            <div class="option-group">
-                <div class="radio-row">
-                    <input type="radio" id="ctcss_rx_only" name="ctcss_tx" value="no"
-                           {% if not model.squelch.ctcss_tx %}checked{% endif %}>
-                    <label for="ctcss_rx_only">Receive only</label>
-                </div>
+    <form action="/squelch" method="post">
 
-                <div class="radio-row">
-                    <input type="radio" id="ctcss_tx_rx" name="ctcss_tx" value="yes"
-                           {% if model.squelch.ctcss_tx %}checked{% endif %}>
-                    <label for="ctcss_tx_rx">Receive and transmit CTCSS</label>
-                </div>
+        <div class="option-group">
+            {% if supports_gpiod %}
+            <div class="radio-row">
+                <input type="radio"
+                       id="sq_gpiod"
+                       name="squelch_method"
+                       value="gpiod"
+                       {% if model.squelch.method == 'gpiod' %}checked{% endif %}>
+                <label for="sq_gpiod">
+                    GPIOD squelch only
+                </label>
             </div>
 
-            <div class="button-row">
-                <a class="button-secondary" href="/interface">Back</a>
-                <button class="button-primary" type="submit">Continue</button>
+            <div class="radio-row">
+                <input type="radio"
+                       id="sq_both"
+                       name="squelch_method"
+                       value="gpiod_ctcss"
+                       {% if model.squelch.method == 'gpiod_ctcss' %}checked{% endif %}>
+                <label for="sq_both">
+                    GPIOD plus CTCSS
+                </label>
             </div>
-        </form>
-    </section>
-    <footer class="site-footer">
+            {% endif %}
+            <div class="radio-row">
+                <input type="radio"
+                       id="sq_ctcss"
+                       name="squelch_method"
+                       value="ctcss"
+                       {% if model.squelch.method == 'ctcss' %}checked{% endif %}>
+                <label for="sq_ctcss">
+                    CTCSS tone only
+                </label>
+            </div>
+            <div class="radio-row">
+                <input type="radio"
+                       id="sq_serial"
+                       name="squelch_method"
+                       value="serial"
+                       {% if model.squelch.method == 'serial' %}checked{% endif %}>
+                <label for="sq_serial">
+                    Serial port squelch only
+                </label>
+            </div>
+
+            <div class="radio-row">
+                <input type="radio"
+                       id="sq_serial_ctcss"
+                       name="squelch_method"
+                       value="serial_ctcss"
+                       {% if model.squelch.method == 'serial_ctcss' %}checked{% endif %}>
+                <label for="sq_serial_ctcss">
+                    Serial port squelch plus CTCSS
+                </label>
+            </div>
+
+        </div>
+
+        <div class="field-group">
+
+            <label class="label">
+                CTCSS frequency
+            </label>
+
+            <div class="ctcss-grid">
+                {% for freq in ctcss_frequencies %}
+                    <div class="radio-row">
+                        <input type="radio"
+                               id="ctcss_{{ freq }}"
+                               name="ctcss_freq"
+                               value="{{ freq }}"
+                               {% if model.squelch.ctcss_freq|string == freq|string %}checked{% endif %}>
+                        <label for="ctcss_{{ freq }}">
+                            {{ freq }} Hz
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="note">
+                Only required when CTCSS is selected.
+            </div>
+
+        </div>
+
+        <div class="option-group">
+
+            <div class="radio-row">
+                <input type="radio"
+                       id="ctcss_rx_only"
+                       name="ctcss_tx"
+                       value="no"
+                       {% if not model.squelch.ctcss_tx %}checked{% endif %}>
+                <label for="ctcss_rx_only">
+                    Receive only
+                </label>
+            </div>
+
+            <div class="radio-row">
+                <input type="radio"
+                       id="ctcss_tx_rx"
+                       name="ctcss_tx"
+                       value="yes"
+                       {% if model.squelch.ctcss_tx %}checked{% endif %}>
+                <label for="ctcss_tx_rx">
+                    Receive and transmit CTCSS
+                </label>
+            </div>
+
+        </div>
+
+        <div class="form-section">
+
+            <h3>Serial Port Squelch</h3>
+
+            <p>
+                Only required when using Serial or Serial plus CTCSS squelch.
+                The operator must know the Linux serial device name and the
+                control pin arrangement for the interface.
+            </p>
+
+            <div class="field-group">
+                <label class="label">
+                    Serial device
+                </label>
+
+                <input class="input-field"
+                       type="text"
+                       name="serial_sql_port"
+                       value="{{ model.serial.sql_port }}">
+            </div>
+
+            <div class="field-group">
+                <label class="label">
+                    SQL pin
+                </label>
+
+                <input class="input-field"
+                       type="text"
+                       name="serial_sql_pin"
+                       value="{{ model.serial.sql_pin }}">
+            </div>
+
+            <div class="field-group">
+                <label class="label">
+                    SERIAL_SET_PINS
+                </label>
+
+                <input class="input-field"
+                       type="text"
+                       name="serial_sql_set_pins"
+                       value="{{ model.serial.sql_set_pins }}">
+            </div>
+
+            <div class="note">
+                Example: SERIAL_PORT=/dev/ttyS0, SERIAL_PIN=CTS,
+                SERIAL_SET_PINS=DTR!RTS
+            </div>
+
+        </div>
+
+        <div class="button-row">
+            <a class="button-secondary" href="/interface">
+                Back
+            </a>
+
+            <button class="button-primary" type="submit">
+                Continue
+            </button>
+        </div>
+
+    </form>
+
+</section>
+
+<footer class="site-footer">
     SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
     SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB
 </footer>
+
 </main>
 </body>
 </html>

@@ -363,7 +363,19 @@ def interface_page():
 
         except ValueError as exc:
             error = str(exc)
+    elif interface_mode == "serial":
+        model["interface"]["sql_source"] = "serial"
+        model["interface"]["ptt_source"] = "serial"
+        model["serial"]["ptt_port"] = request.form.get(
+            "serial_ptt_port",
+            "/dev/ttyS0"
+            ).strip()
 
+        model["serial"]["ptt_pin"] = request.form.get(
+            "serial_ptt_pin",
+            "DTRRTS"
+            ).strip().upper()
+        save_node_model(model)
     return render_template("interface.html", model=model, error=error)
 @app.route("/squelch", methods=["GET", "POST"])
 def squelch_page():
@@ -384,13 +396,37 @@ def squelch_page():
         model["squelch"]["ctcss_tx"] = (
             request.form.get("ctcss_tx") == "yes"
         )
+        if "serial" not in model:
+            model["serial"] = {}
+
+        model["serial"]["sql_port"] = request.form.get(
+            "serial_sql_port",
+            "/dev/ttyS0"
+        ).strip()
+
+        model["serial"]["sql_pin"] = request.form.get(
+            "serial_sql_pin",
+            "CTS"
+        ).strip().upper()
+
+        model["serial"]["sql_set_pins"] = request.form.get(
+            "serial_sql_set_pins",
+            "DTR!RTS"
+        ).strip().upper()
 
         save_node_model(model)
         return redirect(url_for("ident_page"))
 
+    platform_id = model.get("platform", {}).get("id", "unknown")
+
+    supports_gpiod = platform_id in (
+            "raspberry_pi",
+            "nanopi_neo",
+        )
     return render_template(
         "squelch.html",
         model=model,
+        supports_gpiod=supports_gpiod,
         error=error,
         ctcss_frequencies=CTCSS_FREQUENCIES,
     )

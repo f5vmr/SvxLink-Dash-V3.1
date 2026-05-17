@@ -43,13 +43,44 @@
                 </div>
                 {% endif %}
             </div>
+            <div class="form-section">
+                <h3>Serial PTT Configuration</h3>
 
+                <p>
+                    Only required when Serial is selected. The operator must know the Linux
+                    serial device and PTT pin expression used by the interface.
+                </p>
+            
+                <div class="field-group">
+                    <label class="label">PTT serial device</label>
+                    <input class="input-field"
+                           type="text"
+                           name="serial_ptt_port"
+                           value="{{ model.serial.ptt_port }}">
+                </div>
+            
+                <div class="field-group">
+                    <label class="label">PTT pin expression</label>
+                    <input class="input-field"
+                           type="text"
+                           name="serial_ptt_pin"
+                           value="{{ model.serial.ptt_pin }}">
+                </div>
+            
+                <div class="note">
+                    Examples: DTR, RTS, DTRRTS, !DTR!RTS, DTR!RTS
+                </div>
+            </div>
             {% if model.platform.id == 'nanopi_neo' %}
                 <div class="note">
                     NanoPi-Neo uses the fixed GPIOD hardware layout supplied in the image.
                 </div>
             {% endif %}
-
+                <div class="radio-row">
+                <input type="radio" id="serial" name="interface_mode" value="serial"
+                {% if model.interface.mode == 'serial' %}checked{% endif %}>
+                <label for="serial">Serial - SQL and PTT use serial control pins</label>
+                </div>
             <div class="button-row">
                 <a class="button-secondary" href="/node">Back</a>
                 <button class="button-primary" type="submit">Continue</button>

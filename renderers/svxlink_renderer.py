@@ -234,7 +234,13 @@ def render_rx_sql_block(model):
         ])
     if squelch_method == "ctcss":
         return "SQL_DET=CTCSS"
-
+    if squelch_method == "serial":
+        return "SQL_DET=SERIAL"
+    if squelch_method == "serial_ctcss":
+        return "\n".join([
+        "SQL_DET=COMBINE",
+        "SQL_COMBINE=(Rx1:CTCSS)&(Rx1:SERIAL)",
+        ])
     return "SQL_DET=GPIOD"
 
 
@@ -314,16 +320,20 @@ def render_rx_combine_sections(model):
 
     squelch = model.get("squelch", {})
 
-    if squelch.get("method") != "gpiod_ctcss":
-        return ""
+    if squelch.get("method") == "gpiod_ctcss":
+        return "\n\n".join([
+            render_rx_ctcss_combine_block(model),
+            render_rx_gpiod_combine_block(model),
+        ])
 
-    ctcss_block = render_rx_ctcss_combine_block(model)
-    gpiod_block = render_rx_gpiod_combine_block(model)
+    if squelch.get("method") == "serial_ctcss":
+        return "\n\n".join([
+            render_rx_ctcss_combine_block(model),
+            render_rx_serial_combine_block(model),
+        ])
+    return ""
 
-    return "\n\n".join([
-        ctcss_block,
-        gpiod_block,
-    ])
+
 def render_rx_ctcss_combine_block(model):
     squelch = model.get("squelch", {})
     freq = squelch.get("ctcss_freq")
@@ -356,6 +366,35 @@ def render_rx_gpiod_combine_block(model):
         f"SQL_GPIOD_CHIP={chip}",
         f"SQL_GPIOD_LINE={line}",
     ])
+def render_rx_serial_block(model):
+    """
+    Render RX SERIAL squelch block.
+    """
+
+    if model.get("squelch", {}).get("method") != "serial":
+        return ""
+
+    serial = model.get("serial", {})
+
+    return "\n".join([
+        "SERIAL_PORT=" + serial.get("sql_port", "/dev/ttyS0"),
+        "SERIAL_PIN=" + serial.get("sql_pin", "CTS"),
+        "SERIAL_SET_PINS=" + serial.get("sql_set_pins", "DTR!RTS"),
+    ])
+def render_rx_serial_combine_block(model):
+    """
+    Render RX SERIAL subsection for COMBINE squelch.
+    """
+
+    serial = model.get("serial", {})
+
+    return "\n".join([
+        "[Rx1:SERIAL]",
+        "SQL_DET=SERIAL",
+        "SERIAL_PORT=" + serial.get("sql_port", "/dev/ttyS0"),
+        "SERIAL_PIN=" + serial.get("sql_pin", "CTS"),
+        "SERIAL_SET_PINS=" + serial.get("sql_set_pins", "DTR!RTS"),
+    ])
 # =========================================================
 # TX rendering
 # =========================================================
@@ -386,6 +425,15 @@ def render_tx_ptt_block(model):
     chip = gpio.get("chip", "gpiochip0")
     line = gpio.get("line", 6)
 
+    if ptt_source == "serial":
+
+        serial = model.get("serial", {})
+
+        return "\n".join([
+            "PTT_TYPE=SerialPin",
+            "PTT_PORT=" + serial.get("ptt_port", "/dev/ttyS0"),
+            "PTT_PIN=" + serial.get("ptt_pin", "DTRRTS"),
+        ])
     return "\n".join([
         "PTT_TYPE=GPIOD",
         f"PTT_GPIOD_CHIP={chip}",
@@ -649,6 +697,7 @@ def render_svxlink_config(model):
         "RX_CTCSS_BLOCK": render_rx_ctcss_block(model),
         "RX_GPIOD_BLOCK": render_rx_gpiod_block(model),
         "RX_HIDRAW_BLOCK": render_rx_hidraw_block(model),
+        "RX_SERIAL_BLOCK": render_rx_serial_block(model),
         "RX_COMBINE_SECTIONS": render_rx_combine_sections(model),
 
         "TX_PTT_BLOCK": render_tx_ptt_block(model),
