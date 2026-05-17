@@ -1034,7 +1034,8 @@ def status_page():
     status = get_runtime_status(model)
     monitor_tgs = model.get(
         "reflector",
-        {}.get(
+        {}
+        ).get(
             "monitor_tgs",
         []
     )
