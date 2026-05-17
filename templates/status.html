@@ -302,7 +302,7 @@ function updateStatusPage(data) {
     }
 
     if (squelchState && status.radio_state) {
-        squelchState.textContent = "Squelch: " + status.radio_state.input;
+        squelchState.textContent = status.radio_state.input;
     }
     if (echolinkLabel && status.echolink_state) {
         echolinkLabel.textContent = status.echolink_state.label;
