@@ -1136,12 +1136,13 @@ def talkgroups_page():
 
         save_talkgroups(environment, updated)
 
-        return redirect(url_for("talkgroups_page",saved="1"))
+        return redirect(url_for("talkgroups_page", saved="1"))
 
     return render_template(
         "talkgroups.html",
         model=model,
         talkgroups=talkgroups,
+        saved=saved,
     )
 @app.route("/monitor-tgs", methods=["GET", "POST"])
 def monitor_tgs_page():
@@ -1203,6 +1204,7 @@ def monitor_tgs_page():
         "monitor_tgs.html",
         model=model,
         monitor_rows=monitor_rows,
+        saved=saved,
         error=error,
     )
 @app.route("/edit/echolink", methods=["GET", "POST"])
