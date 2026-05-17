@@ -386,19 +386,16 @@ def interface_page():
             "serial_ptt_pin",
             "DTRRTS"
         ).strip().upper()
+
         sql_line = request.form.get("sql_gpio_line")
         ptt_line = request.form.get("ptt_gpio_line")
 
         if sql_line and ptt_line and sql_line == ptt_line:
             error = "SQL and PTT cannot use the same GPIO line."
 
-            gpio_lines = flatten_gpio_lines()       
+            gpio_lines = flatten_gpio_lines()
             platform_id = model.get("platform", {}).get("id", "unknown")
-
-            supports_gpiod = platform_id in (       
-                "raspberry_pi",     
-                "nanopi_neo",
-            )
+            supports_gpiod = platform_id in ("raspberry_pi", "nanopi_neo")
 
             return render_template(
                 "interface.html",
@@ -411,14 +408,25 @@ def interface_page():
         if sql_line:
             model["gpio"]["sql"]["chip"] = "gpiochip0"
             model["gpio"]["sql"]["line"] = int(sql_line)
-        
+
         if ptt_line:
             model["gpio"]["ptt"]["chip"] = "gpiochip0"
             model["gpio"]["ptt"]["line"] = int(ptt_line)
-                   
+
         save_node_model(model)
         return redirect(url_for("squelch_page"))
 
+    gpio_lines = flatten_gpio_lines()
+    platform_id = model.get("platform", {}).get("id", "unknown")
+    supports_gpiod = platform_id in ("raspberry_pi", "nanopi_neo")
+
+    return render_template(
+        "interface.html",
+        model=model,
+        error=error,
+        gpio_lines=gpio_lines,
+        supports_gpiod=supports_gpiod,
+    )
 
 @app.route("/squelch", methods=["GET", "POST"])
 def squelch_page():
