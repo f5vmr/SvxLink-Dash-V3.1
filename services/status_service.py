@@ -168,7 +168,61 @@ def get_radio_state():
             "tx": tx_active,
             "rx": rx_open,
     }
-    
+def get_echolink_state():
+    """
+    Determine current EchoLink activity from recent SvxLink log lines.
+    """
+
+    log_file = get_svxlink_log_path()
+
+    if not log_file.exists():
+        return {
+            "active": False,
+            "label": "Idle",
+            "station": "",
+            "class": "status-good",
+        }
+
+    try:
+        lines = log_file.read_text(
+            encoding="utf-8",
+            errors="ignore"
+        ).splitlines()
+
+    except Exception:
+        return {
+            "active": False,
+            "label": "Unknown",
+            "station": "",
+            "class": "status-warn",
+        }
+
+    for line in reversed(lines[-500:]):
+
+        if "EchoLink: no connected stations" in line:
+            return {
+                "active": False,
+                "label": "Idle",
+                "station": "",
+                "class": "status-good",
+            }
+
+        if "EchoLink: single connected station =" in line:
+            station = line.split("=", 1)[-1].strip()
+
+            return {
+                "active": True,
+                "label": "Connected",
+                "station": station,
+                "class": "status-warn",
+            }
+
+    return {
+        "active": False,
+        "label": "Idle",
+        "station": "",
+        "class": "status-good",
+    }    
 def get_runtime_status(model):
     """
     Collect dashboard runtime information.
@@ -198,6 +252,7 @@ def get_runtime_status(model):
         "recent_log": get_recent_log_lines(),
         
         "radio_state": get_radio_state(),
+        "echolink_state": get_echolink_state(),
     }
 def get_recent_log_lines(limit=40):
     """

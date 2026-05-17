@@ -55,7 +55,29 @@
                 </div>
             
             </div>
-
+            <div class="status-box">
+            
+                <div class="status-box-title">
+                    Reflector
+                </div>
+            
+                <div class="status-box-row">
+                    {{ status.reflector }}
+                </div>
+            
+            </div>
+            
+            <div class="status-box">
+            
+                <div class="status-box-title">
+                    Modules
+                </div>
+            
+                <div class="status-box-row">
+                    {{ status.modules | join(', ') }}
+                </div>
+            
+            </div>
             <div class="status-box">
             
                 <div class="status-box-title">
@@ -87,13 +109,30 @@
                 {% endif %}
 
                 </div>
+                
                 <div class="status-box-row"
                     id="radio_squelch_state">
                     Squelch: {{ status.radio_state.input }}
                 </div>
             
             </div>
+            <div class="status-box">
 
+            <div class="status-box-title">
+                EchoLink
+            </div>
+
+            <div class="status-box-row {{ status.echolink_state.class }}">
+                {{ status.echolink_state.label }}
+            </div>
+
+                {% if status.echolink_state.station %}
+                    <div class="status-box-row">
+                    Station: {{ status.echolink_state.station }}
+                    </div>
+                {% endif %}
+
+            </div>
             <div class="status-box">
             
                 <div class="status-box-title">
@@ -105,38 +144,6 @@
                 </div>
             
             </div>
-
-            </div>
-
-            <div class="dashboard-panel">
-
-                <table class="dashboard-table">
-
-                    <thead>
-                        <tr>
-                            <th colspan="2">
-                                Runtime Information
-                            </th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        <tr>
-                            <td>Reflector</td>
-                            <td id="reflector_state">{{ status.reflector }}</td>
-                        </tr>
-
-                        <tr>
-                            <td>Modules</td>
-                            <td>
-                                {{ status.modules | join(', ') }}
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
 
             </div>
 
@@ -277,7 +284,8 @@
 function updateStatusPage(data) {
     const status = data.status;
     const activity = data.activity;
-
+    const echlinkLabel = document.getElementById("echolink_label");
+    const echolinkStation = document.getElementById("echolink_station");
     const radioLabel = document.getElementById("radio_state_label");
     const squelchState = document.getElementById("radio_squelch_state");
     const reflectorState = document.getElementById("reflector_state");
@@ -291,7 +299,20 @@ function updateStatusPage(data) {
     if (squelchState && status.radio_state) {
         squelchState.textContent = "Squelch: " + status.radio_state.input;
     }
+    if (echolinkLabel && status.echolink_state) {
+        echolinkLabel.textContent = status.echolink_state.label;
+        echolinkLabel.className =
+            "status-box-row " + status.echolink_state.class;
+    }
 
+    if (echolinkStation && status.echolink_state) {
+        if (status.echolink_state.station) {
+            echolinkStation.textContent =
+            "Station: " + status.echolink_state.station;
+        } else {
+            echolinkStation.textContent = "";
+        }
+    }
     if (reflectorState) {
         reflectorState.textContent = status.reflector;
     }
