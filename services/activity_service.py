@@ -69,7 +69,6 @@ def get_reflector_activity(limit=10):
             "tg": match.group("tg"),
             "m": "ACTIVE" if state == "start" else "OFF",
             "a": "SVXRef",
-            "name": "------",
             "active": is_active,
         })
 

@@ -166,7 +166,6 @@
                 <th>TG #</th>
                 <th>M</th>
                 <th>A</th>
-                <th>TG Name</th>
             </tr>
         </thead>
 
@@ -178,11 +177,10 @@
                 <td>{{ row.tg }}</td>
                 <td>{{ row.m }}</td>
                 <td>{{ row.a }}</td>
-                <td>{{ row.name }}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="6">No reflector activity found.</td>
+                <td colspan="5">No reflector activity found.</td>
             </tr>
             {% endfor %}
                 </tbody>
