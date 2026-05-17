@@ -355,28 +355,45 @@ def interface_page():
     if request.method == "POST":
         interface_mode = request.form.get("interface_mode")
 
-        try:
-            from models.node_model import set_interface_mode
-            set_interface_mode(model, interface_mode)
-            save_node_model(model)
-            return redirect(url_for("squelch_page"))
+        model["interface"]["mode"] = interface_mode
 
-        except ValueError as exc:
-            error = str(exc)
-    elif interface_mode == "serial":
-        model["interface"]["sql_source"] = "serial"
-        model["interface"]["ptt_source"] = "serial"
+        if interface_mode == "hidraw":
+            model["interface"]["sql_source"] = "hidraw"
+            model["interface"]["ptt_source"] = "hidraw"
+
+        elif interface_mode == "hybrid":
+            model["interface"]["sql_source"] = "gpiod"
+            model["interface"]["ptt_source"] = "hidraw"
+
+        elif interface_mode == "serial":
+            model["interface"]["sql_source"] = "serial"
+            model["interface"]["ptt_source"] = "serial"
+
+        else:
+            model["interface"]["sql_source"] = "gpiod"
+            model["interface"]["ptt_source"] = "gpiod"
+
+        if "serial" not in model:
+            model["serial"] = {}
+
         model["serial"]["ptt_port"] = request.form.get(
             "serial_ptt_port",
             "/dev/ttyS0"
-            ).strip()
+        ).strip()
 
         model["serial"]["ptt_pin"] = request.form.get(
             "serial_ptt_pin",
             "DTRRTS"
-            ).strip().upper()
+        ).strip().upper()
+
         save_node_model(model)
-    return render_template("interface.html", model=model, error=error)
+        return redirect(url_for("squelch_page"))
+
+    return render_template(
+        "interface.html",
+        model=model,
+        error=error,
+    )
 @app.route("/squelch", methods=["GET", "POST"])
 def squelch_page():
     model = load_node_model()
