@@ -18,7 +18,11 @@
     </div>
 
     {% include "navbar.html" %}
-
+    {% if saved %}
+    <p class="success">
+        Settings saved successfully.
+    </p>
+    {% endif %}
     {% if error %}
         <p class="error">{{ error }}</p>
     {% endif %}

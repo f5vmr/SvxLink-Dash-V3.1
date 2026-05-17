@@ -878,7 +878,7 @@ def node_info_page():
     )
 @app.route("/edit/node-info", methods=["GET", "POST"])
 def node_info_edit_page():
-
+    saved = request.args.get("saved") == "1"
     if not session.get("authorised"):
         return redirect(url_for("authorise_page"))
 
@@ -911,12 +911,13 @@ def node_info_edit_page():
         write_node_info_json(model)
         restart_svxlink()
 
-        return redirect(url_for("node_info_edit_page"))
+        return redirect(url_for("node_info_edit_page",saved="1"))
 
     return render_template(
         "node_info_edit.html",
         node_info=node_info,
         error=error,
+        saved=saved
     )
 @app.route("/review", methods=["GET", "POST"])
 def review_page():
@@ -1100,6 +1101,7 @@ def api_status_page():
     })
 @app.route("/talkgroups", methods=["GET", "POST"])
 def talkgroups_page():
+    saved = request.args.get("saved")
     if not session.get("authorised"):
         return redirect(url_for("authorise_page"))    
     model = load_node_model()
@@ -1134,7 +1136,7 @@ def talkgroups_page():
 
         save_talkgroups(environment, updated)
 
-        return redirect(url_for("status_page"))
+        return redirect(url_for("talkgroups_page",saved="1"))
 
     return render_template(
         "talkgroups.html",
@@ -1143,6 +1145,7 @@ def talkgroups_page():
     )
 @app.route("/monitor-tgs", methods=["GET", "POST"])
 def monitor_tgs_page():
+    saved = request.args.get("saved")
     if not session.get("authorised"):
         return redirect(url_for("authorise_page"))
     model = load_node_model()
@@ -1194,7 +1197,7 @@ def monitor_tgs_page():
 
             save_node_model(model)
 
-            return redirect(url_for("status_page"))
+            return redirect(url_for("monitor_tgs_page",saved="1"))
 
     return render_template(
         "monitor_tgs.html",
@@ -1204,7 +1207,7 @@ def monitor_tgs_page():
     )
 @app.route("/edit/echolink", methods=["GET", "POST"])
 def echolink_edit_page():
-
+    saved = request.args.get("saved")
     if not session.get("authorised"):
         return redirect(url_for("authorise_page"))
 
@@ -1254,16 +1257,22 @@ def echolink_edit_page():
     
         restart_svxlink()
     
-        return redirect(url_for("echolink_edit_page"))
+        return redirect(
+            url_for(
+        "echolink_edit_page",
+        saved="1"
+    )
+)
     
     return render_template(
                 "echolink_edit.html",
                 echolink=echolink,
                 error=error,
+                saved=saved
     )
 @app.route("/edit/metar", methods=["GET", "POST"])
 def metar_edit_page():
-
+    saved = request.args.get("saved")
     if not session.get("authorised"):
         return redirect(url_for("authorise_page"))
 
@@ -1310,12 +1319,13 @@ def metar_edit_page():
 
         restart_svxlink()
 
-        return redirect(url_for("metar_edit_page"))
+        return redirect(url_for("metar_edit_page",saved="1"))
 
     return render_template(
         "metar_edit.html",
         metar=metar,
         error=error,
+        saved=saved
     )
 @app.route("/log", methods=["GET"])
 def log_page():

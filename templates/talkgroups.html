@@ -25,7 +25,12 @@
             Edit dashboard talkgroup buttons
         </p>
     </div>
-
+    {% include "navbar.html"%}
+    {% if saved %}
+        <p class="success">
+            Talkgroup buttons saved successfully.
+        </p>
+    {% endif %}
     <form method="post">
 
         <table class="dashboard-table">

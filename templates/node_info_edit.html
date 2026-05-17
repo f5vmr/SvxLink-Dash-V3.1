@@ -22,10 +22,16 @@
             <p>Edit public node location and RF information.</p>
         </div>
     </div>
-
+    {% include "navbar.html" %}
+    {% if saved %}
+    <p class="success">
+        Settings saved and SvxLink restarted successfully.
+    </p>
+    {% endif %}
     {% if error %}
         <p class="error">{{ error }}</p>
     {% endif %}
+
 
     <div class="form-section">
         <p>
