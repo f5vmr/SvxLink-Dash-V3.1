@@ -1032,7 +1032,10 @@ def status_page():
     system_info = get_system_info()
 
     status = get_runtime_status(model)
-    
+    monitor_tgs = model.get(
+        "monitor_tgs",
+        []
+    )
     activity = get_reflector_activity()
 
     environment = model.get(
@@ -1051,6 +1054,7 @@ def status_page():
         status=status,
         activity=activity,
         talkgroups=talkgroups,
+        monitor_tgs=monitor_tgs,
         system_info=system_info,
     )
 @app.route("/authorise", methods=["GET", "POST"])
