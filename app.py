@@ -167,7 +167,7 @@ def default_node_model():
             },
         },
 
-        "roger": {
+        "courtesy": {
             "mode": "none",         # none | beep | morse_t | morse_k
         },
 

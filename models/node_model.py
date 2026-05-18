@@ -137,7 +137,7 @@ DEFAULT_MODEL = {
             "enabled": False,
             "command": None,
         },
-        "roger": {
+        "courtesy": {
             "mode": "none",
         },
 
@@ -226,7 +226,7 @@ def validate_model(model):
         elif interval < 1:
             errors.append(f"{ident_name} ident interval must be at least 1 minute.")
 
-    roger_mode = model.get("roger", {}).get("mode")
+    roger_mode = model.get("courtesy", {}).get("mode")
 
     if roger_mode not in SUPPORTED_ROGER_MODES:
         errors.append("Roger tone mode is invalid.")
@@ -318,7 +318,7 @@ def set_roger(model, roger_mode):
     Repeater enforcement is validated separately.
     """
 
-    model["roger"]["mode"] = roger_mode
+    model["courtesy"]["mode"] = roger_mode
     return model
 
 def set_interface_mode(model, mode):

@@ -276,6 +276,8 @@ def render_rx_gpiod_block(model):
     """
     Render RX GPIOD block.
     """
+    if interface.get("mode") == "hidraw":
+        return ""
     if model.get("squelch", {}).get("method") == "gpiod_ctcss":
         return ""
     interface = model.get("interface", {})
@@ -558,7 +560,7 @@ def render_active_logic(model):
 
         "DEFAULT_LANG": get_default_language(model),
 
-        "RGR_SOUND_ALWAYS": model.get("roger", {}).get("mode") != "none" and 1 or 0,
+        "RGR_SOUND_ALWAYS": model.get("courtesy", {}).get("mode") != "none" and 1 or 0,
 
         "REPORT_CTCSS_LINE": render_report_ctcss(model),
         "TX_CTCSS_LINE": render_tx_ctcss_logic(model),
