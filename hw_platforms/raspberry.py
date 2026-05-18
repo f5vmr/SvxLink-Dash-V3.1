@@ -24,6 +24,7 @@ PROFILE = {
         "gpiod",
         "ctcss",
         "gpiod_ctcss",
+        "hidraw",
     ],
 
     "default_interface_mode": "gpiod",
