@@ -96,7 +96,35 @@
             </div>
 
         </div>
-
+        <div class="field-group">
+            <label class="label">HIDRAW SQL sense</label>
+                
+            <select class="input-field" name="hidraw_sql_invert">
+                <option value="no"
+                        {% if not model.get('hidraw', {}).get('sql_invert') %}selected{% endif %}>
+                    Active High
+                </option>
+                <option value="yes"
+                        {% if model.get('hidraw', {}).get('sql_invert') %}selected{% endif %}>
+                    Active Low
+                </option>
+            </select>
+        </div>
+        
+        <div class="field-group">
+            <label class="label">GPIOD SQL sense</label>
+        
+            <select class="input-field" name="sql_gpio_invert">
+                <option value="no"
+                        {% if not model.get('gpio', {}).get('sql', {}).get('invert') %}selected{% endif %}>
+                    Active High
+                </option>
+                <option value="yes"
+                        {% if model.get('gpio', {}).get('sql', {}).get('invert') %}selected{% endif %}>
+                    Active Low
+                </option>
+            </select>
+        </div>
         <div class="field-group">
 
             <label class="label">

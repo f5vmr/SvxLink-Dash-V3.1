@@ -288,7 +288,10 @@ def render_rx_gpiod_block(model):
     gpio = model.get("gpio", {}).get("sql", {})
 
     chip = gpio.get("chip", "gpiochip0")
-    line = gpio.get("line", 203)
+    line = str(gpio.get("line", 203))
+
+    if gpio.get("invert"):
+            line = f"!{line}"
 
     return "\n".join([
         f"SQL_GPIOD_CHIP={chip}",
@@ -310,6 +313,8 @@ def render_rx_hidraw_block(model):
 
     device = hid.get("device", "/dev/hidraw0")
     pin = hid.get("sql_pin", "VOL_DN")
+    if hid.get("sql_invert"):
+        pin = f"!{pin}"
 
     return "\n".join([
         f"HID_DEVICE={device}",

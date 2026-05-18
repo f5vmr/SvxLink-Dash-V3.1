@@ -465,7 +465,22 @@ def squelch_page():
             "serial_sql_set_pins",
             "DTR!RTS"
         ).strip().upper()
+        if "hidraw" not in model:
+            model["hidraw"] = {}
 
+        if "gpio" not in model:
+            model["gpio"] = {}
+
+        if "sql" not in model["gpio"]:
+            model["gpio"]["sql"] = {}
+
+        model["hidraw"]["sql_invert"] = (
+            request.form.get("hidraw_sql_invert") == "yes"
+        )
+
+        model["gpio"]["sql"]["invert"] = (
+            request.form.get("sql_gpio_invert") == "yes"
+        )
         save_node_model(model)
         return redirect(url_for("ident_page"))
 
