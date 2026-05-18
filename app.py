@@ -631,7 +631,7 @@ def repeater_page():
         }
 
     if request.method == "POST":
-        print("REPEATER FORM:", dict(request.form))
+        
         try:
             idle_timeout = int(request.form.get("idle_timeout", "10"))
             sql_timeout = int(request.form.get("sql_timeout", "180"))

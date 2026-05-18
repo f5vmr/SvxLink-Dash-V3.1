@@ -37,7 +37,10 @@
             </div>
 
             <div class="button-row">
-                <a class="button-secondary" href="/ident">Back</a>
+                <a class="button-secondary"
+                    href="{% if model.node.type == 'repeater' %}{{ url_for('repeater_page') }}{% else %}{{ url_for('ident_page') }}{% endif %}">
+                    Back
+                </a>
                 <button class="button-primary" type="submit">Continue</button>
             </div>
         </form>
