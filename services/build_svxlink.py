@@ -34,6 +34,7 @@ from services.svxlink_service import (
     write_text_file,
     deploy_required_logic_files,
     apply_courtesy_tone,
+    apply_repeater_event_customisations,
     restart_svxlink,
     svxlink_status,
 )
@@ -42,6 +43,7 @@ from services.svxlink_service import (
     SVXLINK_CONF,
     MODULE_DIR,
 )
+
 
 
 # =========================================================
@@ -142,9 +144,9 @@ def deploy_rendered_files(rendered_files):
 
     deployed = []
 
-    # =====================================================
-    # Main svxlink.conf
-    # =====================================================
+# =====================================================
+# Main svxlink.conf
+# =====================================================
 
     if "svxlink.conf" in rendered_files:
 
@@ -281,8 +283,9 @@ def build_svxlink_configuration(
     
         courtesy_logic = apply_courtesy_tone(model)
     
+        repeater_logic = apply_repeater_event_customisations(model)
         logic_files.append(courtesy_logic)
-    
+        logic_files.append(repeater_logic)
         result["logic_files"] = [
             str(x) for x in logic_files
         ]

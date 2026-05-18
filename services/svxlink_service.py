@@ -15,11 +15,7 @@ Rendering belongs in /renderers.
 
 from pathlib import Path
 from datetime import datetime
-from services.svxlink_service import (
-    deploy_required_logic_files,
-    apply_courtesy_tone,
-    apply_repeater_event_customisations,
-)
+
 import shutil
 import subprocess
 
