@@ -276,12 +276,12 @@ def render_rx_gpiod_block(model):
     """
     Render RX GPIOD block.
     """
+    interface = model.get("interface", {})
+
     if interface.get("mode") == "hidraw":
         return ""
     if model.get("squelch", {}).get("method") == "gpiod_ctcss":
-        return ""
-    interface = model.get("interface", {})
-
+        return ""    
     if interface.get("sql_source") != "gpiod":
         return ""
 
