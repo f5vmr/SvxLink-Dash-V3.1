@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from pyexpat import model
+from unittest import result
 
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
@@ -1291,9 +1292,17 @@ def monitor_tgs_page():
             model["reflector"]["monitor_tg_defs"] = updated_defs
             model["reflector"]["monitor_tgs"] = updated_selected
 
-            save_node_model(model)
+        save_node_model(model)
 
-            return redirect(url_for("monitor_tgs_page",saved="1"))
+        result = build_svxlink_configuration(
+            model,
+            restart=True,
+        )
+
+        if not result.get("success"):
+            error = "Monitoring talkgroups saved, but SvxLink rebuild/restart failed."
+        else:
+            return redirect(url_for("monitor_tgs_page", saved="1"))
 
     return render_template(
         "monitor_tgs.html",
