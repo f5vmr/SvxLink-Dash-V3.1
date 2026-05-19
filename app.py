@@ -379,6 +379,8 @@ def interface_page():
 
     if request.method == "POST":
         interface_mode = request.form.get("interface_mode")
+        if interface_mode not in ("hidraw", "gpiod", "hybrid", "serial"):            
+            interface_mode = "hidraw"
 
         model["interface"]["mode"] = interface_mode
 
@@ -394,27 +396,33 @@ def interface_page():
             model["interface"]["sql_source"] = "serial"
             model["interface"]["ptt_source"] = "serial"
 
-        else:
+        elif interface_mode == "gpiod":
             model["interface"]["sql_source"] = "gpiod"
             model["interface"]["ptt_source"] = "gpiod"
-
+ 
+        uses_gpiod = (
+            model["interface"]["sql_source"] == "gpiod"
+            or
+            model["interface"]["ptt_source"] == "gpiod"
+        )
         if "serial" not in model:
             model["serial"] = {}
 
-        model["serial"]["ptt_port"] = request.form.get(
-            "serial_ptt_port",
-            "/dev/ttyS0"
-        ).strip()
+        if interface_mode == "serial":
+            model["serial"]["ptt_port"] = request.form.get(
+                "serial_ptt_port",
+                "/dev/ttyS0"
+                ).strip         ()
 
-        model["serial"]["ptt_pin"] = request.form.get(
-            "serial_ptt_pin",
-            "DTRRTS"
-        ).strip().upper()
+            model["serial"]["ptt_pin"] = request.form.get(
+                "serial_ptt_pin",
+                "DTRRTS"
+                ).strip().upper()
 
-        sql_line = request.form.get("sql_gpio_line")
-        ptt_line = request.form.get("ptt_gpio_line")
+        sql_line = request.form.get("sql_gpio_line") if uses_gpiod else None
+        ptt_line = request.form.get("ptt_gpio_line") if uses_gpiod else None
 
-        if sql_line and ptt_line and sql_line == ptt_line:
+        if uses_gpiod and sql_line and ptt_line and sql_line == ptt_line:
             error = "SQL and PTT cannot use the same GPIO line."
 
             gpio_lines = flatten_gpio_lines()
@@ -429,11 +437,11 @@ def interface_page():
                 supports_gpiod=supports_gpiod,
             )
 
-        if sql_line:
+        if uses_gpiod and sql_line:
             model["gpio"]["sql"]["chip"] = "gpiochip0"
             model["gpio"]["sql"]["line"] = int(sql_line)
 
-        if ptt_line:
+        if uses_gpiod and ptt_line:
             model["gpio"]["ptt"]["chip"] = "gpiochip0"
             model["gpio"]["ptt"]["line"] = int(ptt_line)
 
