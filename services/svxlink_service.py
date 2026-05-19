@@ -352,29 +352,30 @@ def apply_repeater_event_customisations(model):
         content = content.replace(idle_original, idle_chime, 1)
 
     elif idle_tone == "pip":
-        content = re.sub(
-        r"""proc repeater_idle \{\} \{
-    set iterations 8;
-    set base 2;
-    set max \[expr \{pow\(\$base, \$iterations\)\}\];
-    for \{set i \$iterations\} \{\$i>0\} \{set i \[expr \$i - 1\]\} \{
-      playTone 1100 \[expr \{round\(pow\(\$base, \$i\) \* 150 / \$max\)\}\] 100;
-      playTone 1200 \[expr \{round\(pow\(\$base, \$i\) \* 150 / \$max\)\}\] 100;
-        \}
-    \}""",
-        """proc repeater_idle {} {
-    set iterations 8;
-    set base 2;
-    set max [expr {pow($base, $iterations)}];
-    for {set i $iterations} {$i>0} {set i [expr $i - 1]} {
-      # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
-      # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;
-        }
-        CW::play "E";
-    }""",
-        content,
-        count=1,
+        start = content.find("proc repeater_idle {} {")
+        end = content.find("\n\n\n#\n# Executed if the repeater opens", start)
+
+    if start == -1 or end == -1:
+        raise RuntimeError("Could not locate repeater_idle procedure")
+
+    proc = content[start:end]
+
+    proc = proc.replace(
+        "playTone 1100",
+        "# playTone 1100",
+        1,
     )
+    proc = proc.replace(
+        "playTone 1200",
+        "# playTone 1200",
+        1,
+    )
+
+    if 'CW::play "E";' not in proc:
+        last_brace = proc.rfind("}")
+        proc = proc[:last_brace] + '  CW::play "E";\n' + proc[last_brace:]
+
+        content = content[:start] + proc + content[end:]
 
     elif idle_tone == "silence":
         content = content.replace(idle_original, idle_commented, 1)
