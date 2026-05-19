@@ -13,7 +13,9 @@
             <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
             <div class="page-heading">
                 <h1>Interface Mode</h1>
-                <p>Select how SQL and PTT control will be handled.</p>
+                <p>Select how SQL and PTT control will be handled.<br>
+                HIDRAW is by far the easiest to set up. It requires a fully modified sound card<br>
+                or so-called TOADS card that carries the necessary hardware interface connections.</p>
             </div>
         </div>
 
@@ -24,29 +26,35 @@
         <form action="/interface" method="post">
             <div class="option-group">
                 <div class="radio-row">
+                    <input type="radio" id="hidraw" name="interface_mode" value="hidraw"
+                           {% if model.interface.mode in [None, 'hidraw'] %}checked{% endif %}>
+                    <label for="hidraw">
+                        HIDRAW - SQL and PTT use a compatible USB HID radio interface
+                    </label>
+                </div>
+            
+                {% if supports_gpiod %}
+                <div class="radio-row">
                     <input type="radio" id="gpiod" name="interface_mode" value="gpiod"
-                           {% if model.interface.mode in [None, 'gpiod'] %}checked{% endif %}>
+                           {% if model.interface.mode == 'gpiod' %}checked{% endif %}>
                     <label for="gpiod">GPIOD - SQL and PTT use GPIO lines</label>
                 </div>
-
-                {% if model.platform.id == 'raspberry_pi' %}
-                <div class="radio-row">
-                    <input type="radio" id="hidraw" name="interface_mode" value="hidraw"
-                           {% if model.interface.mode == 'hidraw' %}checked{% endif %}>
-                    <label for="hidraw">HIDRAW - SQL and PTT use CM108/CM119 or TOADS hardware</label>
-                </div>
-
+            
                 <div class="radio-row">
                     <input type="radio" id="hybrid" name="interface_mode" value="hybrid"
                            {% if model.interface.mode == 'hybrid' %}checked{% endif %}>
-                    <label for="hybrid">Hybrid - SQL uses GPIOD, PTT uses HIDRAW</label>
+                    <label for="hybrid">
+                        Hybrid - SQL uses GPIOD, PTT uses a compatible USB HID radio interface
+                    </label>
                 </div>
                 {% endif %}
+            
                 <div class="radio-row">
-                <input type="radio" id="serial" name="interface_mode" value="serial"
-                {% if model.interface.mode == 'serial' %}checked{% endif %}>
-                <label for="serial">Serial - SQL and PTT use serial control pins</label>
+                    <input type="radio" id="serial" name="interface_mode" value="serial"
+                           {% if model.interface.mode == 'serial' %}checked{% endif %}>
+                    <label for="serial">Serial - SQL and PTT use serial control pins</label>
                 </div>
+            
             </div>
 
             {% if supports_gpiod and model.platform.id != 'nanopi_neo' %}
@@ -55,8 +63,8 @@
                 <h3>GPIO Line Configuration</h3>
             
                 <p>
-                    Select the GPIO lines used for hardware squelch and PTT.
-                    Raspberry Pi GPIO choices are limited to GPIO2-GPIO27.
+                    Select the GPIO lines used for hardware squelch and PTT.<br>
+                    Available GPIO choices are limited to lines defined for this platform.
                 </p>
             
                 <div class="field-group">

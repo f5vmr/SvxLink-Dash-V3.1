@@ -129,8 +129,33 @@ def detect_platform():
         "name": hw_platforms.machine(),
         "supported": False,
     }
+# =========================================================
+# GPIOD Support
+# =========================================================
+# services/platform_service.py
+
+def detect_gpiod_support():
+    """
+    Return True if this system exposes Linux GPIO character devices.
+    """
+
+    return any(Path("/dev").glob("gpiochip*"))
 
 
+def platform_supports_gpiod(model):
+    """
+    Decide whether GPIOD options should be shown.
+
+    Explicit platform setting wins.
+    Runtime detection is fallback.
+    """
+
+    platform = model.get("platform", {})
+
+    if "supports_gpiod" in platform:
+        return bool(platform["supports_gpiod"])
+
+    return detect_gpiod_support()
 # =========================================================
 # Node model defaults
 # =========================================================

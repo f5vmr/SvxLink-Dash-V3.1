@@ -16,12 +16,14 @@ PROFILE = {
 
     "allowed_interface_modes": [
         "gpiod",
+        "hidraw",
     ],
 
     "allowed_squelch_modes": [
         "gpiod",
         "ctcss",
         "gpiod_ctcss",
+        "hidraw",
     ],
 
     "default_interface_mode": "gpiod",
