@@ -154,7 +154,23 @@ def backup_active_config():
 # =========================================================
 # Safe write helpers
 # =========================================================
+def ensure_logic_dir():
+    """
+    Ensure local Tcl override directory exists.
+    """
 
+    subprocess.run(
+        [
+            "sudo",
+            "install",
+            "-d",
+            "-o", "svxlink",
+            "-g", "svxlink",
+            "-m", "775",
+            str(LOGIC_DIR_DST),
+        ],
+        check=True,
+    )
 def write_text_file(path, content):
     """
     Write text content to a file.
@@ -189,7 +205,10 @@ def copy_file(src, dst):
     uid = pwd.getpwnam("svxlink").pw_uid
     gid = grp.getgrnam("svxlink").gr_gid
 
-    dst.parent.mkdir(parents=True, exist_ok=True)
+    if dst.parent == LOGIC_DIR_DST:
+        ensure_logic_dir()
+    else:
+        dst.parent.mkdir(parents=True, exist_ok=True)
 
     # enforce directory ownership/mode
     os.chown(dst.parent, uid, gid)

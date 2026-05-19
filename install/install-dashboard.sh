@@ -32,8 +32,13 @@ chmod +x "$INSTALL_DIR/install/fix-permissions.sh"
 
 cat > /etc/sudoers.d/svxlink-dash <<'EOF'
 # SvxLink-Dash-V3 controlled service permissions
-svxlink ALL=(root) NOPASSWD: /bin/systemctl restart svxlink, /bin/systemctl is-active svxlink
+
+svxlink ALL=(root) NOPASSWD: \
+    /bin/systemctl restart svxlink, \
+    /bin/systemctl is-active svxlink, \
+    /usr/bin/install
 EOF
+
 
 chmod 0440 /etc/sudoers.d/svxlink-dash
 visudo -c
