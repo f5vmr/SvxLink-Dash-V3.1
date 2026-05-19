@@ -37,123 +37,142 @@
         <div class="dashboard-grid">
 
             <div class="dashboard-panel">
-
-            <div class="status-box">
-            
-                <div class="status-box-title">
-                    Service
-                </div>
-            
-                <div class="status-box-row
-                    {% if status.service_status == 'active' %}
-                        status-good
-                    {% else %}
-                        status-bad
-                    {% endif %}
-                ">
-                    {{ status.service_status }}
-                </div>
-            
-            </div>
-            <div class="status-box">
-            
-                <div class="status-box-title">
-                    Reflector
-                </div>
-            
-                <div class="status-box-row
-                    {% if status.reflector and status.reflector != 'Disconnected' %}
-                        reflector-connected
-                    {% else %}
-                        reflector-disconnected
-                    {% endif %}
-                ">
-            
-            </div>
-
-            <div class="status-box">
-            
-                <div class="status-box-title">
-                    Modules
-                </div>
-            
-                <div class="status-box-row modules-loaded">
-                    {{ status.modules | join(', ') }}
-                </div>
-            
-            </div>
-            <div class="status-box">
-            
-                <div class="status-box-title">
-                    Radio Status
-                </div>
-            
-                <div class="status-box-row {{ status.radio_state.class }}"
-                    id="radio_state_label">
-                    {{ status.radio_state.label }}
-                </div>
-            </div>
-            <div class="status-box">
-
-                <div class="status-box-title">
-                    Monitoring TGs
-                </div>
-            
-                {% if monitor_tgs %}
-            
-                    <div class="status-box-row monitoring-tgs">
-                
-                {% else %}
-                
-                    <div class="status-box-row monitoring-tgs">
-                
-                {% endif %}
-
-                </div>
-                
-                <div class="status-box-title">
-                Squelch
-                </div>
-
-                <div class="status-box-row
-                    {% if status.radio_state.input == 'Open' %}
-                        squelch-open
-                    {% else %}
-                        squelch-closed
-                    {% endif %}
-                "
-                id="radio_squelch_state">
-
-                </div>
+                        
                 <div class="status-box">
-
-                <div class="status-box-title">
-                    EchoLink
-                </div>
-
-                <div class="status-box-row {{ status.echolink_state.class }}">
-                    {{ status.echolink_state.label }}
-                </div>
-
-                {% if status.echolink_state.station %}
-                    <div class="status-box-row">
-                    Station: {{ status.echolink_state.station }}
+                
+                    <div class="status-box-title">
+                        Service
                     </div>
-                {% endif %}
+                
+                    <div class="status-box-row
+                        {% if status.service_status == 'active' %}
+                            status-good
+                        {% else %}
+                            status-bad
+                        {% endif %}
+                    ">
+                        {{ status.service_status }}
+                    </div>
+                
+                </div>
+            
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        Reflector
+                    </div>
+                
+                    <div class="status-box-row
+                        {% if status.reflector and status.reflector != 'Disconnected' %}
+                            reflector-connected
+                        {% else %}
+                            reflector-disconnected
+                        {% endif %}
+                    ">
+                        {{ status.reflector }}
+                    </div>
+                
+                </div>
+            
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        Modules
+                    </div>
+                
+                    <div class="status-box-row modules-loaded">
+                        {{ status.modules | join(', ') }}
+                    </div>
+                
+                </div>
+            
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        Radio Status
+                    </div>
+                
+                    <div class="status-box-row {{ status.radio_state.class }}"
+                         id="radio_state_label">
+                        {{ status.radio_state.label }}
+                    </div>
+                
+                </div>
+            
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        Monitoring TGs
+                    </div>
+                
+                    {% if monitor_tgs %}
+                
+                        <div class="status-box-row monitoring-tgs">
+                            {{ monitor_tgs | join(', ') }}
+                        </div>
+                    
+                    {% else %}
+                    
+                        <div class="status-box-row monitoring-tgs">
+                            None configured
+                        </div>
+                    
+                    {% endif %}
                     
                 </div>
+            
                 <div class="status-box">
                 
-                <div class="status-box-title">
-                    Uptime
+                    <div class="status-box-title">
+                        Squelch
+                    </div>
+                
+                    <div class="status-box-row
+                        {% if status.radio_state.input == 'Open' %}
+                            squelch-open
+                        {% else %}
+                            squelch-closed
+                        {% endif %}
+                    "
+                    id="radio_squelch_state">
+                
+                        {{ status.radio_state.input }}
+                
+                    </div>
+                
                 </div>
             
-                <div class="status-box-row">
-                    {{ status.uptime }}
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        EchoLink
+                    </div>
+                
+                    <div class="status-box-row {{ status.echolink_state.class }}"
+                         id="echolink_label">
+                        {{ status.echolink_state.label }}
+                    </div>
+                
+                    {% if status.echolink_state.station %}
+                        <div class="status-box-row" id="echolink_station">
+                            Station: {{ status.echolink_state.station }}
+                        </div>
+                    {% endif %}
+                    
                 </div>
             
-            </div>
-
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        Uptime
+                    </div>
+                
+                    <div class="status-box-row uptime-good">
+                        {{ status.uptime }}
+                    </div>
+                
+                </div>
+            
             </div>
 
         
