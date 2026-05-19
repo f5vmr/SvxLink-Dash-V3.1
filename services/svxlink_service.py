@@ -314,57 +314,46 @@ def apply_repeater_event_customisations(model):
 
     content = logic_tcl.read_text(encoding="utf-8")
 
+    idle_original = """    playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
+    playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;"""
+
+    idle_chime = """    playTone 1190 [expr {round(pow($base, $i) * 150 / $max)}] 100;
+    playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;"""
+
+    idle_commented = """    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
+    # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;"""
+
+    idle_pip = """    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;
+    # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;
+    CW::play "E";"""
+
     if idle_tone == "chime":
-        content = content.replace(
-            "playTone 1100",
-            "playTone 1190",
-        )
+        content = content.replace(idle_original, idle_chime, 1)
 
     elif idle_tone == "pip":
-        content = content.replace(
-            "    playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-            "    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-        )
-        content = content.replace(
-            "    playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-            "    # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-        )
-        content = content.replace(
-            "  }\n}",
-            "  }\n  CW::play \"E\";\n}",
-            1,
-        )
+        content = content.replace(idle_original, idle_pip, 1)
 
     elif idle_tone == "silence":
-        content = content.replace(
-            "    playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-            "    # playTone 1100 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-        )
-        content = content.replace(
-            "    playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-            "    # playTone 1200 [expr {round(pow($base, $i) * 150 / $max)}] 100;",
-        )
+        content = content.replace(idle_original, idle_commented, 1)
 
-    if down_tone in ("va", "none"):
-        content = content.replace(
-            "    playTone 400 900 50",
-            "    # playTone 400 900 50",
-        )
-        content = content.replace(
-            "    playSilence 100",
-            "    # playSilence 100",
-        )
-        content = content.replace(
-            "    playTone 360 900 50",
-            "    # playTone 360 900 50",
-        )
+    down_original = """    playTone 400 900 50
+    playSilence 100
+    playTone 360 900 50
+    playSilence 500"""
 
-    if down_tone == "va":
-        content = content.replace(
-            "    playSilence 500",
-            "    CW::play \"-\"\n    playSilence 500",
-            1,
-        )
+    down_commented = """    # playTone 400 900 50
+    # playSilence 100
+    # playTone 360 900 50
+    playSilence 500"""
+
+    down_va = """    CW::play "-"
+    playSilence 500"""
+
+    if down_tone == "none":
+        content = content.replace(down_original, down_commented, 1)
+
+    elif down_tone == "va":
+        content = content.replace(down_original, down_va, 1)
 
     logic_tcl.write_text(content, encoding="utf-8")
     os.chmod(logic_tcl, 0o664)
@@ -384,10 +373,11 @@ def apply_va_barred_cw_symbol():
 
     content = cw_tcl.read_text(encoding="utf-8")
 
-    if '"-" "...-.-"' not in content:
+    if '  "-" "...-.-"' not in content:
         content = content.replace(
             '  "=" "-...-"',
             '  "=" "-...-"\n  "-" "...-.-"',
+            1,
         )
 
     cw_tcl.write_text(content, encoding="utf-8")
