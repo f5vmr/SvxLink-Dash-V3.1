@@ -1034,7 +1034,47 @@ footer a:hover {
     background: #f8d7da;
     color: #ff0000;
 }
+.reflector-connected {
+    background: #c8e6c9;
+    color: #006400;
+    font-weight: bold;
+}
 
+.reflector-disconnected {
+    background: #f8d7da;
+    color: #b00020;
+    font-weight: bold;
+}
+
+.modules-loaded {
+    background: #fff3cd;
+    color: #b5651d;
+    font-weight: bold;
+}
+
+.monitoring-tgs {
+    background: #c8e6c9;
+    color: #006400;
+    font-weight: bold;
+}
+
+.squelch-closed {
+    background: #ffe0b2;
+    color: #b5651d;
+    font-weight: bold;
+}
+
+.squelch-open {
+    background: #bbdefb;
+    color: #003c8f;
+    font-weight: bold;
+}
+
+.uptime-good {
+    background: #c8e6c9;
+    color: #006400;
+    font-weight: bold;
+}
 .dashboard-table {
     width: 100%;
     border-collapse: collapse;

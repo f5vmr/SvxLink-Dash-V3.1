@@ -61,9 +61,13 @@
                     Reflector
                 </div>
             
-                <div class="status-box-row">
-                    {{ status.reflector }}
-                </div>
+                <div class="status-box-row
+                    {% if status.reflector and status.reflector != 'Disconnected' %}
+                        reflector-connected
+                    {% else %}
+                        reflector-disconnected
+                    {% endif %}
+                ">
             
             </div>
 
@@ -73,7 +77,7 @@
                     Modules
                 </div>
             
-                <div class="status-box-row">
+                <div class="status-box-row modules-loaded">
                     {{ status.modules | join(', ') }}
                 </div>
             
@@ -88,7 +92,8 @@
                     id="radio_state_label">
                     {{ status.radio_state.label }}
                 </div>
-                <div class="status-box">
+            </div>
+            <div class="status-box">
 
                 <div class="status-box-title">
                     Monitoring TGs
@@ -96,15 +101,11 @@
             
                 {% if monitor_tgs %}
             
-                    <div class="status-box-row">
-                        {{ monitor_tgs | join(', ') }}
-                    </div>
+                    <div class="status-box-row monitoring-tgs">
                 
                 {% else %}
                 
-                    <div class="status-box-row">
-                        None configured
-                    </div>
+                    <div class="status-box-row monitoring-tgs">
                 
                 {% endif %}
 
@@ -114,10 +115,14 @@
                 Squelch
                 </div>
 
-                <div class="status-box-row"
-                     id="radio_squelch_state">
-                    {{ status.radio_state.input }}
-                </div>
+                <div class="status-box-row
+                    {% if status.radio_state.input == 'Open' %}
+                        squelch-open
+                    {% else %}
+                        squelch-closed
+                    {% endif %}
+                "
+                id="radio_squelch_state">
 
                 </div>
                 <div class="status-box">
@@ -143,7 +148,7 @@
                     Uptime
                 </div>
             
-                <div class="status-box-row">
+                <div class="status-box-row uptime-good">
                     {{ status.uptime }}
                 </div>
             
