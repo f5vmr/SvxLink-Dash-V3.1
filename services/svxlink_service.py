@@ -156,20 +156,19 @@ def backup_active_config():
 # Safe write helpers
 # =========================================================
 def ensure_logic_dir():
-    """
-    Ensure local Tcl override directory exists.
-    """
 
     subprocess.run(
-        [
-            "sudo",
-            "install",
-            "-d",
-            "-o", "svxlink",
-            "-g", "svxlink",
-            "-m", "775",
-            str(LOGIC_DIR_DST),
-        ],
+        ["sudo", "mkdir", "-p", str(LOGIC_DIR_DST)],
+        check=True,
+    )
+
+    subprocess.run(
+        ["sudo", "chown", "svxlink:svxlink", str(LOGIC_DIR_DST)],
+        check=True,
+    )
+
+    subprocess.run(
+        ["sudo", "chmod", "775", str(LOGIC_DIR_DST)],
         check=True,
     )
 def write_text_file(path, content):

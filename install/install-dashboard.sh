@@ -36,7 +36,9 @@ cat > /etc/sudoers.d/svxlink-dash <<'EOF'
 svxlink ALL=(root) NOPASSWD: \
     /bin/systemctl restart svxlink, \
     /bin/systemctl is-active svxlink, \
-    /usr/bin/install
+    /bin/mkdir, \
+    /bin/chown, \
+    /bin/chmod
 EOF
 
 
