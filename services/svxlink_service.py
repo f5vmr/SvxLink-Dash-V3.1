@@ -354,21 +354,21 @@ def apply_repeater_event_customisations(model):
         start = content.find("proc repeater_idle {} {")
         end = content.find("\n\n\n#\n# Executed if the repeater opens", start)
 
-    if start == -1 or end == -1:
-        raise RuntimeError("Could not locate repeater_idle procedure")
+        if start == -1 or end == -1:
+            raise RuntimeError("Could not locate repeater_idle procedure")
 
-    proc = content[start:end]
+        proc = content[start:end]
 
-    proc = proc.replace(
-        "playTone 1100",
-        "# playTone 1100",
-        1,
-    )
-    proc = proc.replace(
-        "playTone 1200",
-        "# playTone 1200",
-        1,
-    )
+        proc = proc.replace(
+            "playTone 1100",
+            "# playTone 1100",
+            1,
+        )
+        proc = proc.replace(
+            "playTone 1200",
+            "# playTone 1200",
+            1,
+        )
 
     if 'CW::play "E";' not in proc:
         last_brace = proc.rfind("}")
@@ -379,18 +379,18 @@ def apply_repeater_event_customisations(model):
     elif idle_tone == "silence":
         content = content.replace(idle_original, idle_commented, 1)
 
-    down_original = """    playTone 400 900 50
-    playSilence 100
-    playTone 360 900 50
-    playSilence 500"""
+        down_original = """    playTone 400 900 50
+        playSilence 100
+        playTone 360 900 50
+        playSilence 500"""
 
-    down_commented = """    # playTone 400 900 50
-    # playSilence 100
-    # playTone 360 900 50
-    playSilence 500"""
+        down_commented = """    # playTone 400 900 50
+        # playSilence 100
+        # playTone 360 900 50
+        playSilence 500"""
 
-    down_va = """    CW::play "-"
-    playSilence 500"""
+        down_va = """    CW::play "-"
+        playSilence 500"""
 
     if down_tone == "none":
         content = content.replace(down_original, down_commented, 1)

@@ -282,10 +282,10 @@ def build_svxlink_configuration(
         logic_files = deploy_required_logic_files()
     
         courtesy_logic = apply_courtesy_tone(model)
-    
-        repeater_logic = apply_repeater_event_customisations(model)
         logic_files.append(courtesy_logic)
-        logic_files.append(repeater_logic)
+        if model.get("node", {}).get("type") == "repeater":
+            repeater_logic = apply_repeater_event_customisations(model)
+            logic_files.append(repeater_logic)
         result["logic_files"] = [
             str(x) for x in logic_files
         ]
