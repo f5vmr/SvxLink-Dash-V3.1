@@ -50,8 +50,10 @@
                     <option value="pip" {% if model.idle_tone == 'pip' %}selected{% endif %}>Pip</option>
                     <option value="silence" {% if model.idle_tone == 'silence' %}selected{% endif %}>Silence</option>
                 </select>
-            </div>
-            
+                <div class="note">
+                    This is the Tone played  while idle.
+                </div>
+            </div>            
             <div class="field-group">
                 <label class="label">Close-down tone</label>
             
@@ -60,6 +62,9 @@
                     <option value="va" {% if model.down_tone == 'va' %}selected{% endif %}>VA barred</option>
                     <option value="none" {% if model.down_tone == 'none' %}selected{% endif %}>None</option>
                 </select>
+                <div class="note">
+                    This is the tone played when the repeater closes down after a transmission.
+                </div>
             </div>
             <div class="field-group">
                 <label class="label" for="sql_timeout">SQL timeout</label>
@@ -73,7 +78,10 @@
                        value="{{ model.repeater.sql_timeout or 180 }}">
 
                 <div class="note">
-                    Maximum advised transmit time in seconds, there is no audio cut off. Default 180.
+                    Maximum advised transmit time of a mobile station in seconds, there is no audio cut off. Default 180.<br>
+                    A pip tone sounds beneath the outgoing audio after this time, until the caller releases the PTT.<br>
+                    Then the caller receives an audible admonishement "Timeout", and the repeater sound the courtesy<br>
+                    tone and resets the timer.
                 </div>
             </div>
 
