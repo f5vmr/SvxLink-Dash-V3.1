@@ -18,15 +18,15 @@
             <div class="page-heading">
                 <h1>Courtesy Tone</h1>
                 <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    <p>Repeater systems require a courtesy tone.</p>
+                {% else %}
+                    <p>Courtesy tones are optional for simplex systems.</p>
+                {% endif %}
+                </div>
             </div>
-            <div class="note">
-            {% if model.node.type == "repeater" %}
-                <p>Repeater systems require a courtesy tone.</p>
-            {% else %}
-                <p>Courtesy tones are optional for simplex systems.</p>
-            {% endif %}
-            </div>
-        </div>
 
         {% if error %}
             <p class="error">{{ error }}</p>
