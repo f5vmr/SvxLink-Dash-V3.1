@@ -38,7 +38,8 @@ svxlink ALL=(root) NOPASSWD: \
     /bin/systemctl is-active svxlink, \
     /bin/mkdir, \
     /bin/chown, \
-    /bin/chmod
+    /bin/chmod, \
+    /usr/bin/install
 EOF
 
 

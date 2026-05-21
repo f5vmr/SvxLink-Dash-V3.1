@@ -108,15 +108,15 @@ def render_all(model):
 
     rendered = {}
 
-    # =====================================================
-    # Main SvxLink configuration
-    # =====================================================
+# =====================================================
+# Main SvxLink configuration
+# =====================================================
 
     rendered["svxlink.conf"] = render_svxlink_config(model)
 
-    # =====================================================
-    # Optional module configurations
-    # =====================================================
+# =====================================================
+# Optional module configurations
+# =====================================================
 
     echolink_conf = render_echolink_module(model)
 
@@ -133,7 +133,36 @@ def render_all(model):
 # =========================================================
 # Deployment phase
 # =========================================================
+def render_motd_script(model):
+    callsign = model.get("node", {}).get("callsign") or "UNCONFIGURED"
 
+    return f"""#!/bin/sh
+
+echo
+echo "NanoPi-Neo SvxLink - {callsign}"
+echo
+"""
+def deploy_motd_script(content):
+    tmp_path = Path("/tmp/20-svxlink-dash")
+
+    tmp_path.write_text(content, encoding="utf-8")
+
+    subprocess.run(
+        [
+            "sudo",
+            "install",
+            "-o", "root",
+            "-g", "root",
+            "-m", "755",
+            str(tmp_path),
+            "/etc/update-motd.d/20-svxlink-dash",
+        ],
+        check=True,
+    )
+
+    tmp_path.unlink(missing_ok=True)
+
+    return "/etc/update-motd.d/20-svxlink-dash"
 def deploy_rendered_files(rendered_files):
     """
     Deploy rendered configuration files.
@@ -264,7 +293,9 @@ def build_svxlink_configuration(
         deployed = deploy_rendered_files(rendered)
 
         result["rendered_files"] = deployed
-
+        motd_script = render_motd_script(model)
+        motd_path = deploy_motd_script(motd_script)
+        result["rendered_files"].append(motd_path)
     except Exception as exc:
 
         result["deployment_errors"].append(
