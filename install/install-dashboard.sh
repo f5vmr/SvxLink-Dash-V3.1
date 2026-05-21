@@ -47,6 +47,7 @@ visudo -c
 
 cat > /etc/logrotate.d/svxlink <<'EOF'
 /var/log/svxlink.log /var/log/svxlink {
+    su svxlink:svxlink
     weekly
     rotate 4
     compress
