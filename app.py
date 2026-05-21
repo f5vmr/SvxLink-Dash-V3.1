@@ -1464,19 +1464,41 @@ def metar_edit_page():
             if x.strip()
         ][:6]
 
+        if "modules" not in model:
+            model["modules"] = {"enabled": []}
+
+        if "enabled" not in model["modules"]:
+            model["modules"]["enabled"] = []
+
+        if metar["enabled"]:
+            if "ModuleMetarInfo" not in model["modules"]["enabled"]:
+                model["modules"]["enabled"].append("ModuleMetarInfo")
+        else:
+            if "ModuleMetarInfo" in model["modules"]["enabled"]:
+                model["modules"]["enabled"].remove("ModuleMetarInfo")
+
         save_node_model(model)
 
-        metar_conf = render_metar_module(model)
+        result = build_svxlink_configuration(
+            model,
+            restart=True,
+        )
 
-        if metar_conf:
-            write_text_file(
-                MODULE_DIR / "ModuleMetarInfo.conf",
-                metar_conf
+        if result["validation_errors"] or result["platform_errors"] or result["deployment_errors"]:
+            error = "; ".join(
+                result["validation_errors"]
+                + result["platform_errors"]
+                + result["deployment_errors"]
             )
 
-        restart_svxlink()
+            return render_template(
+                "metar_edit.html",
+                metar=metar,
+                error=error,
+                saved=False,
+            )
 
-        return redirect(url_for("metar_edit_page",saved="1"))
+        return redirect(url_for("metar_edit_page", saved="1"))
 
     return render_template(
         "metar_edit.html",
