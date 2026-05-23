@@ -5,7 +5,27 @@ Primary SvxLink configuration renderer for SvxLink-Dash-V3.
 """
 
 from renderers.template_engine import render_config_template
+import platform
 
+# =========================================================
+# System information
+# =========================================================
+import platform
+
+
+def get_library_path():
+    machine = platform.machine()
+
+    if machine in ("armv7l", "armhf"):
+        return "/usr/lib/arm-linux-gnueabihf/svxlink"
+
+    if machine in ("aarch64", "arm64"):
+        return "/usr/lib/aarch64-linux-gnu/svxlink"
+
+    if machine in ("x86_64", "amd64"):
+        return "/usr/lib/x86_64-linux-gnu/svxlink"
+
+    return "/usr/lib/svxlink"
 
 # =========================================================
 # Module rendering
@@ -691,6 +711,7 @@ def render_svxlink_config(model):
     )
 
     values = {
+        "LOGIC_CORE_PATH": get_library_path(),
         "LOGICS": logics,
         "LINKS_LINE": links_line,
 
