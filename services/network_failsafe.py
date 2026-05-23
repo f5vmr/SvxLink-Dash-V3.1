@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import subprocess
+import time
 
 
 HOTSPOT_NAME = "Hotspot"
@@ -60,16 +61,41 @@ def hotspot_active():
                 return True
 
     return False
+def try_known_wifi():
+    # Allow Wi-Fi radio and scan to settle
+    nmcli(["radio", "wifi", "on"])
+    subprocess.run(
+        ["sudo", "-n", "nmcli", "dev", "wifi", "rescan"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
 
+    # Ask NetworkManager to activate the best available autoconnect profile
+    subprocess.run(
+        ["sudo", "-n", "nmcli", "device", "connect", "wlan0"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    time.sleep(10)
+
+    return is_wifi_connected()
 
 def start_hotspot_if_needed():
     nmcli(["radio", "wifi", "on"])
+
+    time.sleep(20)
 
     if is_wired_connected():
         return "wired connection active; hotspot not started"
 
     if is_wifi_connected():
         return "wifi connection active; hotspot not started"
+
+    if try_known_wifi():
+        return "known wifi connected; hotspot not started"
 
     if hotspot_active():
         return "hotspot already active"
@@ -82,7 +108,3 @@ def start_hotspot_if_needed():
     )
 
     return "hotspot start requested"
-
-
-if __name__ == "__main__":
-    print(start_hotspot_if_needed())
