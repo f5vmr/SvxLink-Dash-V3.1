@@ -37,33 +37,6 @@ def wifi_on():
     run_nmcli(["radio", "wifi", "on"])
     return run_nmcli(["radio", "wifi"])
 
-def connect_wifi(ssid, password):
-
-    output = []
-
-    output += run_nmcli([
-        "connection",
-        "down",
-        "Hotspot",
-    ])
-
-    output += run_nmcli([
-        "dev",
-        "wifi",
-        "connect",
-        ssid,
-        "password",
-        password,
-    ])
-
-    output += run_nmcli([
-        "connection",
-        "show",
-    ])
-
-    return output
-
-
 def switch_wifi(ssid):
     output = []
 
