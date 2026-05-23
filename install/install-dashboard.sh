@@ -51,11 +51,11 @@ visudo -c
 # -------------------------------------------------
 # Install network failsafe helper
 # -------------------------------------------------
-
-install -o root -g root -m 755 \
-    network_failsafe.py \
-    /opt/dashboard/services/network_failsafe.py
-
+#
+#install -o root -g root -m 755 \
+#    network_failsafe.py \
+#    /opt/dashboard/services/network_failsafe.py
+#
 # -------------------------------------------------
 # Install systemd service
 # -------------------------------------------------
