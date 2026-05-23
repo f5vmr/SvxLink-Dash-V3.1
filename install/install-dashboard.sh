@@ -62,7 +62,7 @@ nmcli connection modify Hotspot \
     802-11-wireless.band bg \
     ipv4.method shared \
     wifi-sec.key-mgmt wpa-psk \
-    wifi-sec.psk "svxlink" || true
+    wifi-sec.psk "password" || true
 #end- Wifi profile
 
 cat > /etc/logrotate.d/svxlink <<'EOF'
