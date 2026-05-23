@@ -73,7 +73,16 @@ def hotspot_status():
         "--active",
     ])
 
-
+def connect_wifi(ssid, password):
+    return run_nmcli([
+        "dev",
+        "wifi",
+        "connect",
+        ssid,
+        "password",
+        password,
+    ])
+    
 def start_hotspot():
     return run_nmcli([
         "connection",
