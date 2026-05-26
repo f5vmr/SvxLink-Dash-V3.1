@@ -47,7 +47,8 @@ def get_default_language(model):
     Return selected default language.
 
     Set by /environment page.
-    British Isles and Australia/NZ use en_GB.
+    British Isles use en_GB.
+    Australia/NZ use en_AU.
     North America uses en_US.
     """
 
