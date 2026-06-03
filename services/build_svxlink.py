@@ -39,6 +39,7 @@ from services.svxlink_service import (
     deploy_required_logic_files,
     apply_courtesy_tone,
     apply_repeater_event_customisations,
+    apply_va_barred_cw_symbol,
     restart_svxlink,
     svxlink_status,
 )
@@ -383,7 +384,8 @@ def build_svxlink_configuration(
 
     try:
         logic_files = deploy_required_logic_files()
-    
+        va_cw = apply_va_barred_cw_symbol()
+        logic_files.append(va_cw)
         courtesy_logic = apply_courtesy_tone(model)
         logic_files.append(courtesy_logic)
         if model.get("node", {}).get("type") == "repeater":
