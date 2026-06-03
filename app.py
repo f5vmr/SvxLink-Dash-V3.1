@@ -39,7 +39,7 @@ from renderers.svxlink_renderer import (
     render_echolink_module,
     render_metar_module,
 )
-
+from services.version_service import get_version_info
 from services.svxlink_service import (
     MODULE_DIR,
     write_text_file,
@@ -99,6 +99,11 @@ app = Flask(
 )
 app.secret_key = "change-this-dashboard-secret"
 
+@app.context_processor
+def inject_versions():
+    return {
+        "version_info": get_version_info()
+    }
 from datetime import timedelta
 app.permanent_session_lifetime = timedelta(minutes=15)
 
@@ -1261,6 +1266,7 @@ def status_page():
         talkgroups=talkgroups,
         monitor_tgs=monitor_tgs,
         system_info=system_info,
+        version_info=get_version_info(),
     )
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
