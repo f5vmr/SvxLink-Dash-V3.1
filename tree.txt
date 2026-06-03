@@ -1,40 +1,113 @@
 /opt/dashboard/
+.
+├── README.md
+├── adoc.txt
 ├── app.py
-├── config/
+├── blueprint.txt
+├── config
+│   ├── gpio_lines.json
 │   └── node_model.json
-├── models/
-│   └── node_model.py
-├── hw_platforms/
+├── data
+│   ├── metar_airports.py
+│   ├── talkgroups.py
+│   └── timezones.py
+├── hw_platforms
 │   ├── __init__.py
-│   ├── raspberry.py
-│   └── nanopi.py
-├── renderers/
+│   ├── nanopi.py
+│   └── raspberry.py
+├── install
+│   ├── fix-permissions.sh
+│   ├── install-dashboard.sh
+│   └── svxlink-dash.service
+├── models
+│   └── node_model.py
+├── renderers
 │   ├── __init__.py
 │   ├── global_renderer.py
-│   ├── simplex_renderer.py
+│   ├── reflector_renderer.py
 │   ├── repeater_renderer.py
-│   └── reflector_renderer.py
-├── features/
+│   ├── simplex_renderer.py
+│   ├── svxlink_renderer.py
+│   └── template_engine.py
+├── services
 │   ├── __init__.py
-│   ├── ident.py
-│   ├── roger.py
-│   ├── ctcss.py
-│   ├── echolink.py
-│   └── metar.py
-├── services/
-│   ├── __init__.py
-│   └── svxlink_service.py
-├── templates/
-│   ├── setup.html
+│   ├── activity_service.py
+│   ├── build_svxlink.py
+│   ├── dtmf_service.py
+│   ├── gpio_service.py
+│   ├── hardware_service.py
+│   ├── log_service.py
+│   ├── model_store.py
+│   ├── network_failsafe.py
+│   ├── node_info_service.py
+│   ├── status_service.py
+│   ├── svxlink_service.py
+│   ├── talkgroup_service.py
+│   ├── version_service.py
+│   └── wifi_service.py
+├── static
+│   ├── site.css
+│   └── svxlink.ico
+├── templates
+│   ├── authorise.html
+│   ├── build.html
+│   ├── config
+│   │   ├── link_to_reflector.template
+│   │   ├── macros.template
+│   │   ├── module_echolink.template
+│   │   ├── module_metar.template
+│   │   ├── reflector_logic.template
+│   │   ├── repeater_logic.template
+│   │   ├── simplex_logic.template
+│   │   └── svxlink.conf.template
+│   ├── courtesy.html
+│   ├── cw.html
+│   ├── done.html
+│   ├── echolink.html
+│   ├── echolink_edit.html
+│   ├── environment.html
 │   ├── ident.html
-│   ├── roger.html
-│   ├── connect.html
-│   └── done.html
-├── static/
-│   └── site.css
-└── logic/
+│   ├── interface.html
+│   ├── log.html
+│   ├── metar_airports.html
+│   ├── metar_default.html
+│   ├── metar_edit.html
+│   ├── modules.html
+│   ├── monitor_tgs.html
+│   ├── navbar.html
+│   ├── node.html
+│   ├── node_info.html
+│   ├── node_info_edit.html
+│   ├── platform.html
+│   ├── reflector.html
+│   ├── repeater.html
+│   ├── review.html
+│   ├── setup_auth.html
+│   ├── squelch.html
+│   ├── start.html
+│   ├── status.html
+│   ├── talkgroups.html
+│   ├── templates.txt
+│   ├── timezone.html
+│   └── wifi.html
+├── tools
+│   ├── reset_dashboard_auth.py
+│   └── scan_gpio.py
+└── tree.txt
 1. models/node_model.py
 2. hw_platforms/nanopi.py and hw_platforms/raspberry.py
 3. services/svxlink_service.py
 4. renderers/global_renderer.py
 5. renderers/simplex_renderer.py
+
+✓ svxlink enabled
+✓ svxlink-dash enabled
+✓ network-failsafe enabled
+✓ node_info.json generated
+✓ DTMF control operational
+✓ Reflector status operational
+✓ Language packs install correctly
+✓ Dashboard version visible
+✓ Package version visible
+✓ Architecture visible
+✓ Fresh image boot tested
