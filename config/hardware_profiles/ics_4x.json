@@ -54,6 +54,13 @@
     "max_ports": 4,
     "max_active_repeater_controllers": 1
   },
+    "preparation": {
+    "required": true,
+    "requires_reboot": true,
+    "service": "ics_prepare",
+    "resume_after_reboot": "environment_page"
+  },
+  
   "notes": [
     "This board is represented as four logical ports.",
     "Ports, not radios, are the primary configuration object.",

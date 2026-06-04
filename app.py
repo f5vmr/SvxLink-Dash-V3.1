@@ -285,10 +285,29 @@ def platform_page():
     if request.method == "POST":
         # Platform is normally detected, not user-selected.
         save_node_model(model)
-        return redirect(url_for("environment_page"))
+        return redirect(url_for("hardware_page"))
 
     return render_template("platform.html", model=model)
 
+@app.route("/hardware", methods=["GET", "POST"])
+def hardware_page():
+    model = load_node_model()
+    profiles = list_hardware_profiles()
+
+    if request.method == "POST":
+        hardware_profile_id = request.form.get("hardware_profile_id", "").strip()
+
+        model["hardware_profile_id"] = hardware_profile_id
+
+        save_node_model(model)
+        return redirect(url_for("environment_page"))
+
+    return render_template(
+        "hardware.html",
+        model=model,
+        profiles=profiles
+    )
+    
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()

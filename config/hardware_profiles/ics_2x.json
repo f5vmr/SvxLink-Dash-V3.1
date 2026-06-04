@@ -2,5 +2,11 @@
   "profile_id": "ics_2x",
   "name": "ICS-CTRLS 2X",
   "type": "port_based",
-  "ports": 2
+  "ports": 2,
+  "preparation": {
+  "required": true,
+  "requires_reboot": true,
+  "service": "ics_prepare",
+  "resume_after_reboot": "environment_page"
+}
 }

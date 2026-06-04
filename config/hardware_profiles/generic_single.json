@@ -2,5 +2,8 @@
   "profile_id": "generic_single",
   "name": "Generic Single Channel",
   "type": "generic",
-  "ports": 1
+  "ports": 1,
+  "preparation": {
+    "required": false
+  }
 }
