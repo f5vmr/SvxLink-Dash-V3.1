@@ -150,6 +150,15 @@ def detect_platform():
         "supported": False,
     }
 # =========================================================
+# Hardware Profiles
+# =========================================================
+@app.route("/hardware-profiles")
+def hardware_profiles():
+    profiles = list_hardware_profiles()
+    return render_template("hardware_profiles.html", profiles=profiles)
+
+
+# =========================================================
 # GPIOD Support
 # =========================================================
 # services/platform_service.py

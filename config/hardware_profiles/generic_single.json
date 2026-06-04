@@ -1,0 +1,6 @@
+{
+  "profile_id": "generic_single",
+  "name": "Generic Single Channel",
+  "type": "generic",
+  "ports": 1
+}

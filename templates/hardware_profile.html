@@ -1,0 +1,33 @@
+{% include "navbar.html" %}
+
+<div class="container">
+    <h1>Hardware Profiles</h1>
+
+    <p>
+        These profiles describe the radio interface hardware available to the dashboard.
+        They do not yet modify the active node build.
+    </p>
+
+    {% if profiles %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Profile</th>
+                    <th>Type</th>
+                    <th>Ports</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                <tr>
+                    <td>{{ profile.name }}</td>
+                    <td>{{ profile.type }}</td>
+                    <td>{{ profile.ports }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hardware profiles found.</p>
+    {% endif %}
+</div>
