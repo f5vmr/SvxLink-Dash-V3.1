@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, redirect, session, url_for, j
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
 from services.hardware_profile_service import list_hardware_profiles
+from services.hardware_profile_service import list_hardware_profiles, load_hardware_profile
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
 from services.model_store import (
@@ -298,8 +299,12 @@ def hardware_page():
         hardware_profile_id = request.form.get("hardware_profile_id", "").strip()
 
         model["hardware_profile_id"] = hardware_profile_id
-
         save_node_model(model)
+
+        profile = load_hardware_profile(hardware_profile_id)
+
+        if profile.get("preparation", {}).get("required"):
+            return redirect(url_for("hardware_prepare_page"))
 
         return redirect(url_for("environment_page"))
 
@@ -307,7 +312,12 @@ def hardware_page():
         "hardware.html",
         model=model,
         profiles=profiles,
-    )  
+    )
+@app.route("/hardware-prepare")
+def hardware_prepare_page():
+    model = load_node_model()
+    return render_template("hardware_prepare.html", model=model)
+  
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()
