@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Maintenance</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="card dashboard-container">
+
+        <div class="dashboard-header">
+
+            <h1 class="status-title">
+
+                <img class="status-title-icon"
+                     src="{{ url_for('static', filename='svxlink.ico') }}"
+                     alt="SvxLink icon">
+
+                System Maintenance
+
+            </h1>
+
+            <p>
+                Service and system control
+            </p>
+
+        </div>
+
+        {% include "navbar.html" %}
+
+        <div class="maintenance-panel">
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Restart Services
+                </div>
+
+                <div class="status-box-row">
+
+                    <form action="{{ url_for('restart_services_page') }}"
+                          method="post">
+
+                        <button class="maintenance-restart"
+                                type="submit">
+
+                            Restart SvxLink Services
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Reboot Device
+                </div>
+
+                <div class="status-box-row">
+
+                    <form action="{{ url_for('reboot_device_page') }}"
+                          method="post">
+
+                        <button class="maintenance-reboot"
+                                type="submit">
+
+                            Reboot Raspberry Pi
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Shutdown Device
+                </div>
+
+                <div class="status-box-row">
+
+                    <form action="{{ url_for('shutdown_device_page') }}"
+                          method="post">
+
+                        <button class="maintenance-shutdown"
+                                type="submit">
+
+                            Shutdown Raspberry Pi
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <footer class="site-footer">
+            SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+            SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+            Dashboard {{ version_info.dashboard }} |
+            SvxLink Package {{ version_info.package }} |
+            SvxLink {{ version_info.engine }}
+        </footer>
+
+    </section>
+
+</main>
+
+</body>
+</html>
