@@ -43,6 +43,7 @@ svxlink ALL=(root) NOPASSWD: \
     /usr/bin/chmod, \
     /usr/bin/git, \
     /usr/bin/nmcli, \
+    /usr/bin/sh,\
     /usr/bin/install
 EOF
 

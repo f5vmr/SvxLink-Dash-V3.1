@@ -15,10 +15,9 @@ def restart_services():
     subprocess.Popen(
         [
             "sudo",
-            "/usr/bin/systemctl",
-            "restart",
-            "svxlink",
-            "svxlink-dash",
+            "/bin/sh",
+            "-c",
+            "sleep 2; /usr/bin/systemctl restart svxlink svxlink-dash",
         ]
     )
 
