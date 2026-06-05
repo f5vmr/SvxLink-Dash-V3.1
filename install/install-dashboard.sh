@@ -42,8 +42,9 @@ svxlink ALL=(root) NOPASSWD: \
     /usr/bin/chown, \
     /usr/bin/chmod, \
     /usr/bin/git, \
-    /usr/bin/nmcli, \
+    /usr/bin/systemd-run, \
     /usr/bin/sh,\
+    /usr/bin
     /usr/bin/install
 EOF
 
