@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+<section class="card">
+
+    <div class="page-header">
+
+        <img class="page-icon"
+             src="{{ url_for('static', filename='svxlink.ico') }}"
+             alt="SvxLink icon">
+
+        <div class="page-heading">
+            <h1>{{ title }}</h1>
+            <p>{{ message }}</p>
+        </div>
+
+    </div>
+
+    {% include "navbar.html" %}
+
+    <div class="button-row">
+
+        <a class="button-secondary"
+           href="{{ url_for('status_page') }}">
+            Return to Dashboard
+        </a>
+
+    </div>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        Dashboard {{ version_info.dashboard }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+
+</section>
+
+</main>
+
+</body>
+</html>
