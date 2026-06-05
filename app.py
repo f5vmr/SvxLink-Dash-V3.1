@@ -49,6 +49,11 @@ from services.svxlink_service import (
 )
 import subprocess
 import hw_platforms
+from services.system_service import (
+    restart_services,
+    reboot_device,
+    shutdown_device,
+)
 from data.metar_airports import METAR_REGIONS
 from data.timezones import TIMEZONES
 
@@ -1667,6 +1672,58 @@ def log_data():
         return f"Failed to read log: {exc}"
 
     return ""
+
+@app.route("/maintenance")
+def maintenance_page():
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    return render_template(
+        "maintenance.html"
+    )
+
+@app.route("/maintenance/restart", methods=["POST"])
+def restart_services_page():
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    restart_services()
+
+    return render_template(
+        "message.html",
+        title="Restart Requested",
+        message="SvxLink services are restarting."
+    )
+
+@app.route("/maintenance/reboot", methods=["POST"])
+def reboot_device_page():
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    reboot_device()
+
+    return render_template(
+        "message.html",
+        title="Reboot Requested",
+        message="The device is rebooting."
+    )
+@app.route("/maintenance/shutdown", methods=["POST"])
+def shutdown_device_page():
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    shutdown_device()
+
+    return render_template(
+        "message.html",
+        title="Shutdown Requested",
+        message="The device is shutting down."
+    )
+
 @app.route("/logout", methods=["GET"])
 def logout_page():
     session.pop("authorised", None)
@@ -1675,6 +1732,7 @@ def logout_page():
 @app.route("/dtmf", methods=["POST"])
 def dtmf_page():
     command = request.form.get("command", "").strip()
+
 
     try:
         send_dtmf(command)

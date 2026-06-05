@@ -1329,3 +1329,44 @@ footer a:hover {
     overflow-x: auto;
     min-height: 320px;
 }
+.maintenance-restart {
+    background: #0066cc;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.maintenance-restart:hover {
+    background: #0052a3;
+}
+
+.maintenance-reboot {
+    background: #ff9800;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.maintenance-reboot:hover {
+    background: #e68900;
+}
+
+.maintenance-shutdown {
+    background: #d32f2f;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.maintenance-shutdown:hover {
+    background: #b71c1c;
+}
