@@ -108,3 +108,5 @@ def start_hotspot_if_needed():
     )
 
     return "hotspot start requested"
+if __name__ == "__main__":
+    print(start_hotspot_if_needed())
