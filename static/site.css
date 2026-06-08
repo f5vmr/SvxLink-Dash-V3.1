@@ -1474,3 +1474,71 @@ footer a:hover {
     font-size: 0.78rem;
     color: #555555;
 }
+.calibration-stop {
+    background: #ff9800;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.calibration-stop:hover {
+    background: #e68900;
+}
+
+.calibration-start {
+    background: #2e9d55;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.calibration-start:hover {
+    background: #237c43;
+}
+
+.calibration-warning {
+    background: #fff3cd;
+    color: #7a3e00;
+    font-weight: bold;
+}
+
+.calibration-output {
+    font-family: monospace;
+    white-space: pre-wrap;
+    text-align: left;
+    background: #101010;
+    color: #00ff66;
+    padding: 0.75rem;
+    border-radius: 6px;
+    overflow-x: auto;
+}
+
+.calibration-slider-form {
+    display: grid;
+    grid-template-columns: 180px 1fr 3rem auto;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0;
+}
+
+.calibration-slider-form label {
+    font-weight: bold;
+    color: #000000;
+    text-align: right;
+}
+
+.calibration-slider-form input[type="range"] {
+    width: 100%;
+}
+
+.calibration-slider-form output {
+    font-weight: bold;
+    color: #000000;
+    text-align: center;
+}

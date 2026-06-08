@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Maintenance</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
+<main class="page">
+
+    <section class="card dashboard-container">
+
+        <div class="dashboard-header">
+
+            <h1 class="status-title">
+
+                <img class="status-title-icon"
+                     src="{{ url_for('static', filename='svxlink.ico') }}"
+                     alt="SvxLink icon">
+
+                System Maintenance
+
+            </h1>
+
+            <p>
+                Service and system control
+            </p>
+
+        </div>
+
+        {% include "navbar.html" %}
+
+        <div class="maintenance-panel">
+
+                            <div class="status-box">
+                            
+                                <div class="status-box-title">
+                                    Calibration Mode Warning
+                                </div>
+                            
+                                <div class="status-box-row calibration-warning">
+                                    Running devcal requires SvxLink to be stopped. While calibration mode
+                                    is active, this repeater or node will be unavailable to users.
+                                </div>
+                            
+                            </div>
+                        
+                            <div class="status-box">
+                            
+                                <div class="status-box-title">
+                                    SvxLink Service Control
+                                </div>
+                            
+                                <div class="status-box-row">
+                                    Current state: <strong>{{ svxlink_state.stdout }}</strong>
+                                </div>
+                            
+                                <div class="status-box-row">
+                                
+                                    <form action="{{ url_for('sound_calibration_page') }}"
+                                          method="post"
+                                          style="display:inline-block; margin:0.25rem;">
+                                
+                                        <input type="hidden"
+                                               name="action"
+                                               value="stop_svxlink">
+                                
+                                        <button class="calibration-stop"
+                                                type="submit"
+                                                onclick="return confirm('This will stop SvxLink and temporarily take the repeater/node out of service. Continue?');">
+                                
+                                            Stop SvxLink for Calibration
+                                
+                                        </button>
+                                    
+                                    </form>
+                                
+                                    <form action="{{ url_for('sound_calibration_page') }}"
+                                          method="post"
+                                          style="display:inline-block; margin:0.25rem;">
+                                
+                                        <input type="hidden"
+                                               name="action"
+                                               value="restart_svxlink">
+                                
+                                        <button class="calibration-start"
+                                                type="submit">
+                                
+                                            Restart SvxLink
+                                
+                                        </button>
+                                    
+                                    </form>
+                                
+                                </div>
+                            
+                            </div>
+                        
+                            <div class="status-box">
+                            
+                                <div class="status-box-title">
+                                    devcal Controls
+                                </div>
+                            
+                                <div class="status-box-row">
+                                
+                                    <form class="calibration-slider-form"
+                                          action="{{ url_for('sound_calibration_page') }}"
+                                          method="post">
+                                
+                                        <input type="hidden"
+                                               name="action"
+                                               value="run_devcal">
+                                
+                                        <label for="amplitude">Amplitude</label>
+                                        <input id="amplitude"
+                                               type="range"
+                                               name="amplitude"
+                                               min="0"
+                                               max="100"
+                                               value="50"
+                                               oninput="document.getElementById('amplitude-value').textContent = this.value">
+                                        <output id="amplitude-value">50</output>
+                                
+                                        <span></span>
+                                
+                                        <label for="frequency">Tone Hz</label>
+                                        <input id="frequency"
+                                               type="range"
+                                               name="frequency"
+                                               min="300"
+                                               max="3000"
+                                               step="10"
+                                               value="1000"
+                                               oninput="document.getElementById('frequency-value').textContent = this.value">
+                                        <output id="frequency-value">1000</output>
+                                
+                                        <span></span>
+                                
+                                        <label for="duration">Duration</label>
+                                        <input id="duration"
+                                               type="range"
+                                               name="duration"
+                                               min="1"
+                                               max="60"
+                                               value="10"
+                                               oninput="document.getElementById('duration-value').textContent = this.value">
+                                        <output id="duration-value">10</output>
+                                
+                                        <button class="calibration-start"
+                                                type="submit"
+                                                onclick="return confirm('Run devcal with these settings? SvxLink should already be stopped.');">
+                                
+                                            Run devcal
+                                
+                                        </button>
+                                    
+                                    </form>
+                                
+                                </div>
+                            
+                            </div>
+                        
+                            {% if result %}
+                                <div class="status-box">
+                                
+                                    <div class="status-box-title">
+                                        Command Result
+                                    </div>
+                                
+                                    <div class="status-box-row calibration-output">
+                        Command: {{ result.command }}
+                        Return code: {{ result.returncode }}
+                                    
+                        STDOUT:
+                        {{ result.stdout }}
+                                    
+                        STDERR:
+                        {{ result.stderr }}
+                                    </div>
+                                
+                                </div>
+                            {% endif %}
+                            
+                        </div>
+
+        <footer class="site-footer">
+            SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+            SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+            Dashboard {{ version_info.dashboard }} |
+            SvxLink Package {{ version_info.package }} |
+            SvxLink {{ version_info.engine }}
+        </footer>
+
+    </section>
+
+</main>
+
+</body>
+</html>

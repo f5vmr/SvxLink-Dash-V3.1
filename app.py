@@ -1314,7 +1314,48 @@ def sound_levels_page():
         cards=cards,
         result=result,
         error=error,
-    )   
+    )
+@app.route("/sound-calibration", methods=["GET", "POST"])
+def sound_calibration_page():
+    result = None
+    error = None
+
+    if request.method == "POST":
+        action = request.form.get("action", "").strip()
+
+        try:
+            if action == "stop_svxlink":
+                result = stop_svxlink_for_calibration()
+
+            elif action == "restart_svxlink":
+                result = restart_svxlink_after_calibration()
+
+            elif action == "run_devcal":
+                amplitude = request.form.get("amplitude", "").strip()
+                frequency = request.form.get("frequency", "").strip()
+                duration = request.form.get("duration", "").strip()
+
+                result = run_devcal_test(
+                    amplitude=amplitude,
+                    frequency=frequency,
+                    duration=duration,
+                )
+
+            else:
+                error = "Unknown calibration action."
+
+        except Exception as exc:
+            error = f"Calibration action failed: {exc}"
+
+    svxlink_state = get_svxlink_service_state()
+
+    return render_template(
+        "sound_calibration.html",
+        result=result,
+        error=error,
+        svxlink_state=svxlink_state,
+    )
+       
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
     error = None
