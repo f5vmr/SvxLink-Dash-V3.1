@@ -177,66 +177,67 @@
                                     <table class="sound-table">
                                     <thead>
                                         <tr>
-                                            <th>NumID</th>
-                                            <th>Name</th>
-                                            <th>Type</th>
+                                            <th>Control</th>
                                             <th>Current</th>
                                             <th>Range</th>
                                             <th>Role</th>
-                                            <th>Confidence</th>
-                                            <th>Safe Action</th>
+                                            <th>Adjust</th>
                                         </tr>
                                     </thead>
 
                                         <tbody>
                                             {% for control in card.controls %}
                                                 <tr>
-                                                    <td>{{ control.numid }}</td>
-
-                                                    <td>{{ control.name }}</td>
-
-                                                    <td>{{ control.control_type or "" }}</td>
-
+                                                    <td class="sound-control-name">
+                                                        {{ control.name }}
+                                                                                                        
+                                                        <div class="sound-control-meta">
+                                                            NumID {{ control.numid }}
+                                                            {% if control.control_type %}
+                                                                · {{ control.control_type }}
+                                                            {% endif %}
+                                                            · {{ control.confidence }}
+                                                        </div>
+                                                    </td>
+                                                    
                                                     <td>
                                                         {% if control.current_values %}
                                                             {{ control.current_values | join(", ") }}
                                                         {% endif %}
                                                     </td>
-
+                                                    
                                                     <td>
                                                         {% if control.min_value != None and control.max_value != None %}
                                                             {{ control.min_value }}-{{ control.max_value }}
                                                         {% endif %}
                                                     </td>
-
-                                                    <td>{{ control.role }}</td>
-
-                                                    <td>{{ control.confidence }}</td>
-
-                                                    <td>
-                                                        {{ control.safe_action }}
-                                                                                                        
+                                                    
+                                                    <td class="sound-control-role">
+                                                        {{ control.role }}
+                                                    </td>
+                                                    
+                                                    <td class="sound-control-adjust">
                                                         {% if control.safe_action == "slider"
                                                               and control.min_value != None
                                                               and control.max_value != None
                                                               and control.current_values %}
-                                                                                                        
+                                                    
                                                             <form class="sound-slider-form"
                                                                   action="{{ url_for('sound_levels_page') }}"
                                                                   method="post">
-                                                                                                        
+                                                    
                                                                 <input type="hidden"
                                                                        name="action"
                                                                        value="set_slider">
-                                                                                                        
+                                                    
                                                                 <input type="hidden"
                                                                        name="card_index"
                                                                        value="{{ card.index }}">
-                                                                                                        
+                                                    
                                                                 <input type="hidden"
                                                                        name="numid"
                                                                        value="{{ control.numid }}">
-                                                                                                        
+                                                    
                                                                 <input class="sound-slider"
                                                                        type="range"
                                                                        name="raw_value"
@@ -244,20 +245,26 @@
                                                                        max="{{ control.max_value }}"
                                                                        value="{{ control.current_values[0] }}"
                                                                        oninput="document.getElementById('slider-value-{{ card.index }}-{{ control.numid }}').textContent = this.value">
-                                                                                                        
+                                                    
                                                                 <output id="slider-value-{{ card.index }}-{{ control.numid }}">
                                                                     {{ control.current_values[0] }}
                                                                 </output>
                                                             
-                                                                <button class="maintenance-restart"
+                                                                <button class="sound-apply-button"
                                                                         type="submit"
                                                                         onclick="return confirm('Apply this mixer level now?');">
                                                             
-                                                                    Apply Level
+                                                                    Apply
                                                             
                                                                 </button>
                                                             
                                                             </form>
+                                                        
+                                                        {% else %}
+                                                        
+                                                            <span class="sound-readonly-action">
+                                                                {{ control.safe_action }}
+                                                            </span>
                                                         
                                                         {% endif %}
                                                     </td>

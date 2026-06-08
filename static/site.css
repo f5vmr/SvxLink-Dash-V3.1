@@ -1378,57 +1378,99 @@ footer a:hover {
     background: #b71c1c;
 }
 /* Sound levels table */
+/* Sound levels table: compact runtime layout */
+.sound-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: visible;
+}
+
 .sound-table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     background: #f1f1f1;
     color: #000000;
-    white-space: nowrap;
+}
+
+.sound-table th,
+.sound-table td {
+    border: 1px solid #000000;
+    padding: 0.3rem;
+    vertical-align: middle;
+    text-align: center;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .sound-table th {
     background: #0000ff;
     color: #ffffff;
-    border: 1px solid #c0c0c0;
-    padding: 0.35rem;
+    font-weight: bold;
 }
 
 .sound-table td {
     background: #fffff0;
     color: #000000;
-    border: 1px solid #000000;
-    padding: 0.35rem;
-    text-align: center;
 }
 
-.sound-table-wrap {
-    width: 100%;
-    overflow-x: auto;
+.sound-control-name {
+    width: 28%;
+    text-align: left;
+    font-weight: bold;
 }
+
+.sound-control-meta {
+    margin-top: 0.15rem;
+    font-size: 0.72rem;
+    font-weight: normal;
+    color: #555555;
+}
+
+.sound-control-role {
+    width: 18%;
+    font-size: 0.82rem;
+}
+
+.sound-control-adjust {
+    width: 32%;
+}
+
 .sound-slider-form {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 2.5rem auto;
+    gap: 0.35rem;
     align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
     margin: 0;
 }
 
 .sound-slider {
-    width: 120px;
+    width: 100%;
+    min-width: 80px;
 }
 
 .sound-slider-form output {
-    min-width: 2.5rem;
     font-weight: bold;
     color: #000000;
+    text-align: center;
 }
 
-.sound-slider-form button {
-    padding: 4px 10px;
+.sound-apply-button {
+    padding: 4px 8px;
     border-radius: 5px;
     border: none;
     background: #0066cc;
     color: #ffffff;
     font-weight: bold;
     cursor: pointer;
+    white-space: nowrap;
+}
+
+.sound-apply-button:hover {
+    background: #0052a3;
+}
+
+.sound-readonly-action {
+    font-size: 0.78rem;
+    color: #555555;
 }
