@@ -34,8 +34,9 @@ cat > /etc/sudoers.d/svxlink-dash <<'EOF'
 # SvxLink-Dash-V3 controlled service permissions
 
 svxlink ALL=(root) NOPASSWD: \
-    /usr/bin/systemctl restart svxlink, \
-    /usr/bin/systemctl is-active svxlink, \
+    /usr/bin/systemctl restart svxlink.service, \
+    /usr/bin/systemctl is-active svxlink.service, \
+    /usr/bin/systemctl stop svxlink.service, \
     /usr/bin/sbin shutdown, \
     /usr/bin/systemctl, \    
     /usr/bin/mkdir, \
