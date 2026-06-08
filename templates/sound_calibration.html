@@ -225,7 +225,155 @@
                 {% endif %}
                 
             </div>
+            <div class="status-box">
 
+                <div class="status-box-title">
+                    Run devcal
+                </div>
+
+                <div class="status-box-row calibration-warning">
+                    SvxLink should be stopped before running devcal. Running calibration
+                    while SvxLink is active may fail because the audio device is already in use.
+                </div>
+
+                <div class="status-box-row">
+
+                    <form action="{{ url_for('sound_calibration_page') }}"
+                          method="post"
+                          class="devcal-form">
+
+                        <input type="hidden"
+                               name="action"
+                               value="run_devcal">
+
+                        <input type="hidden"
+                               name="config_file"
+                               value="{{ audio_sections.config_file }}">
+
+                        <label for="mode">Mode</label>
+                        <select id="mode"
+                                name="mode"
+                                class="input-field">
+                            <option value="txcal">TX calibration</option>
+                            <option value="rxcal">RX calibration</option>
+                            <option value="measure">Measure deviation</option>
+                        </select>
+
+                        <label for="section">Config section</label>
+                        <select id="section"
+                                name="section"
+                                class="input-field">
+
+                            {% if audio_sections.tx_sections %}
+                                <optgroup label="Transmitters">
+                                    {% for tx in audio_sections.tx_sections %}
+                                        <option value="{{ tx.section }}">
+                                            {{ tx.section }} — {{ tx.AUDIO_DEV }} ch {{ tx.AUDIO_CHANNEL }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
+
+                            {% if audio_sections.rx_sections %}
+                                <optgroup label="Receivers">
+                                    {% for rx in audio_sections.rx_sections %}
+                                        <option value="{{ rx.section }}">
+                                            {{ rx.section }} — {{ rx.AUDIO_DEV }} ch {{ rx.AUDIO_CHANNEL }}
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endif %}
+
+                        </select>
+
+                        <label for="modfqs">Tone frequency Hz</label>
+                        <div class="devcal-slider-row">
+                            <input id="modfqs"
+                                   type="range"
+                                   name="modfqs"
+                                   min="300"
+                                   max="3000"
+                                   step="10"
+                                   value="1000"
+                                   oninput="document.getElementById('modfqs-value').textContent = this.value">
+                            <output id="modfqs-value">1000</output>
+                        </div>
+
+                        <label for="caldev">Calibration deviation Hz</label>
+                        <div class="devcal-slider-row">
+                            <input id="caldev"
+                                   type="range"
+                                   name="caldev"
+                                   min="500"
+                                   max="5000"
+                                   step="10"
+                                   value="2405"
+                                   oninput="document.getElementById('caldev-value').textContent = this.value">
+                            <output id="caldev-value">2405</output>
+                        </div>
+
+                        <label for="maxdev">Maximum deviation Hz</label>
+                        <div class="devcal-slider-row">
+                            <input id="maxdev"
+                                   type="range"
+                                   name="maxdev"
+                                   min="2500"
+                                   max="7500"
+                                   step="100"
+                                   value="5000"
+                                   oninput="document.getElementById('maxdev-value').textContent = this.value">
+                            <output id="maxdev-value">5000</output>
+                        </div>
+
+                        <label for="headroom">Headroom dB</label>
+                        <div class="devcal-slider-row">
+                            <input id="headroom"
+                                   type="range"
+                                   name="headroom"
+                                   min="0"
+                                   max="20"
+                                   step="1"
+                                   value="6"
+                                   oninput="document.getElementById('headroom-value').textContent = this.value">
+                            <output id="headroom-value">6</output>
+                        </div>
+
+                        <label for="audiodev">Audio device override</label>
+                        <input id="audiodev"
+                               type="text"
+                               name="audiodev"
+                               class="input-field"
+                               placeholder="Leave blank to use section config">
+
+                        <div></div>
+
+                        <div class="devcal-checkbox-row">
+                            <label>
+                                <input type="checkbox" name="flat">
+                                Flat response
+                            </label>
+
+                            <label>
+                                <input type="checkbox" name="wide">
+                                Wideband
+                            </label>
+                        </div>
+
+                        <div></div>
+
+                        <button class="calibration-restart"
+                                type="submit"
+                                onclick="return confirm('Run devcal now? SvxLink should already be stopped. Continue?');">
+
+                            Run devcal
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
             {% if result %}
 
                 <div class="status-box">

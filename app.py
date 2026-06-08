@@ -25,7 +25,9 @@ from services.sound_calibration import (
     get_svxlink_service_state,
     stop_svxlink_for_calibration,
     restart_svxlink_after_calibration,
+    run_devcal,
 )
+
 ## Wifi
 from services.wifi_service import (
     wifi_scan,
@@ -1339,7 +1341,34 @@ def sound_calibration_page():
 
             elif action == "restart_svxlink":
                 result = restart_svxlink_after_calibration()
+            elif action == "run_devcal":
+                config_file = request.form.get(
+                    "config_file",
+                    DEFAULT_SVXLINK_CONFIG
+                ).strip()
 
+                section = request.form.get("section", "").strip()
+                mode = request.form.get("mode", "").strip()
+                modfqs = request.form.get("modfqs", "1000.0").strip()
+                caldev = request.form.get("caldev", "2404.8").strip()
+                maxdev = request.form.get("maxdev", "5000").strip()
+                headroom = request.form.get("headroom", "6").strip()
+                audiodev = request.form.get("audiodev", "").strip()
+                flat = request.form.get("flat") == "on"
+                wide = request.form.get("wide") == "on"
+
+                result = run_devcal(
+                    config_file=config_file,
+                    section=section,
+                    mode=mode,
+                    modfqs=modfqs,
+                    caldev=caldev,
+                    maxdev=maxdev,
+                    headroom=headroom,
+                    audiodev=audiodev,
+                    flat=flat,
+                    wide=wide,
+                )
             else:
                 error = "Unknown calibration action."
 

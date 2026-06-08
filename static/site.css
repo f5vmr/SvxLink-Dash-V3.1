@@ -1608,3 +1608,65 @@ footer a:hover {
 .calibration-restart:hover {
     background: #237c43;
 }
+/* devcal form */
+.devcal-form {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 0.6rem 0.75rem;
+    align-items: center;
+    margin: 0;
+    text-align: left;
+}
+
+.devcal-form label {
+    color: #000000;
+    font-weight: bold;
+    text-align: right;
+}
+
+.devcal-slider-row {
+    display: grid;
+    grid-template-columns: 1fr 4rem;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.devcal-slider-row input[type="range"] {
+    width: 100%;
+}
+
+.devcal-slider-row output {
+    color: #000000;
+    font-weight: bold;
+    text-align: center;
+}
+
+.devcal-checkbox-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: #000000;
+}
+
+.devcal-checkbox-row label {
+    text-align: left;
+}
+
+.devcal-form button {
+    grid-column: 2;
+    justify-self: start;
+}
+
+@media (max-width: 720px) {
+    .devcal-form {
+        grid-template-columns: 1fr;
+    }
+
+    .devcal-form label {
+        text-align: left;
+    }
+
+    .devcal-form button {
+        grid-column: 1;
+    }
+}
