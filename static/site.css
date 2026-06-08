@@ -1405,3 +1405,30 @@ footer a:hover {
     width: 100%;
     overflow-x: auto;
 }
+.sound-slider-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 0;
+}
+
+.sound-slider {
+    width: 120px;
+}
+
+.sound-slider-form output {
+    min-width: 2.5rem;
+    font-weight: bold;
+    color: #000000;
+}
+
+.sound-slider-form button {
+    padding: 4px 10px;
+    border-radius: 5px;
+    border: none;
+    background: #0066cc;
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+}

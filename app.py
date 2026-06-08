@@ -6,7 +6,11 @@ from unittest import result
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
-from services.sound_discovery import discover_sound_cards, apply_safe_baseline
+from services.sound_discovery import (
+    discover_sound_cards,
+    apply_safe_baseline,
+    set_slider_control,
+)
 from services.build_svxlink import build_svxlink_configuration
 from services.build_svxlink import svxlink_status
 from services.model_store import (
@@ -1280,15 +1284,28 @@ def sound_levels_page():
     error = None
 
     if request.method == "POST":
-        card_index_raw = request.form.get("card_index", "").strip()
+        action = request.form.get("action", "").strip()
 
         try:
-            card_index = int(card_index_raw)
-            result = apply_safe_baseline(card_index)
-        except ValueError:
-            error = "Invalid sound card selected."
+            if action == "baseline":
+                card_index = int(request.form.get("card_index", "").strip())
+                result = apply_safe_baseline(card_index)
+
+            elif action == "set_slider":
+                card_index = int(request.form.get("card_index", "").strip())
+                numid = int(request.form.get("numid", "").strip())
+                raw_value = int(request.form.get("raw_value", "").strip())
+
+                result = set_slider_control(card_index, numid, raw_value)
+
+            else:
+                error = "Unknown sound-level action."
+
+        except ValueError as exc:
+            error = str(exc)
+
         except Exception as exc:
-            error = f"Failed to apply sound baseline: {exc}"
+            error = f"Failed to update sound levels: {exc}"
 
     cards = discover_sound_cards()
 
@@ -1298,6 +1315,7 @@ def sound_levels_page():
         result=result,
         error=error,
     )
+    
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
     error = None

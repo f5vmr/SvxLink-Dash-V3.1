@@ -77,7 +77,6 @@
                 </div>
 
             {% endif %}
-            
                 <div class="status-box-row">
                     This page shows the ALSA sound cards and mixer controls detected
                     on this device. No mixer settings are changed from this page.
@@ -139,7 +138,9 @@
 
                             <form action="{{ url_for('sound_levels_page') }}"
                                   method="post">
-
+                                <input type="hidden"
+                                       name="action"
+                                       value="baseline">
                                 <input type="hidden"
                                        name="card_index"
                                        value="{{ card.index }}">
@@ -212,7 +213,51 @@
 
                                                     <td>{{ control.confidence }}</td>
 
-                                                    <td>{{ control.safe_action }}</td>
+                                                    <td>
+                                                    {{ control.safe_action }}
+                                                                                                    
+                                                    {% if control.safe_action == "slider"
+                                                          and control.min_value != None
+                                                          and control.max_value != None
+                                                          and control.current_values %}
+                                                                                                    
+                                                        <form class="sound-slider-form"
+                                                              action="{{ url_for('sound_levels_page') }}"
+                                                              method="post">
+                                                                                                    
+                                                            <input type="hidden"
+                                                                   name="action"
+                                                                   value="set_slider">
+                                                                                                    
+                                                            <input type="hidden"
+                                                                   name="card_index"
+                                                                   value="{{ card.index }}">
+                                                                                                    
+                                                            <input type="hidden"
+                                                                   name="numid"
+                                                                   value="{{ control.numid }}">
+                                                                                                    
+                                                            <input class="sound-slider"
+                                                                   type="range"
+                                                                   name="raw_value"
+                                                                   min="{{ control.min_value }}"
+                                                                   max="{{ control.max_value }}"
+                                                                   value="{{ control.current_values[0] }}"
+                                                                   oninput="this.nextElementSibling.value = this.value">
+                                                                                                    
+                                                            <output>{{ control.current_values[0] }}</output>
+                                                                                                    
+                                                            <button class="maintenance-restart"
+                                                                    type="submit">
+                                                                                                    
+                                                                Set
+                                                                                                    
+                                                            </button>
+                                                        
+                                                        </form>
+                                                    
+                                                    {% endif %}
+                                                </td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

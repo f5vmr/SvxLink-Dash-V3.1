@@ -406,7 +406,41 @@ def apply_safe_baseline(card_index: int) -> Dict[str, Any]:
         "skipped": skipped,
         "alsactl_store": store_output,
     }
+def set_slider_control(card_index: int, numid: int, raw_value: int) -> Dict[str, Any]:
+    controls = parse_amixer_contents(card_index)
 
+    selected = None
+    for control in controls:
+        if control.numid == numid:
+            selected = control
+            break
+
+    if selected is None:
+        raise ValueError(f"Control numid={numid} was not found on card {card_index}")
+
+    if selected.safe_action != "slider":
+        raise ValueError(f"Control '{selected.name}' is not approved for slider adjustment")
+
+    if selected.min_value is None or selected.max_value is None:
+        raise ValueError(f"Control '{selected.name}' has no usable numeric range")
+
+    raw_value = max(selected.min_value, min(selected.max_value, raw_value))
+
+    value = ",".join([str(raw_value)] * (selected.values_count or 1))
+
+    result = cset_control(card_index, selected, value)
+
+    store_output = run_cmd(["alsactl", "store"])
+
+    return {
+        "card_index": card_index,
+        "numid": selected.numid,
+        "name": selected.name,
+        "role": selected.role,
+        "value": value,
+        "result": result,
+        "alsactl_store": store_output,
+    }
 if __name__ == "__main__":
     import json
 
