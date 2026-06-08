@@ -21,6 +21,11 @@ from services.svxlink_config_discovery import (
     DEFAULT_SVXLINK_CONFIG,
     discover_audio_sections,
 )
+from services.sound_calibration import (
+    get_svxlink_service_state,
+    stop_svxlink_for_calibration,
+    restart_svxlink_after_calibration,
+)
 ## Wifi
 from services.wifi_service import (
     wifi_scan,
@@ -1325,6 +1330,22 @@ def sound_calibration_page():
     result = None
     config_file = DEFAULT_SVXLINK_CONFIG
 
+    if request.method == "POST":
+        action = request.form.get("action", "").strip()
+
+        try:
+            if action == "stop_svxlink":
+                result = stop_svxlink_for_calibration()
+
+            elif action == "restart_svxlink":
+                result = restart_svxlink_after_calibration()
+
+            else:
+                error = "Unknown calibration action."
+
+        except Exception as exc:
+            error = f"Calibration service action failed: {exc}"
+
     try:
         audio_sections = discover_audio_sections(config_file)
     except Exception as exc:
@@ -1333,15 +1354,19 @@ def sound_calibration_page():
             "rx_sections": [],
             "tx_sections": [],
         }
-        error = f"Could not read SvxLink audio sections: {exc}"
+        if not error:
+            error = f"Could not read SvxLink audio sections: {exc}"
+
+    svxlink_state = get_svxlink_service_state()
 
     return render_template(
         "sound_calibration.html",
         audio_sections=audio_sections,
+        svxlink_state=svxlink_state,
         error=error,
         result=result,
     )
-    
+   
        
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():

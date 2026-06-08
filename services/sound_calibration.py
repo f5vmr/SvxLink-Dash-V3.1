@@ -1,8 +1,13 @@
+#!/usr/bin/env python3
+
 import subprocess
-from typing import Dict, List
+from typing import Any, Dict, List
 
 
-def run_cmd(cmd: List[str], timeout: int = 20) -> Dict[str, str]:
+SVXLINK_SERVICE = "svxlink.service"
+
+
+def run_cmd(cmd: List[str], timeout: int = 30) -> Dict[str, Any]:
     result = subprocess.run(
         cmd,
         text=True,
@@ -13,35 +18,19 @@ def run_cmd(cmd: List[str], timeout: int = 20) -> Dict[str, str]:
 
     return {
         "command": " ".join(cmd),
-        "returncode": str(result.returncode),
+        "returncode": result.returncode,
         "stdout": result.stdout.strip(),
         "stderr": result.stderr.strip(),
     }
 
 
-def get_svxlink_service_state() -> Dict[str, str]:
-    return run_cmd(["systemctl", "is-active", "svxlink.service"])
+def get_svxlink_service_state() -> Dict[str, Any]:
+    return run_cmd(["systemctl", "is-active", SVXLINK_SERVICE], timeout=10)
 
 
-def stop_svxlink_for_calibration() -> Dict[str, str]:
-    return run_cmd(["sudo", "systemctl", "stop", "svxlink.service"])
+def stop_svxlink_for_calibration() -> Dict[str, Any]:
+    return run_cmd(["sudo", "systemctl", "stop", SVXLINK_SERVICE], timeout=20)
 
 
-def restart_svxlink_after_calibration() -> Dict[str, str]:
-    return run_cmd(["sudo", "systemctl", "restart", "svxlink.service"])
-
-
-def run_devcal_test(amplitude: str, frequency: str, duration: str) -> Dict[str, str]:
-    # Placeholder until we confirm the exact devcal command syntax in use.
-    cmd = ["sudo", "devcal"]
-
-    if amplitude:
-        cmd.extend(["--amplitude", amplitude])
-
-    if frequency:
-        cmd.extend(["--frequency", frequency])
-
-    if duration:
-        cmd.extend(["--duration", duration])
-
-    return run_cmd(cmd, timeout=60)
+def restart_svxlink_after_calibration() -> Dict[str, Any]:
+    return run_cmd(["sudo", "systemctl", "restart", SVXLINK_SERVICE], timeout=30)

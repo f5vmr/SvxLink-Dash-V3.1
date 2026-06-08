@@ -68,66 +68,117 @@
                 </div>
 
             {% endif %}
-
-            <div class="status-box">
+                <div class="status-box">
 
                 <div class="status-box-title">
-                    Config File
+                    SvxLink Service Control
                 </div>
 
                 <div class="status-box-row">
-                    {{ audio_sections.config_file }}
+                    Current state:
+                    <strong>{{ svxlink_state.stdout }}</strong>
+                </div>
+
+                <div class="status-box-row">
+
+                    <form action="{{ url_for('sound_calibration_page') }}"
+                          method="post"
+                          class="calibration-button-form">
+
+                        <input type="hidden"
+                               name="action"
+                               value="stop_svxlink">
+
+                        <button class="calibration-stop"
+                                type="submit"
+                                onclick="return confirm('This will stop SvxLink and temporarily take the repeater or node out of service. Continue?');">
+
+                            Stop SvxLink for Calibration
+
+                        </button>
+
+                    </form>
+
+                    <form action="{{ url_for('sound_calibration_page') }}"
+                          method="post"
+                          class="calibration-button-form">
+
+                        <input type="hidden"
+                               name="action"
+                               value="restart_svxlink">
+
+                        <button class="calibration-restart"
+                                type="submit"
+                                onclick="return confirm('Restart SvxLink now?');">
+
+                            Restart SvxLink
+
+                        </button>
+
+                    </form>
+
                 </div>
 
             </div>
-
-            <div class="status-box">
-
-                <div class="status-box-title">
-                    Transmitter Calibration Targets
-                </div>
-
-                {% if audio_sections.tx_sections %}
-
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        Config File
+                    </div>
+                
                     <div class="status-box-row">
-
-                        <table class="calibration-table">
-                            <thead>
-                                <tr>
-                                    <th>Section</th>
-                                    <th>Type</th>
-                                    <th>Audio Device</th>
-                                    <th>Channel</th>
-                                    <th>Sample Rate</th>
-                                    <th>PTT</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for tx in audio_sections.tx_sections %}
+                        {{ audio_sections.config_file }}
+                    </div>
+                
+                </div>
+            
+                <div class="status-box">
+                
+                    <div class="status-box-title">
+                        Transmitter Calibration Targets
+                    </div>
+                
+                    {% if audio_sections.tx_sections %}
+                
+                        <div class="status-box-row">
+                        
+                            <table class="calibration-table">
+                                <thead>
                                     <tr>
-                                        <td>{{ tx.section }}</td>
-                                        <td>{{ tx.TYPE }}</td>
-                                        <td>{{ tx.AUDIO_DEV }}</td>
-                                        <td>{{ tx.AUDIO_CHANNEL }}</td>
-                                        <td>{{ tx.CARD_SAMPLE_RATE }}</td>
-                                        <td>{{ tx.PTT_TYPE }}</td>
+                                        <th>Section</th>
+                                        <th>Type</th>
+                                        <th>Audio Device</th>
+                                        <th>Channel</th>
+                                        <th>Sample Rate</th>
+                                        <th>PTT</th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-
-                    </div>
-
-                {% else %}
-
-                    <div class="status-box-row">
-                        No Tx sections were found.
-                    </div>
-
-                {% endif %}
-
-            </div>
+                                </thead>
+                            
+                                <tbody>
+                                    {% for tx in audio_sections.tx_sections %}
+                                        <tr>
+                                            <td>{{ tx.section }}</td>
+                                            <td>{{ tx.TYPE }}</td>
+                                            <td>{{ tx.AUDIO_DEV }}</td>
+                                            <td>{{ tx.AUDIO_CHANNEL }}</td>
+                                            <td>{{ tx.CARD_SAMPLE_RATE }}</td>
+                                            <td>{{ tx.PTT_TYPE }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        
+                        </div>
+                    
+                    {% else %}
+                    
+                        <div class="status-box-row">
+                            No Tx sections were found.
+                        </div>
+                    
+                    {% endif %}
+                    
+                </div>
 
             <div class="status-box">
 
@@ -137,35 +188,32 @@
 
                 {% if audio_sections.rx_sections %}
 
-                    <div class="status-box-row">
-
-                        <table class="calibration-table">
-                            <thead>
+                <div class="status-box-row">
+                    <table class="calibration-table">
+                        <thead>
+                            <tr>
+                                <th>Section</th>
+                                <th>Type</th>
+                                <th>Audio Device</th>
+                                <th>Channel</th>
+                                <th>Sample Rate</th>
+                                <th>Squelch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rx in audio_sections.rx_sections %}
                                 <tr>
-                                    <th>Section</th>
-                                    <th>Type</th>
-                                    <th>Audio Device</th>
-                                    <th>Channel</th>
-                                    <th>Sample Rate</th>
-                                    <th>Squelch</th>
+                                    <td>{{ rx.section }}</td>
+                                    <td>{{ rx.TYPE }}</td>
+                                    <td>{{ rx.AUDIO_DEV }}</td>
+                                    <td>{{ rx.AUDIO_CHANNEL }}</td>
+                                    <td>{{ rx.CARD_SAMPLE_RATE }}</td>
+                                    <td>{{ rx.SQL_DET }}</td>
                                 </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for rx in audio_sections.rx_sections %}
-                                    <tr>
-                                        <td>{{ rx.section }}</td>
-                                        <td>{{ rx.TYPE }}</td>
-                                        <td>{{ rx.AUDIO_DEV }}</td>
-                                        <td>{{ rx.AUDIO_CHANNEL }}</td>
-                                        <td>{{ rx.CARD_SAMPLE_RATE }}</td>
-                                        <td>{{ rx.SQL_DET }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-
-                    </div>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
                 {% else %}
 
@@ -174,9 +222,32 @@
                     </div>
 
                 {% endif %}
-
+                
             </div>
 
+            {% if result %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Service Command Result
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Command:</strong> {{ result.command }}<br>
+                        <strong>Return code:</strong> {{ result.returncode }}<br>
+                        <strong>Output:</strong> {{ result.stdout }}<br>
+                        <strong>Error:</strong> {{ result.stderr }}
+                    </div>
+
+                </div>
+
+            {% endif %}
+                
+        </div>
+
+        <footer class="site-footer">
+                
         </div>
 
         <footer class="site-footer">

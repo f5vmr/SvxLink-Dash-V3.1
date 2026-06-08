@@ -1575,3 +1575,36 @@ footer a:hover {
     white-space: normal;
     word-break: break-word;
 }
+/* Sound calibration service buttons */
+.calibration-button-form {
+    display: inline-block;
+    margin: 0.25rem;
+}
+
+.calibration-stop {
+    background: #ff9800;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.calibration-stop:hover {
+    background: #e68900;
+}
+
+.calibration-restart {
+    background: #2e9d55;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.calibration-restart:hover {
+    background: #237c43;
+}
