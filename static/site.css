@@ -1670,3 +1670,27 @@ footer a:hover {
         grid-column: 1;
     }
 }
+/* Sound calibration form: light runtime input styling */
+.dashboard-container .devcal-form .input-field,
+.dashboard-container .devcal-form select,
+.dashboard-container .devcal-form input[type="text"] {
+    background: #ffffff;
+    background-image: none;
+    color: #000000;
+    border: 1px solid #888888;
+}
+
+.dashboard-container .devcal-form .input-field:focus,
+.dashboard-container .devcal-form select:focus,
+.dashboard-container .devcal-form input[type="text"]:focus {
+    background: #ffffff;
+    color: #000000;
+    border-color: #0000ff;
+    box-shadow: 0 0 0 2px rgba(0, 0, 255, 0.18);
+}
+
+.dashboard-container .devcal-form option,
+.dashboard-container .devcal-form optgroup {
+    background: #ffffff;
+    color: #000000;
+}
