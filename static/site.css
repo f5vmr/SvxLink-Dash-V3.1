@@ -1370,3 +1370,44 @@ footer a:hover {
 .maintenance-shutdown:hover {
     background: #b71c1c;
 }
+.sound-table-row {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sound-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    box-sizing: border-box;
+    background: inherit;
+}
+
+.sound-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sound-table th,
+.sound-table td {
+    padding: 0.35rem 0.5rem;
+    text-align: left;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.sound-table-wrap::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+.status-box {
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.site-footer {
+    clear: both;
+}

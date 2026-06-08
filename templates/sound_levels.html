@@ -111,57 +111,59 @@
                             Mixer Controls for Card {{ card.index }}
                         </div>
 
-                        <div class="status-box-row">
+                            <div class="status-box-row sound-table-row">
 
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>NumID</th>
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Current</th>
-                                        <th>Range</th>
-                                        <th>Role</th>
-                                        <th>Confidence</th>
-                                        <th>Safe Action</th>
-                                    </tr>
-                                </thead>
+                                <div class="sound-table-wrap">
 
-                                <tbody>
-                                    {% for control in card.controls %}
+                                    <table class="sound-table">
+                                    <thead>
                                         <tr>
-                                            <td>{{ control.numid }}</td>
-
-                                            <td>{{ control.name }}</td>
-
-                                            <td>{{ control.control_type or "" }}</td>
-
-                                            <td>
-                                                {% if control.current_values %}
-                                                    {{ control.current_values | join(", ") }}
-                                                {% endif %}
-                                            </td>
-
-                                            <td>
-                                                {% if control.min_value != None and control.max_value != None %}
-                                                    {{ control.min_value }}-{{ control.max_value }}
-                                                {% endif %}
-                                            </td>
-
-                                            <td>{{ control.role }}</td>
-
-                                            <td>{{ control.confidence }}</td>
-
-                                            <td>{{ control.safe_action }}</td>
+                                            <th>NumID</th>
+                                            <th>Name</th>
+                                            <th>Type</th>
+                                            <th>Current</th>
+                                            <th>Range</th>
+                                            <th>Role</th>
+                                            <th>Confidence</th>
+                                            <th>Safe Action</th>
                                         </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                    </thead>
 
-                        </div>
+                                        <tbody>
+                                            {% for control in card.controls %}
+                                                <tr>
+                                                    <td>{{ control.numid }}</td>
 
+                                                    <td>{{ control.name }}</td>
+
+                                                    <td>{{ control.control_type or "" }}</td>
+
+                                                    <td>
+                                                        {% if control.current_values %}
+                                                            {{ control.current_values | join(", ") }}
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td>
+                                                        {% if control.min_value != None and control.max_value != None %}
+                                                            {{ control.min_value }}-{{ control.max_value }}
+                                                        {% endif %}
+                                                    </td>
+
+                                                    <td>{{ control.role }}</td>
+
+                                                    <td>{{ control.confidence }}</td>
+
+                                                    <td>{{ control.safe_action }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                            </div>
                     </div>
-
                 {% else %}
 
                     <div class="status-box">
