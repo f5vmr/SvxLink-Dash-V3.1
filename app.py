@@ -1314,8 +1314,7 @@ def sound_levels_page():
         cards=cards,
         result=result,
         error=error,
-    )
-    
+    )   
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
     error = None
