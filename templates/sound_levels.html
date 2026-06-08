@@ -1,93 +1,198 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>Sound Levels</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
+
+    <link rel="icon"
+          href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+
 <main class="page">
-  <h1>Sound Levels</h1>
 
-  <section class="panel">
-    <p>
-      This page shows the ALSA sound cards and mixer controls detected on this device.
-      No mixer settings are changed from this page.
-    </p>
-  </section>
+    <section class="card dashboard-container">
 
-  {% if not cards %}
-    <section class="panel warning">
-      <h2>No sound cards detected</h2>
-      <p>No ALSA sound cards were found in /proc/asound/cards.</p>
-    </section>
-  {% endif %}
+        <div class="dashboard-header">
 
-  {% for card in cards %}
-    <section class="panel">
-      <h2>Card {{ card.index }}: {{ card.name }}</h2>
+            <h1 class="status-title">
 
-      <p>{{ card.description }}</p>
+                <img class="status-title-icon"
+                     src="{{ url_for('static', filename='svxlink.ico') }}"
+                     alt="SvxLink icon">
 
-      <table>
-        <tbody>
-          <tr>
-            <th>Playback</th>
-            <td>{{ "Yes" if card.has_playback else "No" }}</td>
-          </tr>
-          <tr>
-            <th>Capture</th>
-            <td>{{ "Yes" if card.has_capture else "No" }}</td>
-          </tr>
-          <tr>
-            <th>Likely role</th>
-            <td>{{ card.likely_role }}</td>
-          </tr>
-          <tr>
-            <th>Confidence</th>
-            <td>{{ card.confidence }}</td>
-          </tr>
-        </tbody>
-      </table>
+                Sound Levels
 
-      {% if card.controls %}
-        <h3>Detected mixer controls</h3>
+            </h1>
 
-        <table>
-          <thead>
-            <tr>
-              <th>NumID</th>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Current</th>
-              <th>Range</th>
-              <th>Role</th>
-              <th>Confidence</th>
-              <th>Safe action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for control in card.controls %}
-              <tr>
-                <td>{{ control.numid }}</td>
-                <td>{{ control.name }}</td>
-                <td>{{ control.control_type or "" }}</td>
-                <td>
-                  {% if control.current_values %}
-                    {{ control.current_values | join(", ") }}
-                  {% endif %}
-                </td>
-                <td>
-                  {% if control.min_value is not none and control.max_value is not none %}
-                    {{ control.min_value }}–{{ control.max_value }}
-                  {% endif %}
-                </td>
-                <td>{{ control.role }}</td>
-                <td>{{ control.confidence }}</td>
-                <td>{{ control.safe_action }}</td>
-              </tr>
+            <p>
+                ALSA sound card and mixer control discovery
+            </p>
+
+        </div>
+
+        {% include "navbar.html" %}
+
+        <div class="maintenance-panel">
+
+            <div class="status-box">
+
+                <div class="status-box-title">
+                    Sound Discovery
+                </div>
+
+                <div class="status-box-row">
+                    This page shows the ALSA sound cards and mixer controls detected
+                    on this device. No mixer settings are changed from this page.
+                </div>
+
+            </div>
+
+            {% if not cards %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        No Sound Cards Detected
+                    </div>
+
+                    <div class="status-box-row">
+                        No ALSA sound cards were found.
+                    </div>
+
+                </div>
+
+            {% endif %}
+
+            {% for card in cards %}
+
+                <div class="status-box">
+
+                    <div class="status-box-title">
+                        Card {{ card.index }}: {{ card.name }}
+                    </div>
+
+                    <div class="status-box-row">
+                        {{ card.description }}
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Playback:</strong>
+                        {{ "Yes" if card.has_playback else "No" }}
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Capture:</strong>
+                        {{ "Yes" if card.has_capture else "No" }}
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Likely role:</strong>
+                        {{ card.likely_role }}
+                    </div>
+
+                    <div class="status-box-row">
+                        <strong>Confidence:</strong>
+                        {{ card.confidence }}
+                    </div>
+
+                </div>
+
+                {% if card.controls %}
+
+                    <div class="status-box">
+
+                        <div class="status-box-title">
+                            Mixer Controls for Card {{ card.index }}
+                        </div>
+
+                        <div class="status-box-row">
+
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>NumID</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Current</th>
+                                        <th>Range</th>
+                                        <th>Role</th>
+                                        <th>Confidence</th>
+                                        <th>Safe Action</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for control in card.controls %}
+                                        <tr>
+                                            <td>{{ control.numid }}</td>
+
+                                            <td>{{ control.name }}</td>
+
+                                            <td>{{ control.control_type or "" }}</td>
+
+                                            <td>
+                                                {% if control.current_values %}
+                                                    {{ control.current_values | join(", ") }}
+                                                {% endif %}
+                                            </td>
+
+                                            <td>
+                                                {% if control.min_value != None and control.max_value != None %}
+                                                    {{ control.min_value }}-{{ control.max_value }}
+                                                {% endif %}
+                                            </td>
+
+                                            <td>{{ control.role }}</td>
+
+                                            <td>{{ control.confidence }}</td>
+
+                                            <td>{{ control.safe_action }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <div class="status-box">
+
+                        <div class="status-box-title">
+                            Mixer Controls for Card {{ card.index }}
+                        </div>
+
+                        <div class="status-box-row">
+                            No mixer controls were detected for this card.
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
             {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p>No mixer controls were detected for this card.</p>
-      {% endif %}
+
+        </div>
+
+        <footer class="site-footer">
+            SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+            SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+            Dashboard {{ version_info.dashboard }} |
+            SvxLink Package {{ version_info.package }} |
+            SvxLink {{ version_info.engine }}
+        </footer>
+
     </section>
-  {% endfor %}
+
 </main>
-{% endblock %}
+
+</body>
+</html>
