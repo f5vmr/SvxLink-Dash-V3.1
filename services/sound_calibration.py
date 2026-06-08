@@ -11,6 +11,7 @@ from typing import Any, Dict, List
 
 DEVCAL_LOG = Path("/tmp/svxlink-devcal.log")
 DEVCAL_PID = Path("/tmp/svxlink-devcal.pid")
+DEVCAL_MODE = Path("/tmp/svxlink-devcal.mode")
 
 
 SVXLINK_SERVICE = "svxlink.service"
@@ -218,6 +219,7 @@ def start_devcal_session(
     )
 
     DEVCAL_PID.write_text(str(process.pid), encoding="utf-8")
+    DEVCAL_MODE.write_text(mode, encoding="utf-8")
 
     return {
         "command": " ".join(cmd),
@@ -225,7 +227,18 @@ def start_devcal_session(
         "stdout": f"devcal started with PID {process.pid}",
         "stderr": "",
     }
+def get_devcal_mode() -> str:
+    if not DEVCAL_MODE.exists():
+        return ""
 
+    try:
+        return DEVCAL_MODE.read_text(
+            encoding="utf-8",
+            errors="ignore"
+        ).strip()
+
+    except Exception:
+        return ""
 
 def stop_devcal_session() -> Dict[str, Any]:
     if not DEVCAL_PID.exists():
@@ -245,6 +258,7 @@ def stop_devcal_session() -> Dict[str, Any]:
             pass
 
         DEVCAL_PID.unlink(missing_ok=True)
+        DEVCAL_MODE.unlink(missing_ok=True)
 
         return {
             "command": "stop devcal",

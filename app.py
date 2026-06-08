@@ -29,6 +29,7 @@ from services.sound_calibration import (
     stop_devcal_session,
     get_devcal_output,
     devcal_is_running,
+    get_devcal_mode,
 )
 
 ## Wifi
@@ -1433,6 +1434,7 @@ def sound_calibration_page():
         result=result,
         devcal_running=devcal_is_running(),
         devcal_output=get_devcal_output(),
+        devcal_mode=get_devcal_mode(),
     )
    
        

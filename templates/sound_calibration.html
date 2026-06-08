@@ -385,28 +385,27 @@
 
             </div>
 
-            <div class="status-box">
+                        {% if devcal_running and devcal_mode == "rxcal" %}
 
-                <div class="status-box-title">
-                    devcal Console
-                    {% if devcal_running %}
-                        - running
-                    {% else %}
-                        - stopped
-                    {% endif %}
-                </div>
+                <div class="status-box">
 
-                <div class="status-box-row">
+                    <div class="status-box-title">
+                        devcal RX Console - running
+                    </div>
 
-                    <div class="devcal-console">
+                    <div class="status-box-row">
+
+                        <div class="devcal-console">
 {% for line in devcal_output %}
 {{ line }}
 {% endfor %}
+                        </div>
+
                     </div>
 
                 </div>
 
-            </div>
+            {% endif %}
 
             {% if result %}
 
