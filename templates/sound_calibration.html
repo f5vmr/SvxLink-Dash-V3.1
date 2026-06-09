@@ -356,14 +356,18 @@
 
                     <div class="devcal-action-row">
 
-                        <button form="devcal-start-form"
-                                class="calibration-restart"
-                                type="submit"
-                                onclick="return confirm('Start devcal now? SvxLink should already be stopped. Continue?');">
+                        {% if not devcal_running %}
 
-                            Start devcal
-
-                        </button>
+                            <button form="devcal-start-form"
+                                    class="calibration-restart"
+                                    type="submit"
+                                    onclick="return confirm('Start devcal now? SvxLink should already be stopped. Continue?');">
+                                            
+                                Start devcal
+                                            
+                            </button>
+                        
+                        {% endif %}
 
                         {% if devcal_running %}
 

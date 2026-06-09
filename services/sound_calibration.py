@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
-import subprocess
-from typing import Any, Dict, List
 from pathlib import Path
+from typing import Any, Dict, List
+
 import os
 import shlex
 import signal
-import subprocess
 import stat
+import subprocess
+
+
+SVXLINK_SERVICE = "svxlink.service"
 
 DEVCAL_LOG = Path("/tmp/svxlink-devcal.log")
 DEVCAL_PID = Path("/tmp/svxlink-devcal.pid")
@@ -16,23 +19,6 @@ DEVCAL_INPUT = Path("/tmp/svxlink-devcal.in")
 DEVCAL_TX_STATE = Path("/tmp/svxlink-devcal.tx")
 
 
-SVXLINK_SERVICE = "svxlink.service"
-
-def prepare_devcal_input_pipe() -> None:
-    if DEVCAL_INPUT.exists():
-        try:
-            mode = DEVCAL_INPUT.stat().st_mode
-            if stat.S_ISFIFO(mode):
-                return
-
-            DEVCAL_INPUT.unlink()
-
-        except FileNotFoundError:
-            pass
-
-    os.mkfifo(DEVCAL_INPUT, 0o666)
-    os.chmod(DEVCAL_INPUT, 0o666)
-    
 def run_cmd(cmd: List[str], timeout: int = 30) -> Dict[str, Any]:
     result = subprocess.run(
         cmd,
@@ -49,74 +35,45 @@ def run_cmd(cmd: List[str], timeout: int = 30) -> Dict[str, Any]:
         "stderr": result.stderr.strip(),
     }
 
+
 def get_svxlink_service_state() -> Dict[str, Any]:
-    return run_cmd(["/usr/bin/systemctl", "is-active", SVXLINK_SERVICE], timeout=10)
+    return run_cmd(
+        ["/usr/bin/systemctl", "is-active", SVXLINK_SERVICE],
+        timeout=10,
+    )
 
 
 def stop_svxlink_for_calibration() -> Dict[str, Any]:
-    return run_cmd(["sudo", "/usr/bin/systemctl", "stop", SVXLINK_SERVICE], timeout=20)
+    return run_cmd(
+        ["sudo", "/usr/bin/systemctl", "stop", SVXLINK_SERVICE],
+        timeout=20,
+    )
 
 
 def restart_svxlink_after_calibration() -> Dict[str, Any]:
-    return run_cmd(["sudo", "/usr/bin/systemctl", "restart", SVXLINK_SERVICE], timeout=30)
+    return run_cmd(
+        ["sudo", "/usr/bin/systemctl", "restart", SVXLINK_SERVICE],
+        timeout=30,
+    )
 
-def run_devcal(
-    config_file: str,
-    section: str,
-    mode: str,
-    modfqs: str,
-    caldev: str,
-    maxdev: str,
-    headroom: str,
-    audiodev: str = "",
-    flat: bool = False,
-    wide: bool = False,
-) -> Dict[str, Any]:
-    config_file = (config_file or "/etc/svxlink/svxlink.conf").strip()
-    section = (section or "").strip()
-    mode = (mode or "").strip()
 
-    if not section:
-        raise ValueError("No SvxLink Tx/Rx section selected.")
+def prepare_devcal_input_pipe() -> None:
+    if DEVCAL_INPUT.exists():
+        try:
+            mode = DEVCAL_INPUT.stat().st_mode
 
-    cmd = [
-        "sudo",
-        "/usr/bin/devcal",
-        config_file,
-        section,
-    ]
+            if stat.S_ISFIFO(mode):
+                os.chmod(DEVCAL_INPUT, 0o666)
+                return
 
-    if mode == "txcal":
-        cmd.append("--txcal")
-    elif mode == "rxcal":
-        cmd.append("--rxcal")
-    elif mode == "measure":
-        cmd.append("--measure")
-    else:
-        raise ValueError("Invalid devcal mode selected.")
+            DEVCAL_INPUT.unlink()
 
-    if modfqs:
-        cmd.extend(["--modfqs", str(modfqs)])
+        except FileNotFoundError:
+            pass
 
-    if caldev:
-        cmd.extend(["--caldev", str(caldev)])
+    os.mkfifo(DEVCAL_INPUT, 0o666)
+    os.chmod(DEVCAL_INPUT, 0o666)
 
-    if maxdev:
-        cmd.extend(["--maxdev", str(maxdev)])
-
-    if headroom:
-        cmd.extend(["--headroom", str(headroom)])
-
-    if audiodev:
-        cmd.extend(["--audiodev", audiodev])
-
-    if flat:
-        cmd.append("--flat")
-
-    if wide:
-        cmd.append("--wide")
-
-    return run_cmd(cmd, timeout=180)
 
 def build_devcal_command(
     config_file: str,
@@ -185,8 +142,54 @@ def devcal_is_running() -> bool:
         pid = int(DEVCAL_PID.read_text().strip())
         os.kill(pid, 0)
         return True
+
     except Exception:
         return False
+
+
+def get_devcal_mode() -> str:
+    if not DEVCAL_MODE.exists():
+        return ""
+
+    try:
+        return DEVCAL_MODE.read_text(
+            encoding="utf-8",
+            errors="ignore",
+        ).strip()
+
+    except Exception:
+        return ""
+
+
+def get_devcal_tx_state() -> str:
+    if not DEVCAL_TX_STATE.exists():
+        return "off"
+
+    try:
+        state = DEVCAL_TX_STATE.read_text(
+            encoding="utf-8",
+            errors="ignore",
+        ).strip().lower()
+
+    except Exception:
+        return "off"
+
+    if state == "on":
+        return "on"
+
+    return "off"
+
+
+def set_devcal_tx_state(state: str) -> None:
+    state = "on" if state == "on" else "off"
+    DEVCAL_TX_STATE.write_text(state, encoding="utf-8")
+
+
+def toggle_devcal_tx_state() -> str:
+    current = get_devcal_tx_state()
+    new_state = "off" if current == "on" else "on"
+    set_devcal_tx_state(new_state)
+    return new_state
 
 
 def start_devcal_session(
@@ -221,10 +224,18 @@ def start_devcal_session(
     )
 
     quoted_cmd = " ".join(shlex.quote(part) for part in cmd)
+    quoted_fifo = shlex.quote(str(DEVCAL_INPUT))
 
+    # Important:
+    # Do not use a simple "cat fifo | devcal" or "tail -f fifo | devcal".
+    # Those can end or close stdin after a single dashboard write.
+    #
+    # The while/cat loop keeps the pipeline alive, allowing later button
+    # presses to write "T" into the FIFO without devcal being closed.
     shell_command = (
-        f"/usr/bin/tail -f {shlex.quote(str(DEVCAL_INPUT))} "
-        f"| {quoted_cmd}"
+        f"while true; do "
+        f"/bin/cat {quoted_fifo}; "
+        f"done | {quoted_cmd}"
     )
 
     DEVCAL_LOG.write_text(
@@ -254,47 +265,7 @@ def start_devcal_session(
         "stdout": f"devcal started with PID {process.pid}",
         "stderr": "",
     }
-def get_devcal_mode() -> str:
-    if not DEVCAL_MODE.exists():
-        return ""
 
-    try:
-        return DEVCAL_MODE.read_text(
-            encoding="utf-8",
-            errors="ignore"
-        ).strip()
-
-    except Exception:
-        return ""
-def get_devcal_tx_state() -> str:
-    if not DEVCAL_TX_STATE.exists():
-        return "off"
-
-    try:
-        state = DEVCAL_TX_STATE.read_text(
-            encoding="utf-8",
-            errors="ignore",
-        ).strip().lower()
-
-    except Exception:
-        return "off"
-
-    if state == "on":
-        return "on"
-
-    return "off"
-
-
-def set_devcal_tx_state(state: str) -> None:
-    state = "on" if state == "on" else "off"
-    DEVCAL_TX_STATE.write_text(state, encoding="utf-8")
-
-
-def toggle_devcal_tx_state() -> str:
-    current = get_devcal_tx_state()
-    new_state = "off" if current == "on" else "on"
-    set_devcal_tx_state(new_state)
-    return new_state
 
 def toggle_devcal_tx() -> Dict[str, Any]:
     if not devcal_is_running():
@@ -308,6 +279,11 @@ def toggle_devcal_tx() -> Dict[str, Any]:
     if not DEVCAL_INPUT.exists():
         raise RuntimeError("devcal input pipe is not available.")
 
+    fifo_mode = DEVCAL_INPUT.stat().st_mode
+
+    if not stat.S_ISFIFO(fifo_mode):
+        raise RuntimeError("devcal input path exists but is not a FIFO pipe.")
+
     with DEVCAL_INPUT.open("w", encoding="utf-8") as fh:
         fh.write("T\n")
         fh.flush()
@@ -320,9 +296,14 @@ def toggle_devcal_tx() -> Dict[str, Any]:
         "stdout": f"TX tone toggled {new_state.upper()}",
         "stderr": "",
     }
-    
+
+
 def stop_devcal_session() -> Dict[str, Any]:
     if not DEVCAL_PID.exists():
+        DEVCAL_MODE.unlink(missing_ok=True)
+        DEVCAL_TX_STATE.unlink(missing_ok=True)
+        DEVCAL_INPUT.unlink(missing_ok=True)
+
         return {
             "command": "stop devcal",
             "returncode": 0,
