@@ -222,9 +222,12 @@ def start_devcal_session(
 
     quoted_cmd = " ".join(shlex.quote(part) for part in cmd)
 
+    quoted_fifo = shlex.quote(str(DEVCAL_INPUT))
+
     shell_command = (
-        f"/usr/bin/tail -f {shlex.quote(str(DEVCAL_INPUT))} "
-        f"| {quoted_cmd}"
+        f"while true; do "
+        f"/bin/cat {quoted_fifo}; "
+        f"done | {quoted_cmd}"
     )
 
     DEVCAL_LOG.write_text(
