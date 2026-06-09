@@ -87,23 +87,6 @@ def build_devcal_command(
     flat: bool = False,
     wide: bool = False,
 ) -> List[str]:
-    """
-    Build the devcal command.
-
-    Command layout:
-
-        sudo /usr/bin/devcal [options] /etc/svxlink/svxlink.conf Tx1
-
-    Options are placed before the positional config file and section. TX
-    calibration deliberately does not add --txcal because the proven working
-    manual form is:
-
-        sudo devcal /etc/svxlink/svxlink.conf Tx1
-
-    TX transmit is controlled interactively by sending T to the running devcal
-    session.
-    """
-
     config_file = (config_file or "/etc/svxlink/svxlink.conf").strip()
     section = (section or "").strip()
     mode = (mode or "").strip()
@@ -117,7 +100,8 @@ def build_devcal_command(
     ]
 
     if mode == "txcal":
-        # Known-working TX form has no --txcal flag.
+        # Known-good TX devcal mode is the interactive default.
+        # Do not add --txcal here.
         pass
 
     elif mode == "rxcal":
@@ -129,7 +113,7 @@ def build_devcal_command(
     else:
         raise ValueError("Invalid devcal mode selected.")
 
-    # Slider/options section. Keep these before config file and section.
+    # Keep options before the positional config file and section.
     if modfqs:
         cmd.append(f"--modfqs={modfqs}")
 
@@ -217,6 +201,112 @@ def toggle_devcal_tx_state() -> str:
     return new_state
 
 
+def _devcal_supervisor_code() -> str:
+    return r'''
+import os
+import pty
+import select
+import signal
+import subprocess
+import sys
+import time
+
+fifo_path = sys.argv[1]
+log_path = sys.argv[2]
+cmd = sys.argv[3:]
+
+running = True
+
+def handle_signal(signum, frame):
+    global running
+    running = False
+
+signal.signal(signal.SIGTERM, handle_signal)
+signal.signal(signal.SIGINT, handle_signal)
+
+master_fd, slave_fd = pty.openpty()
+
+with open(log_path, "a", encoding="utf-8", errors="ignore") as log:
+    log.write("\nPTY supervisor starting devcal:\n")
+    log.write(" ".join(cmd) + "\n\n")
+    log.flush()
+
+    process = subprocess.Popen(
+        cmd,
+        stdin=slave_fd,
+        stdout=slave_fd,
+        stderr=slave_fd,
+        close_fds=True,
+        start_new_session=True,
+    )
+
+    os.close(slave_fd)
+
+    # Open FIFO read/write non-blocking so dashboard writers do not block
+    # when no separate reader is waiting.
+    fifo_fd = os.open(fifo_path, os.O_RDWR | os.O_NONBLOCK)
+
+    try:
+        while running:
+            if process.poll() is not None:
+                log.write("\ndevcal exited with return code %s\n" % process.returncode)
+                log.flush()
+                break
+
+            readable, _, _ = select.select(
+                [master_fd, fifo_fd],
+                [],
+                [],
+                0.25,
+            )
+
+            if master_fd in readable:
+                try:
+                    data = os.read(master_fd, 4096)
+                except OSError:
+                    data = b""
+
+                if data:
+                    text = data.decode("utf-8", errors="replace")
+                    log.write(text)
+                    log.flush()
+
+            if fifo_fd in readable:
+                try:
+                    data = os.read(fifo_fd, 4096)
+                except BlockingIOError:
+                    data = b""
+
+                if data:
+                    os.write(master_fd, data)
+
+    finally:
+        try:
+            os.close(fifo_fd)
+        except OSError:
+            pass
+
+        try:
+            os.close(master_fd)
+        except OSError:
+            pass
+
+        if process.poll() is None:
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except Exception:
+                pass
+
+            time.sleep(0.5)
+
+            if process.poll() is None:
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except Exception:
+                    pass
+'''
+
+
 def start_devcal_session(
     config_file: str,
     section: str,
@@ -248,40 +338,36 @@ def start_devcal_session(
         wide=wide,
     )
 
-    quoted_cmd = " ".join(shlex.quote(part) for part in cmd)
-    quoted_fifo = shlex.quote(str(DEVCAL_INPUT))
-
-    shell_command = (
-        f"while true; do "
-        f"/bin/cat {quoted_fifo}; "
-        f"done | {quoted_cmd}"
-    )
-
     DEVCAL_LOG.write_text(
-        "Starting devcal:\n"
-        + shell_command
+        "Starting devcal under PTY supervisor:\n"
+        + " ".join(shlex.quote(part) for part in cmd)
         + "\n\n",
         encoding="utf-8",
     )
 
-    log_handle = DEVCAL_LOG.open("a", encoding="utf-8")
-
-    process = subprocess.Popen(
-        ["/bin/bash", "-lc", shell_command],
-        stdout=log_handle,
-        stderr=subprocess.STDOUT,
+    supervisor = subprocess.Popen(
+        [
+            "/usr/bin/python3",
+            "-c",
+            _devcal_supervisor_code(),
+            str(DEVCAL_INPUT),
+            str(DEVCAL_LOG),
+            *cmd,
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         text=True,
         start_new_session=True,
     )
 
-    DEVCAL_PID.write_text(str(process.pid), encoding="utf-8")
+    DEVCAL_PID.write_text(str(supervisor.pid), encoding="utf-8")
     DEVCAL_MODE.write_text(mode, encoding="utf-8")
     set_devcal_tx_state("off")
 
     return {
-        "command": shell_command,
+        "command": " ".join(shlex.quote(part) for part in cmd),
         "returncode": 0,
-        "stdout": f"devcal started with PID {process.pid}",
+        "stdout": f"devcal PTY supervisor started with PID {supervisor.pid}",
         "stderr": "",
     }
 
@@ -310,7 +396,7 @@ def toggle_devcal_tx() -> Dict[str, Any]:
     new_state = toggle_devcal_tx_state()
 
     return {
-        "command": "send T to devcal",
+        "command": "send T to devcal PTY",
         "returncode": 0,
         "stdout": f"TX tone toggled {new_state.upper()}",
         "stderr": "",
@@ -346,7 +432,7 @@ def stop_devcal_session() -> Dict[str, Any]:
         return {
             "command": "stop devcal",
             "returncode": 0,
-            "stdout": f"Stopped devcal PID {pid}",
+            "stdout": f"Stopped devcal PTY supervisor PID {pid}",
             "stderr": "",
         }
 
