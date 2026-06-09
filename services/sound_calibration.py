@@ -87,6 +87,23 @@ def build_devcal_command(
     flat: bool = False,
     wide: bool = False,
 ) -> List[str]:
+    """
+    Build the devcal command.
+
+    Command layout:
+
+        sudo /usr/bin/devcal [options] /etc/svxlink/svxlink.conf Tx1
+
+    Options are placed before the positional config file and section. TX
+    calibration deliberately does not add --txcal because the proven working
+    manual form is:
+
+        sudo devcal /etc/svxlink/svxlink.conf Tx1
+
+    TX transmit is controlled interactively by sending T to the running devcal
+    session.
+    """
+
     config_file = (config_file or "/etc/svxlink/svxlink.conf").strip()
     section = (section or "").strip()
     mode = (mode or "").strip()
@@ -97,39 +114,47 @@ def build_devcal_command(
     cmd = [
         "sudo",
         "/usr/bin/devcal",
-        config_file,
-        section,
     ]
 
     if mode == "txcal":
-        cmd.append("--txcal")
+        # Known-working TX form has no --txcal flag.
+        pass
+
     elif mode == "rxcal":
         cmd.append("--rxcal")
+
     elif mode == "measure":
         cmd.append("--measure")
+
     else:
         raise ValueError("Invalid devcal mode selected.")
 
+    # Slider/options section. Keep these before config file and section.
     if modfqs:
-        cmd.extend(["--modfqs", str(modfqs)])
+        cmd.append(f"--modfqs={modfqs}")
 
     if caldev:
-        cmd.extend(["--caldev", str(caldev)])
+        cmd.append(f"--caldev={caldev}")
 
     if maxdev:
-        cmd.extend(["--maxdev", str(maxdev)])
+        cmd.append(f"--maxdev={maxdev}")
 
     if headroom:
-        cmd.extend(["--headroom", str(headroom)])
+        cmd.append(f"--headroom={headroom}")
 
     if audiodev:
-        cmd.extend(["--audiodev", audiodev])
+        cmd.append(f"--audiodev={audiodev}")
 
     if flat:
         cmd.append("--flat")
 
     if wide:
         cmd.append("--wide")
+
+    cmd.extend([
+        config_file,
+        section,
+    ])
 
     return cmd
 
@@ -226,12 +251,6 @@ def start_devcal_session(
     quoted_cmd = " ".join(shlex.quote(part) for part in cmd)
     quoted_fifo = shlex.quote(str(DEVCAL_INPUT))
 
-    # Important:
-    # Do not use a simple "cat fifo | devcal" or "tail -f fifo | devcal".
-    # Those can end or close stdin after a single dashboard write.
-    #
-    # The while/cat loop keeps the pipeline alive, allowing later button
-    # presses to write "T" into the FIFO without devcal being closed.
     shell_command = (
         f"while true; do "
         f"/bin/cat {quoted_fifo}; "
