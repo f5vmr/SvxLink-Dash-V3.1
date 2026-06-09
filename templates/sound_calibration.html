@@ -363,40 +363,28 @@
 
                     </form>
 
-                    <form action="{{ url_for('sound_calibration_page') }}"
-                          method="post"
-                          class="calibration-button-form">
+                    {% if devcal_running %}
 
-                        <input type="hidden"
-                               name="action"
-                               value="stop_devcal">
+                        <form action="{{ url_for('sound_calibration_page') }}"
+                              method="post"
+                              class="calibration-button-form">
 
-                        <button class="calibration-stop"
-                                type="submit"
-                                onclick="return confirm('Stop the running devcal session?');">
+                            <input type="hidden"
+                                   name="action"
+                                   value="stop_devcal">
 
-                            Stop devcal
+                            <button class="calibration-stop"
+                                    type="submit"
+                                    onclick="return confirm('Stop the running devcal session?');">
 
-                        </button>
+                                Stop devcal
 
-                    </form>
-                    <form action="{{ url_for('sound_calibration_page') }}"
-                          method="post"
-                          class="calibration-button-form">
+                            </button>
 
-                        <input type="hidden"
-                               name="action"
-                               value="stop_devcal">
+                        </form>
 
-                        <button class="calibration-stop"
-                                type="submit"
-                                onclick="return confirm('Stop the running devcal session?');">
+                    {% endif %}
 
-                            Stop devcal
-
-                        </button>
-
-                    </form>
                     {% if devcal_running and devcal_mode == "txcal" %}
 
                         <form action="{{ url_for('sound_calibration_page') }}"
@@ -429,12 +417,13 @@
 
                         </form>
 
-                    {% endif %}                    
+                    {% endif %}
+
                 </div>
 
             </div>
 
-                        {% if devcal_running and devcal_mode == "rxcal" %}
+            {% if devcal_running and devcal_mode == "rxcal" %}
 
                 <div class="status-box">
 

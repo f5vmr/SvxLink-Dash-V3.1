@@ -4,10 +4,9 @@ import subprocess
 from typing import Any, Dict, List
 from pathlib import Path
 import os
+import shlex
 import signal
 import subprocess
-from typing import Any, Dict, List
-
 
 DEVCAL_LOG = Path("/tmp/svxlink-devcal.log")
 DEVCAL_PID = Path("/tmp/svxlink-devcal.pid")
@@ -18,7 +17,21 @@ DEVCAL_TX_STATE = Path("/tmp/svxlink-devcal.tx")
 
 SVXLINK_SERVICE = "svxlink.service"
 
+def prepare_devcal_input_pipe() -> None:
+    if DEVCAL_INPUT.exists():
+        try:
+            mode = DEVCAL_INPUT.stat().st_mode
+            if stat.S_ISFIFO(mode):
+                return
 
+            DEVCAL_INPUT.unlink()
+
+        except FileNotFoundError:
+            pass
+
+    os.mkfifo(DEVCAL_INPUT, 0o666)
+    os.chmod(DEVCAL_INPUT, 0o666)
+    
 def run_cmd(cmd: List[str], timeout: int = 30) -> Dict[str, Any]:
     result = subprocess.run(
         cmd,
@@ -179,16 +192,19 @@ def start_devcal_session(
     config_file: str,
     section: str,
     mode: str,
-    modfqs: str,
-    caldev: str,
-    maxdev: str,
-    headroom: str,
+    modfqs: str = "1000.0",
+    caldev: str = "2404.8",
+    maxdev: str = "5000",
+    headroom: str = "6",
     audiodev: str = "",
     flat: bool = False,
     wide: bool = False,
 ) -> Dict[str, Any]:
+
     if devcal_is_running():
         raise RuntimeError("devcal is already running.")
+
+    prepare_devcal_input_pipe()
 
     cmd = build_devcal_command(
         config_file=config_file,
@@ -203,9 +219,16 @@ def start_devcal_session(
         wide=wide,
     )
 
+    quoted_cmd = " ".join(shlex.quote(part) for part in cmd)
+
+    shell_command = (
+        f"/usr/bin/tail -f {shlex.quote(str(DEVCAL_INPUT))} "
+        f"| {quoted_cmd}"
+    )
+
     DEVCAL_LOG.write_text(
         "Starting devcal:\n"
-        + " ".join(cmd)
+        + shell_command
         + "\n\n",
         encoding="utf-8",
     )
@@ -213,19 +236,19 @@ def start_devcal_session(
     log_handle = DEVCAL_LOG.open("a", encoding="utf-8")
 
     process = subprocess.Popen(
-        cmd,
+        ["/bin/bash", "-lc", shell_command],
         stdout=log_handle,
         stderr=subprocess.STDOUT,
         text=True,
         start_new_session=True,
     )
-    set_devcal_tx_state("off")
-    
+
     DEVCAL_PID.write_text(str(process.pid), encoding="utf-8")
     DEVCAL_MODE.write_text(mode, encoding="utf-8")
+    set_devcal_tx_state("off")
 
     return {
-        "command": " ".join(cmd),
+        "command": shell_command,
         "returncode": 0,
         "stdout": f"devcal started with PID {process.pid}",
         "stderr": "",
@@ -317,6 +340,7 @@ def stop_devcal_session() -> Dict[str, Any]:
         DEVCAL_PID.unlink(missing_ok=True)
         DEVCAL_MODE.unlink(missing_ok=True)
         DEVCAL_TX_STATE.unlink(missing_ok=True)
+        DEVCAL_INPUT.unlink(missing_ok=True)
 
         return {
             "command": "stop devcal",
