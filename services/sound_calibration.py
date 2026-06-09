@@ -7,6 +7,7 @@ import os
 import shlex
 import signal
 import subprocess
+import stat
 
 DEVCAL_LOG = Path("/tmp/svxlink-devcal.log")
 DEVCAL_PID = Path("/tmp/svxlink-devcal.pid")
