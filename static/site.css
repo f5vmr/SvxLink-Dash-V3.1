@@ -1736,3 +1736,22 @@ footer a:hover {
 .devcal-tx-on:hover {
     background: #b71c1c;
 }
+.dashboard-container .devcal-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.dashboard-container .devcal-action-row form {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dashboard-container .devcal-action-row button {
+    margin: 0;
+}

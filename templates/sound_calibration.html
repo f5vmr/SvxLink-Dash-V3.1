@@ -230,9 +230,10 @@
 
                 <div class="status-box-row">
 
-                    <form action="{{ url_for('sound_calibration_page') }}"
-                          method="post"
-                          class="devcal-form">
+                    <form id="devcal-start-form"
+                        action="{{ url_for('sound_calibration_page') }}"
+                        method="post"
+                        class="devcal-form">
 
                         <input type="hidden"
                                name="action"
@@ -351,9 +352,12 @@
                             </label>
                         </div>
 
-                        <div></div>
+                    </form>
 
-                        <button class="calibration-restart"
+                    <div class="devcal-action-row">
+
+                        <button form="devcal-start-form"
+                                class="calibration-restart"
                                 type="submit"
                                 onclick="return confirm('Start devcal now? SvxLink should already be stopped. Continue?');">
 
@@ -361,63 +365,63 @@
 
                         </button>
 
-                    </form>
+                        {% if devcal_running %}
 
-                    {% if devcal_running %}
+                            <form action="{{ url_for('sound_calibration_page') }}"
+                                  method="post"
+                                  class="calibration-button-form">
 
-                        <form action="{{ url_for('sound_calibration_page') }}"
-                              method="post"
-                              class="calibration-button-form">
+                                <input type="hidden"
+                                       name="action"
+                                       value="stop_devcal">
 
-                            <input type="hidden"
-                                   name="action"
-                                   value="stop_devcal">
+                                <button class="calibration-stop"
+                                        type="submit"
+                                        onclick="return confirm('Stop the running devcal session?');">
 
-                            <button class="calibration-stop"
-                                    type="submit"
-                                    onclick="return confirm('Stop the running devcal session?');">
-
-                                Stop devcal
-
-                            </button>
-
-                        </form>
-
-                    {% endif %}
-
-                    {% if devcal_running and devcal_mode == "txcal" %}
-
-                        <form action="{{ url_for('sound_calibration_page') }}"
-                              method="post"
-                              class="calibration-button-form">
-
-                            <input type="hidden"
-                                   name="action"
-                                   value="toggle_devcal_tx">
-
-                            {% if devcal_tx_state == "on" %}
-
-                                <button class="devcal-tx-on"
-                                        type="submit">
-
-                                    Stop TX Tone
+                                    Stop devcal
 
                                 </button>
 
-                            {% else %}
+                            </form>
 
-                                <button class="devcal-tx-off"
-                                        type="submit">
+                        {% endif %}
 
-                                    Start TX Tone
+                        {% if devcal_running and devcal_mode == "txcal" %}
 
-                                </button>
+                            <form action="{{ url_for('sound_calibration_page') }}"
+                                  method="post"
+                                  class="calibration-button-form">
 
-                            {% endif %}
+                                <input type="hidden"
+                                       name="action"
+                                       value="toggle_devcal_tx">
 
-                        </form>
+                                {% if devcal_tx_state == "on" %}
 
-                    {% endif %}
+                                    <button class="devcal-tx-on"
+                                            type="submit">
+
+                                        Stop TX Tone
+
+                                    </button>
+
+                                {% else %}
+
+                                    <button class="devcal-tx-off"
+                                            type="submit">
+
+                                        Start TX Tone
+
+                                    </button>
+
+                                {% endif %}
+
+                            </form>
+
+                        {% endif %}
+
+                    </div>
 
                 </div>
 
