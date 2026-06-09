@@ -380,7 +380,56 @@
                         </button>
 
                     </form>
+                    <form action="{{ url_for('sound_calibration_page') }}"
+                          method="post"
+                          class="calibration-button-form">
 
+                        <input type="hidden"
+                               name="action"
+                               value="stop_devcal">
+
+                        <button class="calibration-stop"
+                                type="submit"
+                                onclick="return confirm('Stop the running devcal session?');">
+
+                            Stop devcal
+
+                        </button>
+
+                    </form>
+                    {% if devcal_running and devcal_mode == "txcal" %}
+
+                        <form action="{{ url_for('sound_calibration_page') }}"
+                              method="post"
+                              class="calibration-button-form">
+
+                            <input type="hidden"
+                                   name="action"
+                                   value="toggle_devcal_tx">
+
+                            {% if devcal_tx_state == "on" %}
+
+                                <button class="devcal-tx-on"
+                                        type="submit">
+
+                                    Stop TX Tone
+
+                                </button>
+
+                            {% else %}
+
+                                <button class="devcal-tx-off"
+                                        type="submit">
+
+                                    Start TX Tone
+
+                                </button>
+
+                            {% endif %}
+
+                        </form>
+
+                    {% endif %}                    
                 </div>
 
             </div>

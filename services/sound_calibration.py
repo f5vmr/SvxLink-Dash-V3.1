@@ -12,6 +12,8 @@ from typing import Any, Dict, List
 DEVCAL_LOG = Path("/tmp/svxlink-devcal.log")
 DEVCAL_PID = Path("/tmp/svxlink-devcal.pid")
 DEVCAL_MODE = Path("/tmp/svxlink-devcal.mode")
+DEVCAL_INPUT = Path("/tmp/svxlink-devcal.in")
+DEVCAL_TX_STATE = Path("/tmp/svxlink-devcal.tx")
 
 
 SVXLINK_SERVICE = "svxlink.service"
@@ -217,7 +219,8 @@ def start_devcal_session(
         text=True,
         start_new_session=True,
     )
-
+    set_devcal_tx_state("off")
+    
     DEVCAL_PID.write_text(str(process.pid), encoding="utf-8")
     DEVCAL_MODE.write_text(mode, encoding="utf-8")
 
@@ -239,7 +242,61 @@ def get_devcal_mode() -> str:
 
     except Exception:
         return ""
+def get_devcal_tx_state() -> str:
+    if not DEVCAL_TX_STATE.exists():
+        return "off"
 
+    try:
+        state = DEVCAL_TX_STATE.read_text(
+            encoding="utf-8",
+            errors="ignore",
+        ).strip().lower()
+
+    except Exception:
+        return "off"
+
+    if state == "on":
+        return "on"
+
+    return "off"
+
+
+def set_devcal_tx_state(state: str) -> None:
+    state = "on" if state == "on" else "off"
+    DEVCAL_TX_STATE.write_text(state, encoding="utf-8")
+
+
+def toggle_devcal_tx_state() -> str:
+    current = get_devcal_tx_state()
+    new_state = "off" if current == "on" else "on"
+    set_devcal_tx_state(new_state)
+    return new_state
+
+def toggle_devcal_tx() -> Dict[str, Any]:
+    if not devcal_is_running():
+        raise RuntimeError("devcal is not running.")
+
+    mode = get_devcal_mode()
+
+    if mode != "txcal":
+        raise RuntimeError("TX toggle is only available during TX calibration.")
+
+    if not DEVCAL_INPUT.exists():
+        raise RuntimeError("devcal input pipe is not available.")
+
+    with DEVCAL_INPUT.open("w", encoding="utf-8") as fh:
+        fh.write("T\n")
+        fh.flush()
+
+    new_state = toggle_devcal_tx_state()
+
+    return {
+        "command": "send T to devcal",
+        "returncode": 0,
+        "stdout": f"TX tone toggled {new_state.upper()}",
+        "stderr": "",
+    }
+    
 def stop_devcal_session() -> Dict[str, Any]:
     if not DEVCAL_PID.exists():
         return {
@@ -259,6 +316,7 @@ def stop_devcal_session() -> Dict[str, Any]:
 
         DEVCAL_PID.unlink(missing_ok=True)
         DEVCAL_MODE.unlink(missing_ok=True)
+        DEVCAL_TX_STATE.unlink(missing_ok=True)
 
         return {
             "command": "stop devcal",

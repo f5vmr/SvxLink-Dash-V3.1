@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-from pyexpat import model
-from unittest import result
-
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,7 +9,6 @@ from services.sound_discovery import (
     set_slider_control,
 )
 from services.build_svxlink import build_svxlink_configuration
-from services.build_svxlink import svxlink_status
 from services.model_store import (
     load_node_model,
     save_node_model,
@@ -30,6 +26,8 @@ from services.sound_calibration import (
     get_devcal_output,
     devcal_is_running,
     get_devcal_mode,
+    get_devcal_tx_state,
+    toggle_devcal_tx,
 )
 
 ## Wifi
@@ -51,7 +49,6 @@ from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
-from services.svxlink_service import restart_svxlink
 from services.log_service import get_svxlink_log_path
 from services.gpio_service import flatten_gpio_lines
 from services.node_info_service import write_node_info_json
@@ -1345,6 +1342,7 @@ def sound_calibration_page():
 
             elif action == "restart_svxlink":
                 result = restart_svxlink_after_calibration()
+
             elif action == "start_devcal":
                 config_file = request.form.get(
                     "config_file",
@@ -1374,39 +1372,12 @@ def sound_calibration_page():
                     wide=wide,
                 )
 
-            elif action == "stop_devcal":
-                result = stop_devcal_session()
-            elif action == "start_devcal":
-                config_file = request.form.get(
-                    "config_file",
-                    DEFAULT_SVXLINK_CONFIG
-                ).strip()
-
-                section = request.form.get("section", "").strip()
-                mode = request.form.get("mode", "").strip()
-                modfqs = request.form.get("modfqs", "1000.0").strip()
-                caldev = request.form.get("caldev", "2404.8").strip()
-                maxdev = request.form.get("maxdev", "5000").strip()
-                headroom = request.form.get("headroom", "6").strip()
-                audiodev = request.form.get("audiodev", "").strip()
-                flat = request.form.get("flat") == "on"
-                wide = request.form.get("wide") == "on"
-
-                result = start_devcal_session(
-                    config_file=config_file,
-                    section=section,
-                    mode=mode,
-                    modfqs=modfqs,
-                    caldev=caldev,
-                    maxdev=maxdev,
-                    headroom=headroom,
-                    audiodev=audiodev,
-                    flat=flat,
-                    wide=wide,
-                )
+            elif action == "toggle_devcal_tx":
+                result = toggle_devcal_tx()
 
             elif action == "stop_devcal":
                 result = stop_devcal_session()
+
             else:
                 error = "Unknown calibration action."
 
@@ -1421,6 +1392,7 @@ def sound_calibration_page():
             "rx_sections": [],
             "tx_sections": [],
         }
+
         if not error:
             error = f"Could not read SvxLink audio sections: {exc}"
 
@@ -1433,11 +1405,12 @@ def sound_calibration_page():
         error=error,
         result=result,
         devcal_running=devcal_is_running(),
-        devcal_output=get_devcal_output(),
         devcal_mode=get_devcal_mode(),
+        devcal_tx_state=get_devcal_tx_state(),
+        devcal_output=get_devcal_output(),
     )
-   
-       
+
+
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
     error = None

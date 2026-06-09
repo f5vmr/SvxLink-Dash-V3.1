@@ -1709,3 +1709,30 @@ footer a:hover {
     white-space: pre-wrap;
     text-align: left;
 }
+.devcal-tx-off {
+    background: #2e9d55;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.devcal-tx-off:hover {
+    background: #237c43;
+}
+
+.devcal-tx-on {
+    background: #d32f2f;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.devcal-tx-on:hover {
+    background: #b71c1c;
+}
