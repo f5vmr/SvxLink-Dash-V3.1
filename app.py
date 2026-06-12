@@ -3,15 +3,17 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 from werkzeug.security import generate_password_hash, check_password_hash
-from services.sound_calibration import (
+from services.sound_discovery import (
     discover_sound_cards,
     apply_safe_baseline,
     set_slider_control,
 )
+
 from services.svxlink_config_discovery import (
     DEFAULT_SVXLINK_CONFIG,
     discover_audio_sections,
 )
+
 from services.sound_calibration import (
     get_svxlink_service_state,
     stop_svxlink_for_calibration,
@@ -24,27 +26,17 @@ from services.sound_calibration import (
     get_devcal_tx_state,
     toggle_devcal_tx,
 )
-from services.hardware_profile_service import list_hardware_profiles, load_hardware_profile
+
+from services.hardware_profile_service import (
+    list_hardware_profiles,
+    load_hardware_profile,
+)
+
 from services.build_svxlink import build_svxlink_configuration
+
 from services.model_store import (
     load_node_model,
     save_node_model,
-)
-from services.svxlink_config_discovery import (
-    DEFAULT_SVXLINK_CONFIG,
-    discover_audio_sections,
-)
-from services.sound_calibration import (
-    get_svxlink_service_state,
-    stop_svxlink_for_calibration,
-    restart_svxlink_after_calibration,
-    start_devcal_session,
-    stop_devcal_session,
-    get_devcal_output,
-    devcal_is_running,
-    get_devcal_mode,
-    get_devcal_tx_state,
-    toggle_devcal_tx,
 )
 
 ## Wifi
