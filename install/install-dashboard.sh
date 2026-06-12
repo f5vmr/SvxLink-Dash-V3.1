@@ -47,6 +47,7 @@ svxlink ALL=(root) NOPASSWD: \
     /usr/bin/git, \
     /usr/bin/systemd-run, \
     /usr/bin/install, \
+    /usr/bin/pkill, \
     /usr/bin/sh
 EOF
 

@@ -6,7 +6,6 @@ from pathlib import Path
 import os
 import shlex
 import signal
-import subprocess
 import stat
 
 DEVCAL_LOG = Path("/tmp/svxlink-devcal.log")
@@ -56,10 +55,55 @@ def get_svxlink_service_state() -> Dict[str, Any]:
 def stop_svxlink_for_calibration() -> Dict[str, Any]:
     return run_cmd(["sudo", "/usr/bin/systemctl", "stop", SVXLINK_SERVICE], timeout=20)
 
+def kill_devcal_processes() -> Dict[str, Any]:
+    """
+    Force-clear any devcal process before SvxLink is started/restarted.
+
+    This is a safety net for cases where devcal survives page refreshes,
+    navigation, or stale PID files and continues holding audio, GPIO, or HID
+    resources.
+    """
+    result = run_cmd(
+        ["sudo", "/usr/bin/pkill", "-x", "devcal"],
+        timeout=10,
+    )
+
+    # pkill return codes:
+    #   0 = one or more matching processes were killed
+    #   1 = no matching process found
+    # Both are acceptable for this cleanup step.
+    if result["returncode"] in (0, 1):
+        DEVCAL_PID.unlink(missing_ok=True)
+        DEVCAL_MODE.unlink(missing_ok=True)
+        DEVCAL_TX_STATE.unlink(missing_ok=True)
+        DEVCAL_INPUT.unlink(missing_ok=True)
+
+        if result["returncode"] == 0:
+            result["stdout"] = result["stdout"] or "Cleared devcal process."
+        else:
+            result["stdout"] = "No devcal process was running."
+
+        result["returncode"] = 0
+        return result
+
+    return result
 
 def restart_svxlink_after_calibration() -> Dict[str, Any]:
-    return run_cmd(["sudo", "/usr/bin/systemctl", "restart", SVXLINK_SERVICE], timeout=30)
+    kill_result = kill_devcal_processes()
 
+    if kill_result["returncode"] != 0:
+        return {
+            "command": kill_result["command"],
+            "returncode": kill_result["returncode"],
+            "stdout": kill_result["stdout"],
+            "stderr": kill_result["stderr"] or "Unable to clear devcal before restarting SvxLink.",
+        }
+
+    return run_cmd(
+        ["sudo", "/usr/bin/systemctl", "restart", SVXLINK_SERVICE],
+        timeout=30,
+    )
+    
 def run_devcal(
     config_file: str,
     section: str,
