@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 """
-Version helpers for SvxLink-Dash-V3.
+Version helpers for SvxLink-Dash-V3.1.
 """
 
 import subprocess
 
 
-DASHBOARD_VERSION = "3.0"
+DASHBOARD_VERSION = "3.1"
 
 
 def get_dashboard_version():

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -e
 
-REPO_URL="https://github.com/f5vmr/SvxLink-Dash-V3.git"
+REPO_URL="https://github.com/f5vmr/SvxLink-Dash-V3.1.git"
 INSTALL_DIR="/opt/dashboard"
 
-echo "Installing SvxLink-Dash-V3..."
+echo "Installing SvxLink-Dash-V3.1..."
 
 apt update
 apt install -y git python3 python3-flask python3-jinja2 python3-werkzeug
@@ -31,7 +31,7 @@ chmod +x "$INSTALL_DIR/install/fix-permissions.sh"
 "$INSTALL_DIR/install/fix-permissions.sh"
 
 cat > /etc/sudoers.d/svxlink-dash <<'EOF'
-# SvxLink-Dash-V3 controlled service permissions
+# SvxLink-Dash-V3.1 controlled service permissions
 
 svxlink ALL=(root) NOPASSWD: \
     /usr/bin/systemctl restart svxlink.service, \

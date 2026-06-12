@@ -1,8 +1,8 @@
-# SvxLink-Dash-V3
+# SvxLink-Dash-V3.1
 
 A modern Flask-based configuration and runtime dashboard for SvxLink systems.
 
-SvxLink-Dash-V3 provides:
+SvxLink-Dash-V3.1 provides:
 
 - Guided SvxLink configuration
 - Runtime operational dashboard
@@ -101,7 +101,7 @@ Tested with:
 
 The installer automatically:
 
-- Downloads SvxLink-Dash-V3 into `/opt/dashboard`
+- Downloads SvxLink-Dash-V3.1 into `/opt/dashboard`
 - Installs required Python packages
 - Configures permissions
 - Installs the systemd service
@@ -112,7 +112,7 @@ Run:
 
 ```bash
 cd /tmp
-wget https://raw.githubusercontent.com/f5vmr/SvxLink-Dash-V3/main/install/install-dashboard.sh
+wget https://raw.githubusercontent.com/f5vmr/SvxLink-Dash-V3.1/main/install/install-dashboard.sh
 chmod +x install-dashboard.sh
 sudo ./install-dashboard.sh
 ```
@@ -449,7 +449,7 @@ exists and is writable by user `svxlink`.
 
 # Reflector Protocol Notice
 
-SvxLink-Dash-V3 is written primarily for the following SvxReflector Protocol 2 networks running SvxLink Version 25:
+SvxLink-Dash-V3.1 is written primarily for the following SvxReflector Protocol 2 networks running SvxLink Version 25:
 
 - UKWide
 - North America
@@ -488,7 +488,7 @@ SvxLink Software:
 
 Tobias Blömberg SM0SVX
 
-SvxLink-Dash-V3:
+SvxLink-Dash-V3.1:
 
 Chris Jackson G4NAB
 

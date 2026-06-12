@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Primary SvxLink configuration renderer for SvxLink-Dash-V3.
+Primary SvxLink configuration renderer for SvxLink-Dash-V3.1.
 """
 
 from renderers.template_engine import render_config_template

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Primary build orchestration service for SvxLink-Dash-V3.
+Primary build orchestration service for SvxLink-Dash-V3.1.
 
 This module coordinates:
 - model validation

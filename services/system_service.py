@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-System maintenance helpers for SvxLink-Dash-V3.
+System maintenance helpers for SvxLink-Dash-V3.1.
 """
 
 import subprocess

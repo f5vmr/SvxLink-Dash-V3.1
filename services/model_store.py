@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Node model persistence for SvxLink-Dash-V3.
+Node model persistence for SvxLink-Dash-V3.1.
 """
 
 import json
