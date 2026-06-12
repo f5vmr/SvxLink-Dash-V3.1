@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Rebuild / Reconfigure - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Rebuild / Reconfigure</h1>
+                <p>Choose which part of the existing configuration you want to revisit.</p>
+            </div>
+        </div>
+
+        <div class="note">
+            The hardware platform is preserved and cannot be casually redefined here.
+            Environment, region, node settings, modules, and build stages may be revisited.
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('reconfigure_page') }}" method="post">
+            <div class="form-section">
+                <label class="label" for="target">Configuration section</label>
+
+                <select id="target" name="target" required>
+                    <option value="">Select a section...</option>
+                    {% for target in reconfigure_targets %}
+                        <option value="{{ target.id }}">{{ target.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-section">
+                <div class="label">Available actions</div>
+
+                {% for target in reconfigure_targets %}
+                    <p>
+                        <strong>{{ target.label }}</strong><br>
+                        {{ target.description }}
+                    </p>
+                {% endfor %}
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('maintenance_page') }}">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>

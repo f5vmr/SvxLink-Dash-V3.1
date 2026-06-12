@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Full Reset - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Full Reset</h1>
+                <p>Archive the current node model and restart the setup wizard.</p>
+            </div>
+        </div>
+
+        <div class="note">
+            This will remove the active dashboard model from use.
+            A backup copy will be saved first in the dashboard config backups folder.
+        </div>
+
+        <div class="note">
+            Use this only when you want to start again from the beginning.
+            For ordinary changes, go back and choose a specific reconfiguration section instead.
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('reconfigure_reset_page') }}" method="post">
+            <div class="form-section">
+                <label class="label" for="confirmation">Type RESET to confirm</label>
+                <input id="confirmation"
+                       name="confirmation"
+                       type="text"
+                       autocomplete="off"
+                       required>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('reconfigure_page') }}">Cancel</a>
+                <button class="button-primary"
+                        type="submit"
+                        onclick="return confirm('Archive the current model and restart setup?');">
+                    Archive Model and Reset
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>

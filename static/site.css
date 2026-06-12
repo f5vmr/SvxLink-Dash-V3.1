@@ -1756,3 +1756,10 @@ footer a:hover {
 .dashboard-container .devcal-action-row button {
     margin: 0;
 }
+.status-box-soft .status-box-title {
+    background: #2f6f4e;
+}
+
+.status-box-hard .status-box-title {
+    background: #8a4b22;
+}

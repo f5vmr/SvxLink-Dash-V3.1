@@ -40,7 +40,7 @@
 
         <div class="maintenance-panel">
 
-            <div class="status-box">
+            <div class="status-box" "status-box-soft">
 
                 <div class="status-box-title">
                     Restart Services
@@ -63,8 +63,30 @@
                 </div>
 
             </div>
+            <div class="status-box" "status-box-soft">
 
-            <div class="status-box">
+                <div class="status-box-title">
+                    Rebuild / Reconfigure
+                </div>
+            
+                <div class="status-box-row">
+                
+                    <form action="{{ url_for('reconfigure_page') }}"
+                          method="get">
+                
+                        <button class="maintenance-restart"
+                                type="submit">
+                
+                            Rebuild / Reconfigure
+                
+                        </button>
+                    
+                    </form>
+                
+                </div>
+            
+            </div>
+            <div class="status-box" "status-box-hard">
 
                 <div class="status-box-title">
                     Reboot Device
@@ -88,7 +110,7 @@
 
             </div>
 
-            <div class="status-box">
+            <div class="status-box" "status-box-hard">
 
                 <div class="status-box-title">
                     Power Off Device

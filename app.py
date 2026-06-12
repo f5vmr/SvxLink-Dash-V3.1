@@ -2,6 +2,8 @@
 
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
+import shutil
+import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from services.sound_discovery import (
     discover_sound_cards,
@@ -63,7 +65,6 @@ from services.gpio_service import flatten_gpio_lines
 from services.node_info_service import write_node_info_json
 from renderers.svxlink_renderer import (
     render_echolink_module,
-    render_metar_module,
 )
 from services.version_service import get_version_info
 from services.svxlink_service import (
@@ -93,6 +94,7 @@ STATIC_DIR = APP_ROOT / "static"
 
 CONFIG_DIR = APP_ROOT / "config"
 MODEL_FILE = CONFIG_DIR / "node_model.json"
+MODEL_BACKUP_DIR = CONFIG_DIR / "backups"
 # =========================================================
 # Supported CTCSS frequencies
 # =========================================================
@@ -546,7 +548,32 @@ def interface_page():
         gpio_lines=gpio_lines,
         supports_gpiod=supports_gpiod,
     )
+@app.route("/reconfigure/reset", methods=["GET", "POST"])
+def reconfigure_reset_page():
+    if request.method == "POST":
+        confirmation = request.form.get("confirmation", "").strip()
 
+        if confirmation != "RESET":
+            return render_template(
+                "reconfigure_reset.html",
+                error="Type RESET to confirm the full reset.",
+            )
+
+        MODEL_BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+
+        if MODEL_FILE.exists():
+            timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+            backup_path = MODEL_BACKUP_DIR / f"node_model.json.bak-{timestamp}"
+            shutil.copy2(MODEL_FILE, backup_path)
+            MODEL_FILE.unlink()
+
+        return redirect(url_for("start"))
+
+    return render_template(
+        "reconfigure_reset.html",
+        error=None,
+    )
+    
 @app.route("/squelch", methods=["GET", "POST"])
 def squelch_page():
     model = load_node_model()
@@ -1847,7 +1874,101 @@ def maintenance_page():
     return render_template(
         "maintenance.html"
     )
+@app.route("/reconfigure", methods=["GET", "POST"])
+def reconfigure_page():
+    reconfigure_targets = [
+        {
+            "id": "environment",
+            "label": "Environment / Region",
+            "route": "environment_page",
+            "description": "Change the region/environment settings. The hardware platform is preserved.",
+        },
+        {
+            "id": "timezone",
+            "label": "Timezone",
+            "route": "timezone_page",
+            "description": "Change the configured timezone.",
+        },
+        {
+            "id": "node",
+            "label": "Node Details",
+            "route": "node_page",
+            "description": "Change callsign, node type, location, and related node identity settings.",
+        },
+        {
+            "id": "interface",
+            "label": "Radio Interface",
+            "route": "interface_page",
+            "description": "Change radio interface settings.",
+        },
+        {
+            "id": "squelch",
+            "label": "Squelch / COS",
+            "route": "squelch_page",
+            "description": "Change squelch or COS detection settings.",
+        },
+        {
+            "id": "ident",
+            "label": "Ident",
+            "route": "ident_page",
+            "description": "Change ident settings.",
+        },
+        {
+            "id": "cw",
+            "label": "CW Settings",
+            "route": "cw_page",
+            "description": "Change CW pitch, speed, and level settings.",
+        },
+        {
+            "id": "courtesy",
+            "label": "Courtesy Tones",
+            "route": "courtesy_page",
+            "description": "Change courtesy tone settings.",
+        },
+        {
+            "id": "modules",
+            "label": "Modules",
+            "route": "modules_page",
+            "description": "Change enabled modules such as EchoLink and MetarInfo.",
+        },
+        {
+            "id": "review",
+            "label": "Review Configuration",
+            "route": "review_page",
+            "description": "Review the current model before rebuilding.",
+        },
+        {
+            "id": "build",
+            "label": "Build Configuration",
+            "route": "build_page",
+            "description": "Regenerate the active SvxLink configuration.",
+        },
+        {
+            "id": "full_reset",
+            "label": "Full Reset and Start Again",
+            "route": "reconfigure_reset_page",
+            "description": "Archive the current node model and restart the setup wizard.",
+        },
+    ]
 
+    if request.method == "POST":
+        target_id = request.form.get("target", "").strip()
+
+        for target in reconfigure_targets:
+            if target["id"] == target_id:
+                return redirect(url_for(target["route"]))
+
+        return render_template(
+            "reconfigure.html",
+            reconfigure_targets=reconfigure_targets,
+            error="Please select a valid reconfiguration option.",
+        )
+
+    return render_template(
+        "reconfigure.html",
+        reconfigure_targets=reconfigure_targets,
+        error=None,
+    )
 @app.route("/maintenance/restart", methods=["POST"])
 def restart_services_page():
 
