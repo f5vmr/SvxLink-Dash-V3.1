@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Talkgroup configuration helpers for SvxLink-Dash-V3.1.
+Talkgroup configuration helpers for {{ version_info.dashboard_name }}.
 """
 
 from pathlib import Path

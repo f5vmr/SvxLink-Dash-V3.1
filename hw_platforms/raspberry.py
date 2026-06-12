@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Raspberry Pi platform profile for SvxLink-Dash-V3.1.
+Raspberry Pi platform profile for {{ version_info.dashboard_name }}.
 """
 
 PROFILE = {

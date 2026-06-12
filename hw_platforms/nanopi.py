@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-NanoPi-Neo platform profile for SvxLink-Dash-V3.1.
+NanoPi-Neo platform profile for {{ version_info.dashboard_name }}.
 """
 
 PROFILE = {

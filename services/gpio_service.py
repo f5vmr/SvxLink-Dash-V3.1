@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-GPIO line helper for SvxLink-Dash-V3.1.
+GPIO line helper for {{ version_info.dashboard_name }}.
 """
 
 import json

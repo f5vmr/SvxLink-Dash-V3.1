@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-Scan available GPIO lines for SvxLink-Dash-V3.1.
+Scan available GPIO lines for {{ version_info.dashboard_name }}.
 
 Currently provides a Raspberry Pi focused GPIO list:
 gpiochip0, GPIO2-GPIO27.

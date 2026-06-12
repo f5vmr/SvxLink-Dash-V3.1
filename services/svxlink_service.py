@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-SvxLink service and file deployment helpers for SvxLink-Dash-V3.1.
+SvxLink service and file deployment helpers for {{ version_info.dashboard_name }}.
 
 This module owns:
 - svxlink service status

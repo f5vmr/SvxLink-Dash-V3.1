@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-System maintenance helpers for SvxLink-Dash-V3.1.
+System maintenance helpers for {{ version_info.dashboard_name }}.
 """
 
 import subprocess

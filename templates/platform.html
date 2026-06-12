@@ -23,7 +23,7 @@
         </div>
 
         {% if not model.platform.supported %}
-            <p class="error">This platform is not currently supported by SvxLink-Dash-V3.1.</p>
+            <p class="error">This platform is not currently supported by {{ version_info.dashboard_name }}.</p>
         {% else %}
             <p class="success">This platform is supported.</p>
         {% endif %}
@@ -40,7 +40,7 @@
     <footer class="site-footer">
     SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
     SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
-    Dashboard {{ version_info.dashboard }} |
+    Dashboard {{ version_info.dashboard_name }}|
     SvxLink Package {{ version_info.package }} |
     SvxLink {{ version_info.engine }}
     </footer>

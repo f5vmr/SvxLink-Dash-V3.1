@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 
 """
-Version helpers for SvxLink-Dash-V3.1.
+Version helpers for SvxLink-Dash.
 """
 
 import subprocess
 
 
 DASHBOARD_VERSION = "3.1"
+DASHBOARD_NAME_PREFIX = "SvxLink-Dash-V"
 
 
 def get_dashboard_version():
     return DASHBOARD_VERSION
+
+
+def get_dashboard_name():
+    return f"{DASHBOARD_NAME_PREFIX}{DASHBOARD_VERSION}"
+
+
+def get_dashboard_title():
+    return get_dashboard_name()
 
 
 def get_svxlink_package_version():
@@ -55,7 +64,9 @@ def get_svxlink_engine_version():
 
 def get_version_info():
     return {
+        "dashboard_name": get_dashboard_name(),
         "dashboard": get_dashboard_version(),
+        "dashboard_title": get_dashboard_title(),
         "package": get_svxlink_package_version(),
         "engine": get_svxlink_engine_version(),
     }
