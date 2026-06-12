@@ -179,12 +179,28 @@ def classify_control(control: AlsaControl) -> None:
     name = control.name.lower()
 
     is_switch = control.control_type == "BOOLEAN"
-    is_volume = control.control_type == "INTEGER" and control.min_value is not None and control.max_value is not None
+    is_volume = (
+        control.control_type == "INTEGER"
+        and control.min_value is not None
+        and control.max_value is not None
+    )
 
     if "auto gain" in name or name == "agc" or "agc" in name:
         control.role = "agc"
         control.confidence = "high"
         control.safe_action = "force_off"
+        return
+
+    if "playback channel map" in name:
+        control.role = "playback_channel_map"
+        control.confidence = "high"
+        control.safe_action = "none"
+        return
+
+    if "capture channel map" in name:
+        control.role = "capture_channel_map"
+        control.confidence = "high"
+        control.safe_action = "none"
         return
 
     if "mic playback" in name:
@@ -215,7 +231,7 @@ def classify_control(control: AlsaControl) -> None:
         control.confidence = "high"
         return
 
-    if "capture" in name and "channel map" not in name:
+    if "capture" in name:
         if is_switch:
             control.role = "capture_switch"
             control.safe_action = "force_on"
@@ -229,7 +245,13 @@ def classify_control(control: AlsaControl) -> None:
         control.confidence = "medium"
         return
 
-    if any(word in name for word in ["speaker playback", "headphone playback", "loudspeaker playback", "pcm playback"]):
+    # Conventional single-output USB/audio devices.
+    if any(word in name for word in [
+        "speaker playback",
+        "headphone playback",
+        "loudspeaker playback",
+        "pcm playback",
+    ]):
         if is_switch:
             control.role = "output_switch"
             control.safe_action = "force_on"
@@ -243,33 +265,22 @@ def classify_control(control: AlsaControl) -> None:
         control.confidence = "high"
         return
 
-    if "playback" in name and "channel map" not in name:
+    # ICS/MCHStreamer and similar multi-channel playback paths.
+    # These are global baseline controls, not per-port radio level controls.
+    if "playback" in name:
         if is_switch:
-            control.role = "output_switch"
+            control.role = "global_output_switch"
             control.safe_action = "force_on"
         elif is_volume:
-            control.role = "output_volume"
-            control.safe_action = "slider"
+            control.role = "global_output_volume"
+            control.safe_action = "baseline_full"
         else:
-            control.role = "output"
+            control.role = "global_output"
             control.safe_action = "none"
 
         control.confidence = "medium"
         return
-
-    if "playback channel map" in name:
-        control.role = "playback_channel_map"
-        control.confidence = "high"
-        control.safe_action = "none"
-        return
-
-    if "capture channel map" in name:
-        control.role = "capture_channel_map"
-        control.confidence = "high"
-        control.safe_action = "none"
-        return
-
-
+    
 def parse_amixer_contents(card_index: int) -> List[AlsaControl]:
     contents = run_cmd(["amixer", "-c", str(card_index), "contents"])
     controls: List[AlsaControl] = []
@@ -388,9 +399,13 @@ def apply_safe_baseline(card_index: int) -> Dict[str, Any]:
 
         elif action == "slider":
             if control.role == "output_volume":
-                raw = percent_to_raw(control, 77)
+                baseline_value = 77
+
+            elif control.role == "global_output_volume":
+                baseline_value = control.max_value
+
             elif control.role in ["mic_capture_volume", "capture_volume"]:
-                raw = percent_to_raw(control, 41)
+                baseline_value = 41
             else:
                 raw = None
 
