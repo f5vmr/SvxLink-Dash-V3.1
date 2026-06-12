@@ -243,6 +243,20 @@ def classify_control(control: AlsaControl) -> None:
         control.confidence = "high"
         return
 
+    if "playback" in name and "channel map" not in name:
+        if is_switch:
+            control.role = "output_switch"
+            control.safe_action = "force_on"
+        elif is_volume:
+            control.role = "output_volume"
+            control.safe_action = "slider"
+        else:
+            control.role = "output"
+            control.safe_action = "none"
+
+        control.confidence = "medium"
+        return
+
     if "playback channel map" in name:
         control.role = "playback_channel_map"
         control.confidence = "high"
