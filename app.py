@@ -336,10 +336,41 @@ def platform_page():
 @app.route("/hardware", methods=["GET", "POST"])
 def hardware_page():
     model = load_node_model()
-    profiles = list_hardware_profiles()
 
-    if request.method == "POST":
-        hardware_profile_id = request.form.get("hardware_profile_id", "").strip()
+    build_intent = (
+        model.get("build", {})
+        .get("intent", "single_channel")
+    )
+
+    all_profiles = list_hardware_profiles()
+
+    if build_intent == "multichannel":
+        profiles = [
+            profile for profile in all_profiles
+            if profile.get("type") in ("port_based", "multi_interface")
+        ]
+    else:
+        profiles = [
+            profile for profile in all_profiles
+            if profile.get("type") == "generic"
+        ]
+
+        if request.method == "POST":
+            hardware_profile_id = request.form.get("hardware_profile_id", "").strip()
+
+        allowed_profile_ids = {
+            profile["profile_id"]
+            for profile in profiles
+        }
+
+        if hardware_profile_id not in allowed_profile_ids:
+            return render_template(
+                "hardware.html",
+                model=model,
+                profiles=profiles,
+                build_intent=build_intent,
+                error="Please select a valid hardware profile for this build type.",
+            )
 
         model["hardware_profile_id"] = hardware_profile_id
         save_node_model(model)
@@ -355,6 +386,8 @@ def hardware_page():
         "hardware.html",
         model=model,
         profiles=profiles,
+        build_intent=build_intent,
+        error=None,
     )
 @app.route("/hardware-prepare")
 def hardware_prepare_page():

@@ -1,0 +1,23 @@
+{
+  "profile_id": "ics_8x",
+  "name": "ICS-CTRLS 8X",
+  "type": "port_based",
+  "family": "ics",
+  "ports": 8,
+  "preparation": {
+    "required": true,
+    "requires_reboot": true,
+    "service": "ics_prepare",
+    "resume_after_reboot": "environment_page"
+  },
+  "rules": {
+    "controller_ownership_required": true,
+    "max_ports": 8,
+    "max_active_repeater_controllers": 1
+  },
+  "notes": [
+    "This board is represented as eight logical ports.",
+    "Board-specific DTS, GPIO, audio, and overlay details must be supplied before final deployment.",
+    "Ports selected for use may be fewer than the board maximum."
+  ]
+}
