@@ -41,10 +41,12 @@ svxlink ALL=(root) NOPASSWD: \
     /usr/bin/systemctl restart svxlink-dash.service, \
     /usr/bin/systemctl is-active svxlink-dash.service, \
     /usr/sbin/shutdown, \
+    /usr/bin/systemctl, \
     /usr/bin/mkdir, \
     /usr/bin/chown, \
     /usr/bin/chmod, \
     /usr/bin/git, \
+    /usr/bin/devcal, \
     /usr/bin/systemd-run, \
     /usr/bin/install, \
     /usr/bin/pkill, \
