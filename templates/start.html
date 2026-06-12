@@ -31,27 +31,33 @@
             <div class="form-section">
                 <div class="label">Build type</div>
 
-                <label class="radio-option">
-                    <input type="radio"
-                           name="build_intent"
-                           value="single_channel"
-                           {% if model.build.intent|default('single_channel') == 'single_channel' %}checked{% endif %}>
-                    <strong>Single-channel node</strong><br>
-                    <span>
-                        A normal simplex node or repeater using one radio interface.
-                    </span>
-                </label>
-
-                <label class="radio-option">
-                    <input type="radio"
-                           name="build_intent"
-                           value="multichannel"
-                           {% if model.build.intent|default('single_channel') == 'multichannel' %}checked{% endif %}>
-                    <strong>Multichannel system</strong><br>
-                    <span>
-                        A system with multiple radio interfaces, such as a mix of simplex and repeater nodes.
-                    </span>
-                </label>
+                <div class="radio-option">
+                    <label>
+                        <input type="radio"
+                               name="build_intent"
+                               value="single_channel"
+                               {% if model.build.intent|default('single_channel') == 'single_channel' %}checked{% endif %}>
+                    
+                        <span class="radio-option-text">
+                            <strong>Single-channel node</strong><br>
+                            A normal simplex node or repeater using one radio interface.
+                        </span>
+                    </label>
+                </div>
+                
+                <div class="radio-option">
+                    <label>
+                        <input type="radio"
+                               name="build_intent"
+                               value="multichannel"
+                               {% if model.build.intent|default('single_channel') == 'multichannel' %}checked{% endif %}>
+                    
+                        <span class="radio-option-text">
+                            <strong>Multichannel system</strong><br>
+                            A system with multiple radio interfaces, such as a mix of simplex and repeater nodes.
+                        </span>
+                    </label>
+                </div>
             </div>
 
             <div class="note">
