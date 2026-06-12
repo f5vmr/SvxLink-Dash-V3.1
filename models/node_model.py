@@ -56,6 +56,9 @@ SUPPORTED_INTERFACE_MODES = {
 }
 DEFAULT_MODEL = {
     "schema_version": 1,
+        "build": {
+        "intent": "single_channel",
+    },
 
     "platform": {
         "id": None,

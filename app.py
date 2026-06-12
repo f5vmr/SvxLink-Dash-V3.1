@@ -304,11 +304,23 @@ def index():
 def start():
     model = load_node_model()
 
+    if "build" not in model:
+        model["build"] = {
+            "intent": "single_channel",
+        }
+
     if request.method == "POST":
+        build_intent = request.form.get("build_intent", "single_channel").strip()
+
+        if build_intent not in ("single_channel", "multichannel"):
+            build_intent = "single_channel"
+
+        model["build"]["intent"] = build_intent
+        save_node_model(model)
+
         return redirect(url_for("platform_page"))
 
     return render_template("start.html", model=model)
-
 
 @app.route("/platform", methods=["GET", "POST"])
 def platform_page():

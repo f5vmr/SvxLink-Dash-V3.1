@@ -13,28 +13,64 @@
             <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
             <div class="page-heading">
                 <h1>{{ version_info.dashboard_name }}</h1>
-                <p>This wizard will guide you through creating a valid SvxLink node configuration.</p>
+                <p>Select the type of SvxLink system you are building.</p>
             </div>
         </div>
 
         <div class="note">
-            The system will ask one group of questions at a time. Your answers are saved as you proceed.
+            The dashboard first needs to know whether this is a normal single-channel node
+            or a multichannel system with more than one radio interface.
         </div>
 
         <div class="note">
-            No active SvxLink configuration will be changed until the final build stage.
+            The hardware platform is selected on the next page. Build type and hardware profile
+            are separate choices.
         </div>
 
-        <form action="/start" method="post">
-            <button class="button-primary" type="submit">Start Setup</button>
+        <form action="{{ url_for('start') }}" method="post">
+            <div class="form-section">
+                <div class="label">Build type</div>
+
+                <label class="radio-option">
+                    <input type="radio"
+                           name="build_intent"
+                           value="single_channel"
+                           {% if model.build.intent|default('single_channel') == 'single_channel' %}checked{% endif %}>
+                    <strong>Single-channel node</strong><br>
+                    <span>
+                        A normal simplex node or repeater using one radio interface.
+                    </span>
+                </label>
+
+                <label class="radio-option">
+                    <input type="radio"
+                           name="build_intent"
+                           value="multichannel"
+                           {% if model.build.intent|default('single_channel') == 'multichannel' %}checked{% endif %}>
+                    <strong>Multichannel system</strong><br>
+                    <span>
+                        A system with multiple radio interfaces, such as a mix of simplex and repeater nodes.
+                    </span>
+                </label>
+            </div>
+
+            <div class="note">
+                Single-channel builds continue through the existing setup path.
+                Multichannel support will use this selection as the starting point for the expanded workflow.
+            </div>
+
+            <div class="button-row">
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
         </form>
     </section>
+
     <footer class="site-footer">
-    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
-    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
-    Dashboard {{ version_info.dashboard_name }}|
-    SvxLink Package {{ version_info.package }} |
-    SvxLink {{ version_info.engine }}
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
     </footer>
 </main>
 </body>
