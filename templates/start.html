@@ -17,9 +17,10 @@
             </div>
         </div>
 
-        <div class="note">
-            The dashboard first needs to know whether this is a normal single-channel node
-            or a multichannel system with more than one radio interface.
+         <div class="note">
+            Choose the build route by hardware preparation needs, not only by the number of radio ports.
+            A normal one-radio node can use the generic single-channel route. Any ICS board, including ICS 1x,
+            should use the multichannel/ICS route because it requires board-specific setup.
         </div>
 
         <div class="note">
@@ -39,12 +40,13 @@
                                {% if model.build.intent|default('single_channel') == 'single_channel' %}checked{% endif %}>
                     
                         <span class="radio-option-text">
-                            <strong>Single-channel node</strong><br>
-                            A normal simplex node or repeater using one radio interface.
+                            <strong>Generic single-channel node</strong><br>
+                            A normal simplex node or repeater using one radio interface, such as a USB sound card,
+                            simple GPIO interface, HID interface, or similar non-ICS hardware.<br>
                         </span>
                     </label>
                 </div>
-                
+
                 <div class="radio-option">
                     <label>
                         <input type="radio"
@@ -53,8 +55,9 @@
                                {% if model.build.intent|default('single_channel') == 'multichannel' %}checked{% endif %}>
                     
                         <span class="radio-option-text">
-                            <strong>Multichannel system</strong><br>
-                            A system with multiple radio interfaces, such as a mix of simplex and repeater nodes.
+                            <strong>Multichannel or ICS hardware system</strong><br>
+                            Use this for multiple radio interfaces, or for any ICS board including ICS 1x, 2x, 4x, or 8x.
+                            ICS boards require special hardware preparation, overlays, and staged setup even when only one port is used.
                         </span>
                     </label>
                 </div>
