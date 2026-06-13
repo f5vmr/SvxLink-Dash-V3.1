@@ -433,14 +433,43 @@ def hardware_prepare_page():
 def hardware_prepare_reviewed_page():
     model = load_node_model()
 
+    hardware_profile_id = model.get("hardware_profile_id")
+
+    if not hardware_profile_id:
+        return redirect(url_for("hardware_page"))
+
+    try:
+        profile = load_hardware_profile(hardware_profile_id)
+    except FileNotFoundError:
+        return redirect(url_for("hardware_page"))
+
+    requires_physical_confirmation = (
+        profile.get("family") == "ics"
+        or profile.get("type") == "port_based"
+    )
+
+    if requires_physical_confirmation:
+        confirmed = request.form.get("confirm_hardware") == "yes"
+
+        if not confirmed:
+            return render_template(
+                "hardware_prepare.html",
+                model=model,
+                profile=profile,
+                error="Please confirm that the selected ICS board is physically installed.",
+            )
+
     if "hardware_preparation" not in model:
         model["hardware_preparation"] = {}
 
     model["hardware_preparation"]["status"] = "reviewed"
+    model["hardware_preparation"]["physical_profile_confirmed"] = (
+        requires_physical_confirmation
+    )
+
     save_node_model(model)
 
     return redirect(url_for("hardware_ports_page"))
-
 @app.route("/hardware-ports", methods=["GET", "POST"])
 def hardware_ports_page():
     model = load_node_model()
