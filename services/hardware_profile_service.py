@@ -21,7 +21,11 @@ def list_hardware_profiles():
                 "profile_id": profile.get("profile_id", path.stem),
                 "name": profile.get("name", path.stem),
                 "ports": profile.get("ports", 1),
-                "type": profile.get("type", "unknown")
+                "type": profile.get("type", "unknown"),
+                "family": profile.get("family", None),
+                "preparation_required": bool(
+                    profile.get("preparation", {}).get("required")
+                ),
             })
 
         except Exception:
