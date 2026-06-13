@@ -126,7 +126,10 @@
                         Active Talkgroup
                     </div>
                 
-                    <div class="status-box-row active-talkgroup" id="active-talkgroup">
+                    <div
+                        class="status-box-row active-talkgroup {% if status.active_talkgroup == 'Standby' %}active-talkgroup-standby{% else %}active-talkgroup-active{% endif %}"
+                        id="active-talkgroup"
+                    >
                         {{ status.active_talkgroup }}
                     </div>
                 </div>
@@ -335,8 +338,16 @@ function updateStatusPage(data) {
     const activeTalkgroup = document.getElementById("active-talkgroup");
 
     if (activeTalkgroup && status.active_talkgroup !== undefined) {
-    activeTalkgroup.textContent = status.active_talkgroup;
-}
+        activeTalkgroup.textContent = status.active_talkgroup;
+        
+        activeTalkgroup.className = "status-box-row active-talkgroup";
+        
+        if (status.active_talkgroup === "Standby") {
+            activeTalkgroup.classList.add("active-talkgroup-standby");
+        } else {
+            activeTalkgroup.classList.add("active-talkgroup-active");
+        }
+    }
     if (radioLabel && status.radio_state) {
         radioLabel.textContent = status.radio_state.label;
         radioLabel.className = "status-box-row " + status.radio_state.class;
@@ -350,7 +361,7 @@ function updateStatusPage(data) {
         echolinkLabel.className =
             "status-box-row " + status.echolink_state.class;
     }
-    
+
     if (echolinkStation && status.echolink_state) {
         if (status.echolink_state.station) {
             echolinkStation.textContent =

@@ -1767,3 +1767,14 @@ footer a:hover {
     color: #b45309;
     font-weight: 600;
 }
+.active-talkgroup-standby {
+    background-color: #fff3bf;
+    color: #5f4500;
+    font-weight: 700;
+}
+
+.active-talkgroup-active {
+    background-color: #d3f9d8;
+    color: #14532d;
+    font-weight: 700;
+}
