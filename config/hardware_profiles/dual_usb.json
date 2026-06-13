@@ -1,8 +1,8 @@
 {
   "profile_id": "dual_usb",
-  "name": "Dual USB Sound Fob / HIDRAW Interfaces",
+  "name": "Dual USB Sound Fob Interfaces",
   "type": "multi_interface",
-  "family": "usb_hidraw",
+  "family": "usb_multi_interface",
   "ports": 2,
   "audio": {
     "backend": "alsa_multi_device",
@@ -11,8 +11,13 @@
     "format": "S16_LE"
   },
   "control": {
-    "backend": "hidraw",
-    "devices": "discovered"
+  "backend": "per_port_selected",
+  "devices": "discovered",
+  "supported_methods": [
+    "hidraw",
+    "gpiod",
+    "serial"
+  ]
   },
   "preparation": {
   "required": true,
@@ -21,8 +26,9 @@
   "resume_after_reboot": "environment_page"
   },
   "notes": [
-    "Use this for two separate USB sound fobs such as CM108/CM119/TOADS-style interfaces.",
-    "Each radio port is expected to have its own USB audio device and HIDRAW PTT/COS control path.",
-    "Device identity should be discovered and pinned later by stable ALSA/HID paths rather than raw enumeration order."
+    "Use this for two separate USB sound fobs or USB radio interfaces.",
+    "Each radio port is expected to have its own USB audio device.",
+    "PTT and COS control may be HIDRAW, GPIOD, serial, or another supported method selected later per port.",
+    "Device identity should be discovered and pinned later by stable ALSA/control paths rather than raw enumeration order."
   ]
-}
+  }
