@@ -121,7 +121,15 @@
                     {% endif %}
                     
                 </div>
-            
+                <div class="status-box">
+                    <div class="status-box-title">
+                        Active Talkgroup
+                    </div>
+                
+                    <div class="status-box-row active-talkgroup" id="active-talkgroup">
+                        {{ status.active_talkgroup }}
+                    </div>
+                </div>
                 <div class="status-box">
                 
                     <div class="status-box-title">
@@ -324,7 +332,11 @@ function updateStatusPage(data) {
     const squelchState = document.getElementById("radio_squelch_state");
     const reflectorState = document.getElementById("reflector_state");
     const activityBody = document.getElementById("activity_body");
+    const activeTalkgroup = document.getElementById("active-talkgroup");
 
+    if (activeTalkgroup && status.active_talkgroup !== undefined) {
+    activeTalkgroup.textContent = status.active_talkgroup;
+}
     if (radioLabel && status.radio_state) {
         radioLabel.textContent = status.radio_state.label;
         radioLabel.className = "status-box-row " + status.radio_state.class;
@@ -334,11 +346,11 @@ function updateStatusPage(data) {
         squelchState.textContent = status.radio_state.input;
     }
     if (echolinkLabel && status.echolink_state) {
-    echolinkLabel.textContent = status.echolink_state.label;
-    echolinkLabel.className =
-        "status-box-row " + status.echolink_state.class;
+        echolinkLabel.textContent = status.echolink_state.label;
+        echolinkLabel.className =
+            "status-box-row " + status.echolink_state.class;
     }
-
+    
     if (echolinkStation && status.echolink_state) {
         if (status.echolink_state.station) {
             echolinkStation.textContent =
@@ -347,7 +359,7 @@ function updateStatusPage(data) {
         } else {
             echolinkStation.textContent = "";
             echolinkStation.style.display = "none";
-    }
+        }
 }
     if (reflectorState) {
         reflectorState.textContent = status.reflector;

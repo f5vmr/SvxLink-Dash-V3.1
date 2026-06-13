@@ -10,7 +10,7 @@ No control functions belong here.
 from pathlib import Path
 import subprocess
 import time
-
+import re 
 from services.svxlink_service import svxlink_status
 from services.log_service import get_svxlink_log_path
 
@@ -236,7 +236,50 @@ def get_echolink_state():
         "label": "Idle",
         "station": "",
         "class": "status-good",
-    }    
+    }
+def get_active_talkgroup():
+    """
+    Determine the currently selected SvxReflector talkgroup
+    from recent SvxLink log lines.
+
+    Examples:
+        ReflectorLogic: Selecting TG #0   -> Standby
+        ReflectorLogic: Selecting TG #505 -> 505
+    """
+
+    log_file = get_svxlink_log_path()
+
+    if not log_file.exists():
+        return "Unknown"
+
+    try:
+        lines = log_file.read_text(
+            encoding="utf-8",
+            errors="ignore"
+        ).splitlines()
+
+    except Exception:
+        return "Unknown"
+
+    tg_pattern = re.compile(
+        r"ReflectorLogic:\s+Selecting TG #(\d+)"
+    )
+
+    for line in reversed(lines[-1000:]):
+        match = tg_pattern.search(line)
+
+        if not match:
+            continue
+
+        talkgroup = match.group(1)
+
+        if talkgroup == "0":
+            return "Standby"
+
+        return talkgroup
+
+    return "Standby"
+    
 def get_runtime_status(model):
     """
     Collect dashboard runtime information.
@@ -258,6 +301,8 @@ def get_runtime_status(model):
         "uptime": get_system_uptime(),
 
         "reflector": get_connected_reflector(model),
+
+        "active_talkgroup": get_active_talkgroup(),
 
         "modules": model.get("modules", {}).get(
             "enabled",
