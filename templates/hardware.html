@@ -1,65 +1,93 @@
-{% include "navbar.html" %}
-
-<div class="container">
-    <h1>Select Radio Hardware</h1>
-
-    {% if build_intent == "multichannel" %}
-        <div class="note">
-            Showing multichannel and ICS hardware profiles.
-            Select this route for multiple USB interfaces, multiple radio ports, or any ICS board.
-            ICS 1X is shown here because it needs ICS preparation, overlays, and staged setup even though it has one port.
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Select Radio Hardware - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Select Radio Hardware</h1>
+                <p>Select the radio interface hardware attached to this platform.</p>
+            </div>
         </div>
-    {% else %}
-        <div class="note">
-            Showing generic single-channel hardware profiles only.
-            Use this route for a normal one-radio node that does not need ICS or multichannel hardware preparation.
-        </div>
-    {% endif %}
 
-    {% if error %}
-        <p class="error">{{ error }}</p>
-    {% endif %}
-
-    <p>
-        Select the radio interface hardware attached to this platform.
-    </p>
-
-    <form action="{{ url_for('hardware_page') }}" method="post">
-
-        {% for profile in profiles %}
-        <div class="card">
-            <label>
-                <input
-                    type="radio"
-                    name="hardware_profile_id"
-                    value="{{ profile.profile_id }}"
-                    required
-                    {% if model.hardware_profile_id|default('') == profile.profile_id %}checked{% endif %}
-                >
-
-                <strong>{{ profile.name }}</strong><br>
-                Type: {{ profile.type }}<br>
-                Ports: {{ profile.ports }}
-
-                {% if profile.preparation_required %}
-                    <br><span class="warning-text">Hardware preparation required</span>
-                {% endif %}
-            </label>
-        </div>
-        {% endfor %}
-
-        {% if not profiles %}
-            <p class="error">
-                No hardware profiles are available for this build type.
-            </p>
+        {% if build_intent == "multichannel" %}
+            <div class="note">
+                Showing multichannel and ICS hardware profiles.
+                Select this route for multiple USB interfaces, multiple radio ports, or any ICS board.
+                ICS 1X is shown here because it needs ICS preparation, overlays, and staged setup even though it has one port.
+            </div>
+        {% else %}
+            <div class="note">
+                Showing generic single-channel hardware profiles only.
+                Use this route for a normal one-radio node that does not need ICS or multichannel hardware preparation.
+            </div>
         {% endif %}
 
-        <div class="button-row">
-            <a class="button-secondary" href="{{ url_for('platform_page') }}">Back</a>
-            <button class="button-primary" type="submit" {% if not profiles %}disabled{% endif %}>
-                Continue
-            </button>
-        </div>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
-    </form>
-</div>
+        <form action="{{ url_for('hardware_page') }}" method="post">
+
+            <div class="form-section">
+                <div class="label">Hardware profile</div>
+
+                {% for profile in profiles %}
+                    <div class="status-box">
+                        <label>
+                            <input
+                                type="radio"
+                                name="hardware_profile_id"
+                                value="{{ profile.profile_id }}"
+                                required
+                                {% if model.hardware_profile_id|default('') == profile.profile_id %}checked{% endif %}
+                            >
+
+                            <strong>{{ profile.name }}</strong><br>
+                            Type: {{ profile.type }}<br>
+                            Ports: {{ profile.ports }}
+
+                            {% if profile.family %}
+                                <br>Family: {{ profile.family }}
+                            {% endif %}
+
+                            {% if profile.preparation_required %}
+                                <br><span class="warning-text">Hardware preparation required</span>
+                            {% endif %}
+                        </label>
+                    </div>
+                {% endfor %}
+
+                {% if not profiles %}
+                    <p class="error">
+                        No hardware profiles are available for this build type.
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('platform_page') }}">Back</a>
+                <button class="button-primary" type="submit" {% if not profiles %}disabled{% endif %}>
+                    Continue
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
