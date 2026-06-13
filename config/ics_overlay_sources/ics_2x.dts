@@ -1,0 +1,24 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+compatible = "brcm,bcm2835";
+fragment@0 {
+    target = <&i2c1>;
+    __overlay__ {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        mcp23017@20 {
+            compatible = "microchip,mcp23017";
+            reg = <0x20>;
+            gpio-controller;
+            #gpio-cells = <2>;
+            gpio-line-names = 
+                "GPIO496", "GPIO497", "GPIO498", "GPIO499",
+                "GPIO500", "GPIO501", "GPIO502", "GPIO503",
+                "GPIO504", "GPIO505", "TX1", "TX2",
+                "GPIO508", "GPIO509", "GPIO510", "GPIO511";
+        };
+    };
+  };
+};
