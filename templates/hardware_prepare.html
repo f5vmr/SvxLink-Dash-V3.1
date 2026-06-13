@@ -85,9 +85,15 @@
         <div class="button-row">
             <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
         
-            <a class="button-primary" href="{{ url_for('hardware_page') }}">
-                Return to Hardware Selection
-            </a>
+            <form action="{{ url_for('hardware_prepare_reviewed_page') }}" method="post">
+                <div class="button-row">
+                    <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
+                
+                    <button class="button-primary" type="submit">
+                        Acknowledge and Continue for Now
+                    </button>
+                </div>
+            </form>
         </div>
     </section>
 

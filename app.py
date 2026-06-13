@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from pyexpat import model
+
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 import shutil
@@ -373,9 +375,26 @@ def hardware_page():
             )
 
         model["hardware_profile_id"] = hardware_profile_id
-        save_node_model(model)
 
         profile = load_hardware_profile(hardware_profile_id)
+        
+        model["hardware"] = {
+            "profile_id": hardware_profile_id,
+            "profile_name": profile.get("name"),
+            "type": profile.get("type"),
+            "family": profile.get("family"),
+            "ports": profile.get("ports", 1),
+        }
+        
+        model["hardware_preparation"] = {
+            "required": bool(profile.get("preparation", {}).get("required")),
+            "requires_reboot": bool(profile.get("preparation", {}).get("requires_reboot")),
+            "service": profile.get("preparation", {}).get("service"),
+            "status": "pending" if profile.get("preparation", {}).get("required") else "not_required",
+            "resume_after_reboot": profile.get("preparation", {}).get("resume_after_reboot"),
+        }
+        
+        save_node_model(model)
 
         if profile.get("preparation", {}).get("required"):
             return redirect(url_for("hardware_prepare_page"))
