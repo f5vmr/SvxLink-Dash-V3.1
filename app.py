@@ -519,7 +519,7 @@ def hardware_ports_page():
 
         save_node_model(model)
 
-        return redirect(url_for("hardware_ports_page"))
+        return redirect(url_for("hardware_review_page"))
 
     enabled_ports = (
         model.get("ports", {})
