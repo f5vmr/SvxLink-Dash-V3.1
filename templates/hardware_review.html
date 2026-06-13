@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Hardware Review - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Hardware Review</h1>
+                <p>Review the selected hardware profile and enabled ports before continuing.</p>
+            </div>
+        </div>
+
+        <div class="note">
+            This confirms the hardware foundation for the rest of the setup wizard.
+            Later pages will configure the enabled ports in more detail.
+        </div>
+
+        <div class="form-section">
+            <div class="label">Build intent</div>
+            <p>
+                {% if model.build.intent == "multichannel" %}
+                    Multichannel or ICS hardware system
+                {% else %}
+                    Generic single-channel node
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Selected hardware profile</div>
+            <p>
+                <strong>{{ profile.name }}</strong><br>
+                Profile ID: {{ profile.profile_id }}<br>
+                Type: {{ profile.type }}<br>
+                Ports supported by profile: {{ profile.ports }}
+
+                {% if profile.family %}
+                    <br>Family: {{ profile.family }}
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Preparation status</div>
+            <p>
+                Required:
+                {% if model.hardware_preparation.required %}
+                    Yes
+                {% else %}
+                    No
+                {% endif %}
+                <br>
+
+                Status:
+                {{ model.hardware_preparation.status|default("not_required") }}
+
+                {% if model.hardware_preparation.requires_reboot %}
+                    <br>Reboot required: Yes
+                {% else %}
+                    <br>Reboot required: No
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Available ports</div>
+            <p>
+                {% if available_ports %}
+                    {{ available_ports|join(", ") }}
+                {% else %}
+                    None recorded
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Enabled ports</div>
+            <p>
+                {% if enabled_ports %}
+                    {{ enabled_ports|join(", ") }}
+                {% else %}
+                    None selected
+                {% endif %}
+            </p>
+        </div>
+
+        {% if profile.type == "port_based" %}
+            <div class="note">
+                For ICS-style boards, only the enabled ports will be configured.
+                Unused physical ports should remain disabled and unconfigured.
+            </div>
+        {% elif profile.type == "multi_interface" %}
+            <div class="note">
+                For multi-interface USB systems, each enabled port will later be matched to a discovered USB audio device
+                and its selected control method.
+            </div>
+        {% endif %}
+
+        <form action="{{ url_for('hardware_review_page') }}" method="post">
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('hardware_ports_page') }}">Back</a>
+
+                <button class="button-primary" type="submit">
+                    Confirm Hardware and Continue
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
