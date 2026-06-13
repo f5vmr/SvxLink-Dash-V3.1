@@ -79,59 +79,63 @@
             </div>
         </div>
 
-{% if profile.family == "ics" or profile.type == "port_based" %}
-    <div class="form-section">
-        <div class="label">Preparation stages planned</div>
-
-        <p>
-            The ICS preparation workflow will later handle:
-        </p>
-
-        <p>
-            • I2C enablement and verification<br>
-            • board-specific DTS / overlay application<br>
-            • reboot and resume handling<br>
-            • extended GPIO discovery<br>
-            • audio and port mapping checks
-        </p>
-    </div>
-
-    <div class="status-box status-box-hard">
-        <div class="status-box-title">
-            Confirm physical board
-        </div>
-
-        <div class="status-box-row">
-            You selected <strong>{{ profile.name }}</strong>.
-            Confirm that this is the board physically installed in this system.
-            Selecting the wrong ICS board may apply incorrect overlay, GPIO, audio, or port assumptions.
-        </div>
-    </div>
-
-    <label class="checkbox-option">
-        <input type="checkbox" name="confirm_hardware" value="yes" required>
-        I confirm this is the physical ICS board installed.
-    </label>
-
-{% elif profile.type == "multi_interface" %}
-    <div class="form-section">
-        <div class="label">Preparation stages planned</div>
-
-        <p>
-            The dual USB preparation workflow will later handle:
-        </p>
-
-        <p>
-            • USB audio device discovery<br>
-            • stable device identity mapping<br>
-            • per-port audio assignment<br>
-            • per-port PTT/COS control selection<br>
-            • checking that both radio interfaces remain stable across reboot
-        </p>
-    </div>
-{% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
         <form action="{{ url_for('hardware_prepare_reviewed_page') }}" method="post">
+            {% if profile.family == "ics" or profile.type == "port_based" %}
+                <div class="form-section">
+                    <div class="label">Preparation stages planned</div>
+
+                    <p>
+                        The ICS preparation workflow will later handle:
+                    </p>
+
+                    <p>
+                        • I2C enablement and verification<br>
+                        • board-specific DTS / overlay application<br>
+                        • reboot and resume handling<br>
+                        • extended GPIO discovery<br>
+                        • audio and port mapping checks
+                    </p>
+                </div>
+
+                <div class="status-box status-box-hard">
+                    <div class="status-box-title">
+                        Confirm physical board
+                    </div>
+
+                    <div class="status-box-row">
+                        You selected <strong>{{ profile.name }}</strong>.
+                        Confirm that this is the board physically installed in this system.
+                        Selecting the wrong ICS board may apply incorrect overlay, GPIO, audio, or port assumptions.
+                    </div>
+                </div>
+
+                <label class="checkbox-option">
+                    <input type="checkbox" name="confirm_hardware" value="yes" required>
+                    I confirm this is the physical ICS board installed.
+                </label>
+
+            {% elif profile.type == "multi_interface" %}
+                <div class="form-section">
+                    <div class="label">Preparation stages planned</div>
+
+                    <p>
+                        The dual USB preparation workflow will later handle:
+                    </p>
+
+                    <p>
+                        • USB audio device discovery<br>
+                        • stable device identity mapping<br>
+                        • per-port audio assignment<br>
+                        • per-port PTT/COS control selection<br>
+                        • checking that both radio interfaces remain stable across reboot
+                    </p>
+                </div>
+            {% endif %}
+
             <div class="button-row">
                 <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
 
