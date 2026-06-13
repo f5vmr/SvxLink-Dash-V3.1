@@ -392,8 +392,22 @@ def hardware_page():
 @app.route("/hardware-prepare")
 def hardware_prepare_page():
     model = load_node_model()
-    return render_template("hardware_prepare.html", model=model)
-  
+
+    hardware_profile_id = model.get("hardware_profile_id")
+
+    if not hardware_profile_id:
+        return redirect(url_for("hardware_page"))
+
+    try:
+        profile = load_hardware_profile(hardware_profile_id)
+    except FileNotFoundError:
+        return redirect(url_for("hardware_page"))
+
+    return render_template(
+        "hardware_prepare.html",
+        model=model,
+        profile=profile,
+    )  
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()

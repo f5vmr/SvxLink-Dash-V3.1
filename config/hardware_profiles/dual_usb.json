@@ -15,7 +15,10 @@
     "devices": "discovered"
   },
   "preparation": {
-    "required": false
+  "required": true,
+  "requires_reboot": false,
+  "service": "dual_usb_prepare",
+  "resume_after_reboot": "environment_page"
   },
   "notes": [
     "Use this for two separate USB sound fobs such as CM108/CM119/TOADS-style interfaces.",

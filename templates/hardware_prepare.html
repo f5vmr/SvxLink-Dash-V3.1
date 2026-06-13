@@ -1,18 +1,103 @@
-{% include "navbar.html" %}
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Hardware Preparation - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Hardware Preparation Required</h1>
+                <p>This hardware profile requires preparation before normal configuration can continue.</p>
+            </div>
+        </div>
 
-<div class="container">
-    <h1>Hardware Preparation Required</h1>
+        <div class="note">
+            Some hardware profiles, especially ICS boards, require staged preparation.
+            This may include enabling I2C, applying a board-specific overlay, checking extended GPIO,
+            and rebooting before the dashboard can continue safely.
+        </div>
 
-    <p>
-        This hardware profile requires system preparation before the build can continue.
-    </p>
+        <div class="note">
+            An ICS 1X board appears in this preparation route even though it has only one port,
+            because it still requires the same ICS hardware setup process.
+        </div>
 
-    <p>
-        The next stage will install the required overlay, audio configuration, and request a reboot.
-    </p>
+        <div class="form-section">
+            <div class="label">Selected hardware profile</div>
 
-    <div class="button-row">
-        <a class="button-secondary" href="/hardware">Back</a>
-        <a class="button-primary" href="/environment">Continue for now</a>
-    </div>
-</div>
+            <p>
+                <strong>{{ profile.name }}</strong><br>
+                Profile ID: {{ profile.profile_id }}<br>
+                Type: {{ profile.type }}<br>
+                Ports: {{ profile.ports }}
+                {% if profile.family %}
+                    <br>Family: {{ profile.family }}
+                {% endif %}
+            </p>
+            {% if profile.family == "ics" or profile.type == "port_based" %}
+                <div class="note">
+                    This is an ICS-style port-based hardware profile.
+                    Preparation will eventually include I2C enablement, DTS/overlay handling,
+                    extended GPIO discovery, and a reboot/resume workflow.
+                </div>
+            {% elif profile.family == "usb_hidraw" or profile.type == "multi_interface" %}
+                <div class="note">
+                    This is a multi-interface USB/HIDRAW profile.
+                    Preparation will eventually discover and bind each USB audio device and HIDRAW control path
+                    so that each radio port is stable across reboots.
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="status-box status-box-hard">
+            <div class="status-box-title">
+                Preparation warning
+            </div>
+
+            <div class="status-box-row">
+                Do not continue with normal node configuration until the hardware preparation stage has completed.
+                If a reboot is required, the dashboard should return to the saved build stage afterwards.
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="label">Preparation stages planned</div>
+
+            <p>
+                The preparation workflow will later handle:
+            </p>
+
+            <p>
+                • I2C enablement and verification<br>
+                • board-specific DTS / overlay application<br>
+                • reboot and resume handling<br>
+                • extended GPIO discovery<br>
+                • audio and port mapping checks
+            </p>
+        </div>
+
+        <div class="button-row">
+            <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
+        
+            <a class="button-primary" href="{{ url_for('hardware_page') }}">
+                Return to Hardware Selection
+            </a>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
