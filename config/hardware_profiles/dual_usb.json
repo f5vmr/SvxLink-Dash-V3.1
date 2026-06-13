@@ -1,5 +1,5 @@
 {
-  "profile_id": "usb_dual_hidraw",
+  "profile_id": "dual_usb",
   "name": "Dual USB Sound Fob / HIDRAW Interfaces",
   "type": "multi_interface",
   "family": "usb_hidraw",
