@@ -377,7 +377,7 @@ def hardware_page():
         model["hardware_profile_id"] = hardware_profile_id
 
         profile = load_hardware_profile(hardware_profile_id)
-        
+
         model["hardware"] = {
             "profile_id": hardware_profile_id,
             "profile_name": profile.get("name"),
@@ -385,7 +385,7 @@ def hardware_page():
             "family": profile.get("family"),
             "ports": profile.get("ports", 1),
         }
-        
+
         model["hardware_preparation"] = {
             "required": bool(profile.get("preparation", {}).get("required")),
             "requires_reboot": bool(profile.get("preparation", {}).get("requires_reboot")),
@@ -393,7 +393,7 @@ def hardware_page():
             "status": "pending" if profile.get("preparation", {}).get("required") else "not_required",
             "resume_after_reboot": profile.get("preparation", {}).get("resume_after_reboot"),
         }
-        
+
         save_node_model(model)
 
         if profile.get("preparation", {}).get("required"):
@@ -426,7 +426,21 @@ def hardware_prepare_page():
         "hardware_prepare.html",
         model=model,
         profile=profile,
-    )  
+    )
+
+
+@app.route("/hardware-prepare/reviewed", methods=["POST"])
+def hardware_prepare_reviewed_page():
+    model = load_node_model()
+
+    if "hardware_preparation" not in model:
+        model["hardware_preparation"] = {}
+
+    model["hardware_preparation"]["status"] = "reviewed"
+    save_node_model(model)
+
+    return redirect(url_for("environment_page"))
+  
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()
