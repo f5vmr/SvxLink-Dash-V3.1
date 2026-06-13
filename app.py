@@ -519,7 +519,7 @@ def hardware_ports_page():
 
         save_node_model(model)
 
-        return redirect(url_for("environment_page"))
+        return redirect(url_for("hardware_review_page"))
 
     enabled_ports = (
         model.get("ports", {})
@@ -533,6 +533,34 @@ def hardware_ports_page():
         available_ports=available_ports,
         enabled_ports=enabled_ports,
         error=None,
+    )
+@app.route("/hardware-review", methods=["GET", "POST"])
+def hardware_review_page():
+    model = load_node_model()
+
+    hardware_profile_id = model.get("hardware_profile_id")
+
+    if not hardware_profile_id:
+        return redirect(url_for("hardware_page"))
+
+    try:
+        profile = load_hardware_profile(hardware_profile_id)
+    except FileNotFoundError:
+        return redirect(url_for("hardware_page"))
+
+    ports = model.get("ports", {})
+    available_ports = ports.get("available", [])
+    enabled_ports = ports.get("enabled", [])
+
+    if request.method == "POST":
+        return redirect(url_for("environment_page"))
+
+    return render_template(
+        "hardware_review.html",
+        model=model,
+        profile=profile,
+        available_ports=available_ports,
+        enabled_ports=enabled_ports,
     )
       
 @app.route("/environment", methods=["GET", "POST"])
