@@ -1763,3 +1763,7 @@ footer a:hover {
 .status-box-hard .status-box-title {
     background: #8a4b22;
 }
+.warning-text {
+    color: #b45309;
+    font-weight: 600;
+}
