@@ -355,8 +355,8 @@ def hardware_page():
             if profile.get("type") == "generic"
         ]
 
-        if request.method == "POST":
-            hardware_profile_id = request.form.get("hardware_profile_id", "").strip()
+    if request.method == "POST":
+        hardware_profile_id = request.form.get("hardware_profile_id", "").strip()
 
         allowed_profile_ids = {
             profile["profile_id"]
