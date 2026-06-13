@@ -1,0 +1,146 @@
+/*
+ * ADS1015 devices at 0x48 and 0x49 are present on the ICS-8x design
+ * for optional analogue/IoT expansion. They are not required for the
+ * SvxLink repeater GPIO profile and are intentionally not declared here.
+ */
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2711", "brcm,bcm2835";
+
+    /* ========= Fragment 0: I2C devices ========= */
+    fragment@0 {
+        target = <&i2c1>;
+        __overlay__ {
+            status = "okay";
+
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            /*
+             * MCP23017 @ 0x25 — GPIO expansion port
+             *
+             * According to the ICS-8x notes, this is not the normal
+             * port RX/TX GPIO block. It is retained here as general
+             * expansion GPIO.
+             */
+            mcp25: gpio@25 {
+                compatible = "mcp23017";
+                reg = <0x25>;
+                gpio-controller;
+                #gpio-cells = <2>;
+
+                gpio-line-names =
+                    "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
+                    "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
+                    "EXP_9",  "EXP_10", "EXP_11", "EXP_12",
+                    "EXP_13", "EXP_14", "EXP_15", "EXP_16";
+            };
+
+            /*
+             * MCP23017 @ 0x26 — core RX/TX ports 5-8
+             *
+             * CSV GPIO range: 472-487
+             */
+            mcp26: gpio@26 {
+                compatible = "mcp23017";
+                reg = <0x26>;
+                gpio-controller;
+                #gpio-cells = <2>;
+
+                gpio-line-names =
+                    "EN_5", "EN_6", "TX_5", "TX_6",
+                    "CT_5", "CT_6", "RX_5", "RX_6",
+                    "EN_7", "EN_8", "TX_7", "TX_8",
+                    "CT_7", "CT_8", "RX_7", "RX_8";
+            };
+
+            /*
+             * MCP23017 @ 0x27 — core RX/TX ports 1-4
+             *
+             * CSV GPIO range: 456-471
+             */
+            mcp27: gpio@27 {
+                compatible = "mcp23017";
+                reg = <0x27>;
+                gpio-controller;
+                #gpio-cells = <2>;
+
+                gpio-line-names =
+                    "EN_1", "EN_2", "TX_1", "TX_2",
+                    "CT_1", "CT_2", "RX_1", "RX_2",
+                    "EN_3", "EN_4", "TX_3", "TX_4",
+                    "CT_3", "CT_4", "RX_3", "RX_4";
+            };
+
+            /*
+             * ADS1015 @ 0x48 — ADC channels A-D
+             */
+            ads1015_48: adc@48 {
+                compatible = "ti,ads1015";
+                reg = <0x48>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                channel_a: channel@4 {
+                    reg = <4>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel_b: channel@5 {
+                    reg = <5>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel_c: channel@6 {
+                    reg = <6>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel_d: channel@7 {
+                    reg = <7>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+            };
+
+            /*
+             * ADS1015 @ 0x49 — ADC channels E-H
+             */
+            ads1015_49: adc@49 {
+                compatible = "ti,ads1015";
+                reg = <0x49>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                channel_e: channel@4 {
+                    reg = <4>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel_f: channel@5 {
+                    reg = <5>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel_g: channel@6 {
+                    reg = <6>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel_h: channel@7 {
+                    reg = <7>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+            };
+        };
+    };
+};

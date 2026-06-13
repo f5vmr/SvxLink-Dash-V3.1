@@ -1,0 +1,40 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2711", "brcm,bcm2835";
+
+    /* ========= Fragment 0: I2C devices ========= */
+    fragment@0 {
+        target = <&i2c1>;
+        __overlay__ {
+            status = "okay";
+
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            /*
+             * MCP23017 @ 0x27 — ICS 1x extended GPIO
+             *
+             * Port 1 RX/COS and CTCSS input are Raspberry Pi native GPIOs:
+             *   RX_1 / COS   = Raspberry Pi GPIO26, active low
+             *   CT_1 / CTCSS = Raspberry Pi GPIO24, active low
+             *
+             * Port 1 TX/PTT is on this MCP23017:
+             *   TX_1 = MCP23017 offset 10, old-style GPIO506, active high
+             */
+            mcp27: gpio@27 {
+                compatible = "mcp23017";
+                reg = <0x27>;
+                gpio-controller;
+                #gpio-cells = <2>;
+
+                gpio-line-names =
+                    "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
+                    "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
+                    "EXP_9",  "EXP_10", "TX_1",   "EXP_12",
+                    "EXP_13", "EXP_14", "EXP_15", "EXP_16";
+            };
+        };
+    };
+};

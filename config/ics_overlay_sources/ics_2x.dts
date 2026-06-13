@@ -2,23 +2,37 @@
 /plugin/;
 
 / {
-compatible = "brcm,bcm2835";
-fragment@0 {
-    target = <&i2c1>;
-    __overlay__ {
-        #address-cells = <1>;
-        #size-cells = <0>;
-        mcp23017@20 {
-            compatible = "microchip,mcp23017";
-            reg = <0x20>;
-            gpio-controller;
-            #gpio-cells = <2>;
-            gpio-line-names = 
-                "GPIO496", "GPIO497", "GPIO498", "GPIO499",
-                "GPIO500", "GPIO501", "GPIO502", "GPIO503",
-                "GPIO504", "GPIO505", "TX1", "TX2",
-                "GPIO508", "GPIO509", "GPIO510", "GPIO511";
+    compatible = "brcm,bcm2711", "brcm,bcm2835";
+
+    /* ========= Fragment 0: I2C devices ========= */
+    fragment@0 {
+        target = <&i2c1>;
+        __overlay__ {
+            status = "okay";
+
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            /*
+             * MCP23017 @ 0x20 — ICS 2x extended GPIO
+             *
+             * TX_1 = MCP23017 offset 10, old-style GPIO506, active high
+             * TX_2 = MCP23017 offset 11, old-style GPIO507, active high
+             *
+             * RX/COS and CTCSS inputs are handled on native Raspberry Pi GPIOs.
+             */
+            mcp20: gpio@20 {
+                compatible = "microchip,mcp23017";
+                reg = <0x20>;
+                gpio-controller;
+                #gpio-cells = <2>;
+
+                gpio-line-names =
+                    "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
+                    "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
+                    "EXP_9",  "EXP_10", "TX_1",   "TX_2",
+                    "EXP_13", "EXP_14", "EXP_15", "EXP_16";
+            };
         };
     };
-  };
 };
