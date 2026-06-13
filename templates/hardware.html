@@ -3,11 +3,28 @@
 <div class="container">
     <h1>Select Radio Hardware</h1>
 
+    {% if build_intent == "multichannel" %}
+        <div class="note">
+            Showing multichannel and ICS hardware profiles.
+            Select this route for multiple USB interfaces, multiple radio ports, or any ICS board.
+            ICS 1X is shown here because it needs ICS preparation, overlays, and staged setup even though it has one port.
+        </div>
+    {% else %}
+        <div class="note">
+            Showing generic single-channel hardware profiles only.
+            Use this route for a normal one-radio node that does not need ICS or multichannel hardware preparation.
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
     <p>
         Select the radio interface hardware attached to this platform.
     </p>
 
-    <form action="/hardware" method="post">
+    <form action="{{ url_for('hardware_page') }}" method="post">
 
         {% for profile in profiles %}
         <div class="card">
@@ -17,19 +34,29 @@
                     name="hardware_profile_id"
                     value="{{ profile.profile_id }}"
                     required
-                    {% if model.hardware_profile_id == profile.profile_id %}checked{% endif %}
+                    {% if model.hardware_profile_id|default('') == profile.profile_id %}checked{% endif %}
                 >
 
                 <strong>{{ profile.name }}</strong><br>
                 Type: {{ profile.type }}<br>
                 Ports: {{ profile.ports }}
+
+                {% if profile.preparation_required %}
+                    <br><span class="warning-text">Hardware preparation required</span>
+                {% endif %}
             </label>
         </div>
         {% endfor %}
 
+        {% if not profiles %}
+            <p class="error">
+                No hardware profiles are available for this build type.
+            </p>
+        {% endif %}
+
         <div class="button-row">
-            <a class="button-secondary" href="/platform">Back</a>
-            <button class="button-primary" type="submit">
+            <a class="button-secondary" href="{{ url_for('platform_page') }}">Back</a>
+            <button class="button-primary" type="submit" {% if not profiles %}disabled{% endif %}>
                 Continue
             </button>
         </div>
