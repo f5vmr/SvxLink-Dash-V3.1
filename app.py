@@ -399,7 +399,7 @@ def hardware_page():
         if profile.get("preparation", {}).get("required"):
             return redirect(url_for("hardware_prepare_page"))
 
-        return redirect(url_for("environment_page"))
+        return redirect(url_for("hardware_ports_page"))
 
     return render_template(
         "hardware.html",
@@ -439,8 +439,73 @@ def hardware_prepare_reviewed_page():
     model["hardware_preparation"]["status"] = "reviewed"
     save_node_model(model)
 
-    return redirect(url_for("environment_page"))
-  
+    return redirect(url_for("hardware_ports_page"))
+
+@app.route("/hardware-ports", methods=["GET", "POST"])
+def hardware_ports_page():
+    model = load_node_model()
+
+    hardware_profile_id = model.get("hardware_profile_id")
+
+    if not hardware_profile_id:
+        return redirect(url_for("hardware_page"))
+
+    try:
+        profile = load_hardware_profile(hardware_profile_id)
+    except FileNotFoundError:
+        return redirect(url_for("hardware_page"))
+
+    port_count = int(profile.get("ports", 1))
+    available_ports = list(range(1, port_count + 1))
+
+    if request.method == "POST":
+        selected_ports = request.form.getlist("enabled_ports")
+
+        enabled_ports = []
+        for port in selected_ports:
+            try:
+                port_number = int(port)
+            except ValueError:
+                continue
+
+            if port_number in available_ports:
+                enabled_ports.append(port_number)
+
+        enabled_ports = sorted(set(enabled_ports))
+
+        if not enabled_ports:
+            return render_template(
+                "hardware_ports.html",
+                model=model,
+                profile=profile,
+                available_ports=available_ports,
+                enabled_ports=model.get("ports", {}).get("enabled", available_ports),
+                error="Select at least one port.",
+            )
+
+        model["ports"] = {
+            "available": available_ports,
+            "enabled": enabled_ports,
+        }
+
+        save_node_model(model)
+
+        return redirect(url_for("hardware_ports_page"))
+
+    enabled_ports = (
+        model.get("ports", {})
+        .get("enabled", available_ports)
+    )
+
+    return render_template(
+        "hardware_ports.html",
+        model=model,
+        profile=profile,
+        available_ports=available_ports,
+        enabled_ports=enabled_ports,
+        error=None,
+    )
+      
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()

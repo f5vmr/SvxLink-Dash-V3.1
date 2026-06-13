@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Enabled Hardware Ports - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Enabled Hardware Ports</h1>
+                <p>Select which hardware ports will be used in this installation.</p>
+            </div>
+        </div>
+
+        <div class="note">
+            The selected hardware profile defines the maximum available ports.
+            You do not have to enable every available port.
+        </div>
+
+        {% if profile.type == "port_based" %}
+            <div class="note">
+                For ICS-style boards, the board may physically provide more ports than this installation needs.
+                Enable only the ports that will actually be configured.
+            </div>
+        {% elif profile.type == "multi_interface" %}
+            <div class="note">
+                For multi-interface USB systems, each enabled port will later be matched to a discovered USB audio device
+                and its selected PTT/COS control method.
+            </div>
+        {% endif %}
+
+        <div class="form-section">
+            <div class="label">Selected hardware profile</div>
+            <p>
+                <strong>{{ profile.name }}</strong><br>
+                Profile ID: {{ profile.profile_id }}<br>
+                Type: {{ profile.type }}<br>
+                Available ports: {{ available_ports|length }}
+            </p>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('hardware_ports_page') }}" method="post">
+            <div class="form-section">
+                <div class="label">Ports to enable</div>
+
+                {% for port in available_ports %}
+                    <div class="status-box">
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="enabled_ports"
+                                value="{{ port }}"
+                                {% if port in enabled_ports %}checked{% endif %}
+                            >
+                            <strong>Port {{ port }}</strong>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
+
+                <button class="button-primary" type="submit">
+                    Continue
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
