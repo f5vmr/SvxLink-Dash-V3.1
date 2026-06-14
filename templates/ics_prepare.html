@@ -47,7 +47,7 @@
                     <span class="error">Missing</span>
                 {% endif %}
             </div>
-        
+
             <div class="status-box">
                 <strong>I²C status:</strong>
                 {% if status.i2c and status.i2c.ok %}
@@ -58,7 +58,18 @@
                     <span class="warning-text">Not checked</span>
                 {% endif %}
             </div>
-        
+
+            <div class="status-box">
+                <strong>GPIO line names:</strong>
+                {% if status.gpio_names and status.gpio_names.ok %}
+                    <span class="success-text">Success - ICS GPIO names found</span>
+                {% elif status.gpio_names %}
+                    <span class="warning-text">Not yet visible</span>
+                {% else %}
+                    <span class="warning-text">Not checked</span>
+                {% endif %}
+            </div>
+
             <div class="status-box">
                 <strong>Current ICS overlay:</strong>
                 {% if status.current_overlay %}
@@ -67,7 +78,7 @@
                     <span class="warning-text">None selected</span>
                 {% endif %}
             </div>
-        
+
             <div class="status-box">
                 <strong>Selected profile:</strong>
                 {% if status.selected_profile %}
@@ -76,7 +87,7 @@
                     <span class="warning-text">None</span>
                 {% endif %}
             </div>
-        
+
             <div class="status-box">
                 <strong>Selected overlay file:</strong>
                 {% if status.selected_overlay_exists %}
@@ -186,6 +197,29 @@
 
                 {% if status.overlay_check.stderr %}
                     <pre class="status-box">{{ status.overlay_check.stderr }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if status.gpio_names %}
+            <div class="form-section">
+                <div class="label">GPIO line-name check</div>
+
+                {% if status.gpio_names.ok %}
+                    <p class="success-text">ICS GPIO line names were found.</p>
+                {% else %}
+                    <p class="warning-text">
+                        ICS GPIO line names were not found. If the overlay has just been applied,
+                        reboot the Raspberry Pi and refresh this page.
+                    </p>
+                {% endif %}
+
+                {% if status.gpio_names.stdout %}
+                    <pre class="status-box">{{ status.gpio_names.stdout }}</pre>
+                {% endif %}
+
+                {% if status.gpio_names.stderr %}
+                    <pre class="status-box">{{ status.gpio_names.stderr }}</pre>
                 {% endif %}
             </div>
         {% endif %}
