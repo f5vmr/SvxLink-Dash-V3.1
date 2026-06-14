@@ -236,7 +236,13 @@
 
         <div class="button-row">
             <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
-            <a class="button-primary" href="{{ url_for('ics_prepare_page') }}">Refresh Checks</a>
+            <a class="button-secondary" href="{{ url_for('ics_prepare_page') }}">Refresh Checks</a>
+                
+            {% if status.gpio_names and status.gpio_names.ok %}
+                <a class="button-primary" href="{{ url_for('hardware_ports_page') }}">Continue</a>
+            {% else %}
+                <button class="button-primary" type="button" disabled>Continue</button>
+            {% endif %}
         </div>
     </section>
 

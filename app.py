@@ -642,6 +642,8 @@ def hardware_review_page():
     ports = model.get("ports", {})
     available_ports = ports.get("available", [])
     enabled_ports = ports.get("enabled", [])
+    if not available_ports or not enabled_ports:
+        return redirect(url_for("hardware_ports_page"))
 
     if request.method == "POST":
         return redirect(url_for("environment_page"))
@@ -652,6 +654,8 @@ def hardware_review_page():
         profile=profile,
         available_ports=available_ports,
         enabled_ports=enabled_ports,
+        error=None,
+        version_info=get_version_info
     )
 @app.route("/ics_prepare", methods=["GET", "POST"])
 def ics_prepare_page():
