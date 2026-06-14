@@ -393,7 +393,10 @@ def index():
 @app.route("/start", methods=["GET", "POST"])
 def start():
     model = load_node_model()
-
+    resume_after_reboot = model.get("build", {}).get("resume_after_reboot")
+    if resume_after_reboot:
+        return redirect(resume_after_reboot)
+    
     if "build" not in model:
         model["build"] = {
             "intent": "single_channel",
@@ -673,27 +676,59 @@ def ics_prepare_page():
             result = enable_i2c()
 
             if result["ok"]:
-                message = result["stdout"] or "I²C enable request completed. Reboot recommended."
+                model.setdefault("build", {})
+                model["build"]["resume_after_reboot"] = "/ics_prepare"
+
+                model.setdefault("ics_prepare", {})
+                model["ics_prepare"]["i2c_enable_requested"] = True
+                model["ics_prepare"]["reboot_required"] = True
+
+                save_node_model(model)
+
+                message = (
+                    result["stdout"]
+                    or "I²C enable request completed. Reboot required before continuing."
+                )
             else:
                 error = result["stderr"] or result["stdout"] or "Failed to enable I²C."
-
         elif action == "set_overlay":
             result = set_overlay(selected_profile)
 
             if result["ok"]:
-                message = result["stdout"] or f"Overlay set for {selected_profile}. Reboot required."
+                model.setdefault("build", {})
+                model["build"]["resume_after_reboot"] = "/ics_prepare"
 
-                model["resume_after_reboot"] = "/ics_prepare"
-                model["ics_overlay_applied"] = selected_profile
+                model.setdefault("ics_prepare", {})
+                model["ics_prepare"]["overlay_applied"] = selected_profile
+                model["ics_prepare"]["reboot_required"] = True
+                model["ics_prepare"]["verified"] = False
+
                 save_node_model(model)
+
+                message = (
+                    result["stdout"]
+                    or f"Overlay set for {selected_profile}. Reboot required before continuing."
+                )
             else:
                 error = result["stderr"] or result["stdout"] or "Failed to set ICS overlay."
-
         else:
             error = "Unknown action."
 
     status = build_ics_status(selected_profile)
+    if (
+        status.get("i2c")
+        and status["i2c"].get("ok")
+        and status.get("gpio_names")
+        and status["gpio_names"].get("ok")
+    ):
+        model.setdefault("ics_prepare", {})
+        model["ics_prepare"]["reboot_required"] = False
+        model["ics_prepare"]["verified"] = True
 
+        if "build" in model:
+            model["build"].pop("resume_after_reboot", None)
+
+    save_node_model(model)
     return render_template(
         "ics_prepare.html",
         model=model,
