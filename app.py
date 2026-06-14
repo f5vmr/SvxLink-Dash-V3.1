@@ -85,6 +85,7 @@ from services.system_service import (
     restart_services,
     reboot_device,
     shutdown_device,
+    schedule_reboot,
 )
 from data.metar_airports import METAR_REGIONS
 from data.timezones import TIMEZONES
@@ -730,9 +731,12 @@ def ics_prepare_page():
         
             save_node_model(model)
         
-            reboot_device()
+            result = schedule_reboot(3)
         
-            message = "The Raspberry Pi is rebooting. After reboot, return to the dashboard and setup will resume at ICS preparation."
+            if result.returncode != 0:
+                error = result.stderr or result.stdout or "Failed to schedule reboot."
+            else:
+                return redirect(url_for("rebooting_page"))
         else:
             error = "Unknown action."
 
@@ -761,7 +765,12 @@ def ics_prepare_page():
         error=error,
         version_info=get_version_info(),
     )
-      
+@app.route("/rebooting")
+def rebooting_page():
+    return render_template(
+        "rebooting.html",
+        version_info=get_version_info(),
+    )      
 @app.route("/environment", methods=["GET", "POST"])
 def environment_page():
     model = load_node_model()

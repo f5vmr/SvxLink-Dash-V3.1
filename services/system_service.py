@@ -39,6 +39,21 @@ def reboot_device():
         ]
     )
 
+def schedule_reboot(delay_seconds=3):
+    return subprocess.run(
+        [
+            "sudo",
+            "-n",
+            "/usr/bin/systemd-run",
+            f"--on-active={delay_seconds}",
+            "--unit=svxlink-dash-reboot",
+            "/usr/sbin/shutdown",
+            "-r",
+            "now",
+        ],
+        text=True,
+        capture_output=True,
+    )
 
 def shutdown_device():
     """

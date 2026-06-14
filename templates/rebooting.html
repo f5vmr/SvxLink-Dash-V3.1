@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Rebooting - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Rebooting</h1>
+                <p>
+                    The Raspberry Pi is rebooting. This page is safe to refresh.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            Wait for the Raspberry Pi to restart, then return to the dashboard.
+            The build flow should resume at the ICS preparation page.
+        </div>
+
+        <div class="button-row">
+            <a class="button-primary" href="{{ url_for('ics_prepare_page') }}">Return to ICS Preparation</a>
+            <a class="button-secondary" href="{{ url_for('status_page') }}">Status</a>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
