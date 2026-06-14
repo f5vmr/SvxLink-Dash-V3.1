@@ -920,7 +920,7 @@ def port_roles_page():
         error=None,
         version_info=get_version_info(),
     )
-        
+
 @app.route("/node", methods=["GET", "POST"])
 def node_page():
     model = load_node_model()
