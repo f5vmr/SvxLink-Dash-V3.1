@@ -279,62 +279,7 @@ def hardware_profiles():
     profiles = list_hardware_profiles()
     return render_template("hardware_profiles.html", profiles=profiles)
 
-# ========================================================
-# ICS Board Support
-# =======================================================
-@app.route("/ics_prepare", methods=["GET", "POST"])
-def ics_prepare_page():
-    model = load_node_model()
-    message = None
-    error = None
 
-    # Use saved selected profile if present.
-    selected_profile = (
-        model.get("hardware", {}).get("profile")
-        or model.get("hardware_profile")
-        or "ics_4x"
-    )
-
-    if request.method == "POST":
-        action = request.form.get("action", "")
-        selected_profile = request.form.get("profile", selected_profile)
-
-        model.setdefault("hardware", {})
-        model["hardware"]["profile"] = selected_profile
-        save_node_model(model)
-
-        if action == "enable_i2c":
-            result = enable_i2c()
-            if result["ok"]:
-                message = result["stdout"] or "I²C enable request completed. Reboot recommended."
-            else:
-                error = result["stderr"] or result["stdout"] or "Failed to enable I²C."
-
-        elif action == "set_overlay":
-            result = set_overlay(selected_profile)
-            if result["ok"]:
-                message = result["stdout"] or f"Overlay set for {selected_profile}. Reboot required."
-                model.setdefault("build", {})
-                model["build"]["resume_after_reboot"] = "/ics-verify"
-                save_node_model(model)
-            else:
-                error = result["stderr"] or result["stdout"] or "Failed to set ICS overlay."
-
-        else:
-            error = "Unknown action."
-
-    status = build_ics_status(selected_profile)
-    profiles = get_ics_profiles()
-
-    return render_template(
-        "ics_prepare.html",
-        model=model,
-        profiles=profiles,
-        selected_profile=selected_profile,
-        status=status,
-        message=message,
-        error=error,
-    )
 # =========================================================
 # GPIOD Support
 # =========================================================
