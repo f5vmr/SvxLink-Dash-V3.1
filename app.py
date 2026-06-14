@@ -981,15 +981,17 @@ def port_config_page():
         return redirect(url_for("hardware_page"))
 
     if request.method == "POST":
+        first_port = str(enabled_ports[0])
+
         model["nodes"] = initialise_port_nodes(model, profile)
 
         model.setdefault("build", {})
         model["build"]["multi_node"] = True
-        model["build"]["active_port"] = str(enabled_ports[0])
+        model["build"]["active_port"] = first_port
 
         save_node_model(model)
 
-        return redirect(url_for("port_config_page"))
+        return redirect(url_for("port_node_page", port_id=first_port))
 
     nodes = model.get("nodes", {})
 
@@ -1002,6 +1004,76 @@ def port_config_page():
         nodes=nodes,
         version_info=get_version_info(),
     )
+@app.route("/port-node/<port_id>", methods=["GET", "POST"])
+def port_node_page(port_id):
+    model = load_node_model()
+
+    nodes = model.get("nodes", {})
+    node = nodes.get(port_id)
+
+    if not node:
+        return redirect(url_for("port_config_page"))
+
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if port_id not in enabled_ports:
+        return redirect(url_for("port_config_page"))
+
+    error = None
+
+    if request.method == "POST":
+        callsign = request.form.get("callsign", "").strip().upper()
+        name = request.form.get("name", "").strip()
+
+        if not callsign:
+            error = "Please enter a callsign for this port."
+        else:
+            node["callsign"] = callsign
+            node["name"] = name or node.get("name") or f"Port {port_id} {node.get('role', '').title()}"
+            node["node_details_configured"] = True
+
+            nodes[port_id] = node
+            model["nodes"] = nodes
+
+            next_port_id = next_enabled_port(model, port_id)
+
+            model.setdefault("build", {})
+            model["build"]["active_port"] = next_port_id or port_id
+
+            save_node_model(model)
+
+            if next_port_id:
+                return redirect(url_for("port_node_page", port_id=next_port_id))
+
+            return redirect(url_for("port_config_page"))
+
+    return render_template(
+        "port_node.html",
+        model=model,
+        port_id=port_id,
+        node=node,
+        error=error,
+        version_info=get_version_info(),
+    )
+def next_enabled_port(model, current_port_id):
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if current_port_id not in enabled_ports:
+        return None
+
+    current_index = enabled_ports.index(current_port_id)
+    next_index = current_index + 1
+
+    if next_index >= len(enabled_ports):
+        return None
+
+    return enabled_ports[next_index]
 
 @app.route("/node", methods=["GET", "POST"])
 def node_page():

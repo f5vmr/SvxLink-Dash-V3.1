@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Port {{ port_id }} Node Details - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Port {{ port_id }} Node Details</h1>
+                <p>
+                    Set the identity for this enabled radio port.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            This port is configured as:
+            <strong>{{ node.role|title }}</strong>.
+            The radio control lines currently used by SvxLink are PTT and COS.
+            Additional hardware lines such as EN and CT are retained as board metadata
+            but are not used by the SvxLink configuration at this stage.
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('port_node_page', port_id=port_id) }}" method="post">
+            <div class="form-section">
+                <div class="label">Port identity</div>
+
+                <div class="status-box">
+                    <label>
+                        <strong>Callsign</strong><br>
+                        <input
+                            type="text"
+                            name="callsign"
+                            value="{{ node.callsign or '' }}"
+                            placeholder="e.g. G4NAB-1"
+                            required
+                        >
+                    </label>
+                </div>
+
+                <div class="status-box">
+                    <label>
+                        <strong>Node name / label</strong><br>
+                        <input
+                            type="text"
+                            name="name"
+                            value="{{ node.name or '' }}"
+                            placeholder="e.g. Port {{ port_id }} {{ node.role|title }}"
+                        >
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="label">Port mapping</div>
+
+                <div class="status-box">
+                    RX audio: {{ node.audio.rx_audio }}<br>
+                    TX audio: {{ node.audio.tx_audio }}<br>
+                    PTT: {{ node.gpio.ptt }}<br>
+                    COS: {{ node.gpio.cos }}
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_config_page') }}">Back</a>
+                <button class="button-primary" type="submit">Save and Continue</button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
