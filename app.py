@@ -1683,7 +1683,8 @@ def setup_auth_page():
             }
 
             save_node_model(model)
-
+            session.permanent = True
+            session["authorised"] = True 
             return redirect("/review")
 
     return render_template(
