@@ -119,6 +119,8 @@ def enable_i2c():
 def check_overlay():
     return _run_helper("check-overlay")
 
+def gpio_names():
+    return _run_helper("gpio-names")
 
 def set_overlay(profile_id):
     profile = get_profile(profile_id)
@@ -150,6 +152,7 @@ def build_ics_status(profile_id=None):
         "selected_overlay_exists": False,
         "i2c": None,
         "overlay_check": None,
+        "gpio_names": None,
     }
 
     if selected_profile:
@@ -158,5 +161,6 @@ def build_ics_status(profile_id=None):
     if status["helper_available"]:
         status["i2c"] = check_i2c()
         status["overlay_check"] = check_overlay()
+        status["gpio_names"] = gpio_names()
 
     return status
