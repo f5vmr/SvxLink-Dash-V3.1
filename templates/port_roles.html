@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Port Roles - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Port Roles</h1>
+                <p>
+                    Choose whether each enabled radio port will operate as a simplex
+                    node or as a repeater.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            Each enabled port is configured independently. A port marked as
+            <strong>Simplex</strong> will use one radio path. A port marked as
+            <strong>Repeater</strong> will later need repeater-specific settings,
+            including receiver/transmitter control and courtesy tone behaviour.
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('port_roles_page') }}" method="post">
+            <div class="form-section">
+                <div class="label">Enabled port roles</div>
+
+                {% for port in enabled_ports %}
+                    {% set saved_role = port_roles.get(port|string, {}).get("role", "simplex") %}
+
+                    <div class="status-box">
+                        <strong>Port {{ port }}</strong><br>
+                        <span>Audio: rx{{ port }} / tx{{ port }}</span><br>
+                        <span>GPIO: RX_{{ port }}, TX_{{ port }}, CT_{{ port }}, EN_{{ port }}</span>
+
+                        <div style="margin-top: 0.75rem;">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="port_{{ port }}_role"
+                                    value="simplex"
+                                    {% if saved_role == "simplex" %}checked{% endif %}
+                                >
+                                Simplex node
+                            </label>
+
+                            <br>
+
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="port_{{ port }}_role"
+                                    value="repeater"
+                                    {% if saved_role == "repeater" %}checked{% endif %}
+                                >
+                                Repeater
+                            </label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('timezone_page') }}">Back</a>
+                <button class="button-primary" type="submit">Continue</button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>

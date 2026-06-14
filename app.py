@@ -852,13 +852,73 @@ def timezone_page():
 
             save_node_model(model)
 
-            return redirect(url_for("node_page"))
+            return redirect(next_after_timezone(model))
 
     return render_template(
         "timezone.html",
         model=model,
         timezones=timezones,
         error=error,
+    )
+def next_after_timezone(model):
+    hardware = model.get("hardware", {})
+    ports = model.get("ports", {})
+
+    family = hardware.get("family")
+    enabled_ports = ports.get("enabled", [])
+
+    if family == "ics" and len(enabled_ports) > 1:
+        return url_for("port_roles_page")
+
+    return url_for("node_page")
+@app.route("/port-roles", methods=["GET", "POST"])
+def port_roles_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    ports = model.get("ports", {})
+    enabled_ports = ports.get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("node_page"))
+
+    if len(enabled_ports) <= 1:
+        return redirect(url_for("node_page"))
+
+    existing_roles = model.get("port_roles", {})
+
+    if request.method == "POST":
+        port_roles = {}
+
+        for port in enabled_ports:
+            role = request.form.get(f"port_{port}_role", "").strip()
+
+            if role not in ("simplex", "repeater"):
+                return render_template(
+                    "port_roles.html",
+                    model=model,
+                    enabled_ports=enabled_ports,
+                    port_roles=existing_roles,
+                    error=f"Please select a valid role for Port {port}.",
+                    version_info=get_version_info(),
+                )
+
+            port_roles[str(port)] = {
+                "role": role,
+            }
+
+        model["port_roles"] = port_roles
+        save_node_model(model)
+
+        return redirect(url_for("node_page"))
+
+    return render_template(
+        "port_roles.html",
+        model=model,
+        enabled_ports=enabled_ports,
+        port_roles=existing_roles,
+        error=None,
+        version_info=get_version_info(),
     )
         
 @app.route("/node", methods=["GET", "POST"])
