@@ -38,7 +38,7 @@
 
         <div class="form-section">
             <div class="label">Preparation status</div>
-                
+
             <div class="status-box">
                 <strong>Helper script:</strong>
                 {% if status.helper_available %}
@@ -202,7 +202,6 @@
 
         <div class="button-row">
             <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
-            <a class="button-secondary" href="{{ url_for('status_page') }}">Status</a>
             <a class="button-primary" href="{{ url_for('ics_prepare_page') }}">Refresh Checks</a>
         </div>
     </section>
