@@ -1,23 +1,103 @@
 {
   "profile_id": "ics_8x",
-  "name": "ICS-CTRLS 8X",
+  "name": "ICS-CTRLS 8X Board",
+  "manufacturer": "ICS-CTRLS",
   "type": "port_based",
   "family": "ics",
   "ports": 8,
-  "preparation": {
-    "required": true,
-    "requires_reboot": true,
-    "service": "ics_prepare",
-    "resume_after_reboot": "environment_page"
+  "audio": {
+    "backend": "alsa_multichannel",
+    "rate": 48000,
+    "format": "S32_LE",
+    "hardware_channels": 10
+  },
+  "gpio": {
+    "backend": "mcp23017_triple",
+    "i2c_required": true,
+    "overlay_required": true
+  },
+  "port_map": {
+    "1": {
+      "rx_audio": "alsa:rx1",
+      "tx_audio": "alsa:tx1",
+      "ptt": "TX_1",
+      "cos": "RX_1",
+      "enable": "EN_1",
+      "control": "CT_1"
+    },
+    "2": {
+      "rx_audio": "alsa:rx2",
+      "tx_audio": "alsa:tx2",
+      "ptt": "TX_2",
+      "cos": "RX_2",
+      "enable": "EN_2",
+      "control": "CT_2"
+    },
+    "3": {
+      "rx_audio": "alsa:rx3",
+      "tx_audio": "alsa:tx3",
+      "ptt": "TX_3",
+      "cos": "RX_3",
+      "enable": "EN_3",
+      "control": "CT_3"
+    },
+    "4": {
+      "rx_audio": "alsa:rx4",
+      "tx_audio": "alsa:tx4",
+      "ptt": "TX_4",
+      "cos": "RX_4",
+      "enable": "EN_4",
+      "control": "CT_4"
+    },
+    "5": {
+      "rx_audio": "alsa:rx5",
+      "tx_audio": "alsa:tx5",
+      "ptt": "TX_5",
+      "cos": "RX_5",
+      "enable": "EN_5",
+      "control": "CT_5"
+    },
+    "6": {
+      "rx_audio": "alsa:rx6",
+      "tx_audio": "alsa:tx6",
+      "ptt": "TX_6",
+      "cos": "RX_6",
+      "enable": "EN_6",
+      "control": "CT_6"
+    },
+    "7": {
+      "rx_audio": "alsa:rx7",
+      "tx_audio": "alsa:tx7",
+      "ptt": "TX_7",
+      "cos": "RX_7",
+      "enable": "EN_7",
+      "control": "CT_7"
+    },
+    "8": {
+      "rx_audio": "alsa:rx8",
+      "tx_audio": "alsa:tx8",
+      "ptt": "TX_8",
+      "cos": "RX_8",
+      "enable": "EN_8",
+      "control": "CT_8"
+    }
   },
   "rules": {
     "controller_ownership_required": true,
     "max_ports": 8,
     "max_active_repeater_controllers": 1
   },
+  "preparation": {
+    "required": true,
+    "requires_reboot": true,
+    "service": "ics_prepare",
+    "resume_after_reboot": "/ics_prepare"
+  },
   "notes": [
     "This board is represented as eight logical ports.",
-    "Board-specific DTS, GPIO, audio, and overlay details must be supplied before final deployment.",
-    "Ports selected for use may be fewer than the board maximum."
+    "Ports, not radios, are the primary configuration object.",
+    "SvxLink should use named ALSA endpoints rather than raw channel numbers.",
+    "The GPIO mapping follows the named ICS 8X overlay line names.",
+    "The ALSA rx1-rx8 and tx1-tx8 endpoint mapping is provisional until the 8X audio channel ordering has been physically verified."
   ]
 }

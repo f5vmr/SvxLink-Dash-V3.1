@@ -2,11 +2,12 @@
   "profile_id": "ics_1x",
   "name": "ICS-CTRLS 1X",
   "type": "port_based",
-  "ports": 1,
+  "family": "ics",
+  "ports": 1,  
   "preparation": {
   "required": true,
   "requires_reboot": true,
   "service": "ics_prepare",
-  "resume_after_reboot": "environment_page"
+  "resume_after_reboot": "/ics_prepare"
 }
 }

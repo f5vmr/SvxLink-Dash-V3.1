@@ -3,6 +3,7 @@
   "name": "ICS-CTRLS 4X Board",
   "manufacturer": "ICS-CTRLS",
   "type": "port_based",
+  "family": "ics",
   "ports": 4,
   "audio": {
     "backend": "alsa_multichannel",
@@ -58,7 +59,7 @@
     "required": true,
     "requires_reboot": true,
     "service": "ics_prepare",
-    "resume_after_reboot": "environment_page"
+    "resume_after_reboot": "/ics_prepare"
   },
   
   "notes": [
