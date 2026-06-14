@@ -579,8 +579,8 @@ def hardware_ports_page():
         return redirect(url_for("hardware_page"))
     if profile.get("family") == "ics":
         ics_prepare = model.get("ics_prepare", {})
-    if not ics_prepare.get("verified"):
-        return redirect(url_for("ics_prepare_page"))
+        if not ics_prepare.get("verified"):
+            return redirect(url_for("ics_prepare_page"))
     port_count = int(profile.get("ports", 1))
     available_ports = list(range(1, port_count + 1))
 
