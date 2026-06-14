@@ -35,7 +35,17 @@
         {% if error %}
             <p class="error">{{ error }}</p>
         {% endif %}
-
+        {% if model.ics_prepare and model.ics_prepare.reboot_required %}
+            <div class="note">
+                <strong>Reboot required.</strong><br>
+                The selected ICS overlay has been written to the Raspberry Pi boot
+                configuration, but it will not take effect until the Raspberry Pi is
+                rebooted.
+                <br><br>
+                Press <strong>Reboot Now</strong> when ready. After reboot, return to
+                the dashboard and setup will resume at this ICS preparation page.
+            </div>
+        {% endif %}
         <div class="form-section">
             <div class="label">Preparation status</div>
 
@@ -236,9 +246,24 @@
 
         <div class="button-row">
             <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
+                
             <a class="button-secondary" href="{{ url_for('ics_prepare_page') }}">Refresh Checks</a>
                 
-            {% if status.gpio_names and status.gpio_names.ok %}
+            {% if model.ics_prepare and model.ics_prepare.reboot_required %}
+                <form action="{{ url_for('ics_prepare_page') }}" method="post" style="display:inline;">
+                    <button
+                        class="button-primary"
+                        type="submit"
+                        name="action"
+                        value="reboot"
+                        {% if not status.helper_available %}disabled{% endif %}
+                    >
+                        Reboot Now
+                    </button>
+                </form>
+            {% endif %}
+            
+            {% if status.gpio_names and status.gpio_names.ok and not (model.ics_prepare and model.ics_prepare.reboot_required) %}
                 <a class="button-primary" href="{{ url_for('hardware_ports_page') }}">Continue</a>
             {% else %}
                 <button class="button-primary" type="button" disabled>Continue</button>

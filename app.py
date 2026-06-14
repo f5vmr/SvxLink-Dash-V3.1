@@ -721,6 +721,18 @@ def ics_prepare_page():
                 )
             else:
                 error = result["stderr"] or result["stdout"] or "Failed to set ICS overlay."
+        elif action == "reboot":
+            model.setdefault("build", {})
+            model["build"]["resume_after_reboot"] = "/ics_prepare"
+        
+            model.setdefault("ics_prepare", {})
+            model["ics_prepare"]["reboot_required"] = True
+        
+            save_node_model(model)
+        
+            reboot_device()
+        
+            message = "The Raspberry Pi is rebooting. After reboot, return to the dashboard and setup will resume at ICS preparation."
         else:
             error = "Unknown action."
 
