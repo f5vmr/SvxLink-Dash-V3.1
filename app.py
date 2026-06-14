@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-from pyexpat import model
-
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 import shutil
@@ -134,13 +132,96 @@ app = Flask(
 )
 app.secret_key = "change-this-dashboard-secret"
 
+app.permanent_session_lifetime = datetime.timedelta(minutes=15)
+
+# =========================================================
+# Authorisation and protection
+# =========================================================
+def dashboard_auth_exists():
+    """
+    Return True only when dashboard credentials exist and are parseable.
+    Fail closed if the model cannot be read safely.
+    """
+
+    try:
+        model = load_node_model()
+        auth = model.get("dashboard_auth", {})
+
+        username = auth.get("username", "").strip()
+        password_hash = auth.get("password_hash", "").strip()
+
+        return bool(username and password_hash)
+
+    except Exception:
+        return False
+
+@app.before_request
+def require_dashboard_auth():
+    """
+    Protect all dashboard configuration/control routes.
+
+    Public:
+      - static assets
+      - /status
+      - /api/status
+      - /authorise
+      - /logout
+      - /setup-auth only when no credentials exist yet
+
+    Everything else requires session["authorised"].
+    """
+
+    public_paths = {
+        "/status",
+        "/api/status",
+    }
+
+    auth_paths = {
+        "/authorise",
+        "/logout",
+    }
+
+    setup_auth_path = "/setup-auth"
+
+    if request.endpoint == "static":
+        return None
+
+    path = request.path.rstrip("/") or "/"
+
+    if path in public_paths:
+        return None
+
+    auth_exists = dashboard_auth_exists()
+
+    if not auth_exists:
+        if path == setup_auth_path:
+            return None
+
+        session.pop("authorised", None)
+        return redirect(url_for("setup_auth_page"))
+
+    if path in auth_paths:
+        return None
+
+    if path == setup_auth_path:
+        if session.get("authorised"):
+            return None
+
+        return redirect(url_for("authorise_page"))
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page"))
+
+    return None
+# ========================================================
+# Context processors
+# ========================================================
 @app.context_processor
 def inject_versions():
     return {
         "version_info": get_version_info()
     }
-from datetime import timedelta
-app.permanent_session_lifetime = timedelta(minutes=15)
+
 
 # =========================================================
 # Platform detection
@@ -1739,6 +1820,7 @@ def authorise_page():
             and stored_hash
             and check_password_hash(stored_hash, password)
         ):
+            session.clear()
             session.permanent = True
             session["authorised"] = True
 
