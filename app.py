@@ -66,6 +66,12 @@ from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
+from services.ics_prepare_service import (
+    build_ics_status,
+    get_ics_profiles,
+    set_overlay,
+    enable_i2c,
+)
 from services.log_service import get_svxlink_log_path
 from services.gpio_service import flatten_gpio_lines
 from services.node_info_service import write_node_info_json
@@ -703,6 +709,60 @@ def hardware_review_page():
         profile=profile,
         available_ports=available_ports,
         enabled_ports=enabled_ports,
+    )
+@app.route("/ics-prepare", methods=["GET", "POST"])
+def ics_prepare_page():
+    model = load_node_model()
+    message = None
+    error = None
+
+    selected_profile = (
+        model.get("hardware_profile_id")
+        or model.get("hardware", {}).get("profile")
+        or "ics_4x"
+    )
+
+    if request.method == "POST":
+        action = request.form.get("action", "")
+        selected_profile = request.form.get("profile", selected_profile)
+
+        model["hardware_profile_id"] = selected_profile
+        save_node_model(model)
+
+        if action == "enable_i2c":
+            result = enable_i2c()
+
+            if result["ok"]:
+                message = result["stdout"] or "I²C enable request completed. Reboot recommended."
+            else:
+                error = result["stderr"] or result["stdout"] or "Failed to enable I²C."
+
+        elif action == "set_overlay":
+            result = set_overlay(selected_profile)
+
+            if result["ok"]:
+                message = result["stdout"] or f"Overlay set for {selected_profile}. Reboot required."
+
+                model["resume_after_reboot"] = "/ics-prepare"
+                model["ics_overlay_applied"] = selected_profile
+                save_node_model(model)
+            else:
+                error = result["stderr"] or result["stdout"] or "Failed to set ICS overlay."
+
+        else:
+            error = "Unknown action."
+
+    status = build_ics_status(selected_profile)
+
+    return render_template(
+        "ics_prepare.html",
+        model=model,
+        profiles=get_ics_profiles(),
+        selected_profile=selected_profile,
+        status=status,
+        message=message,
+        error=error,
+        version_info=get_version_info(),
     )
       
 @app.route("/environment", methods=["GET", "POST"])
