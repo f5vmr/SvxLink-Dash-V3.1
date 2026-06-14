@@ -287,7 +287,7 @@ def hardware_profiles():
 # ========================================================
 # ICS Board Support
 # =======================================================
-@app.route("/ics-prepare", methods=["GET", "POST"])
+@app.route("/ics_prepare", methods=["GET", "POST"])
 def ics_prepare_page():
     model = load_node_model()
     message = None
@@ -710,7 +710,7 @@ def hardware_review_page():
         available_ports=available_ports,
         enabled_ports=enabled_ports,
     )
-@app.route("/ics-prepare", methods=["GET", "POST"])
+@app.route("/ics_prepare", methods=["GET", "POST"])
 def ics_prepare_page():
     model = load_node_model()
     message = None
@@ -743,7 +743,7 @@ def ics_prepare_page():
             if result["ok"]:
                 message = result["stdout"] or f"Overlay set for {selected_profile}. Reboot required."
 
-                model["resume_after_reboot"] = "/ics-prepare"
+                model["resume_after_reboot"] = "/ics_prepare"
                 model["ics_overlay_applied"] = selected_profile
                 save_node_model(model)
             else:
