@@ -910,7 +910,7 @@ def port_roles_page():
         model["port_roles"] = port_roles
         save_node_model(model)
 
-        return redirect(url_for("node_page"))
+        return redirect(url_for("port_config_page"))
 
     return render_template(
         "port_roles.html",
@@ -918,6 +918,88 @@ def port_roles_page():
         enabled_ports=enabled_ports,
         port_roles=existing_roles,
         error=None,
+        version_info=get_version_info(),
+    )
+def initialise_port_nodes(model, profile):
+    ports = model.get("ports", {})
+    enabled_ports = ports.get("enabled", [])
+    port_roles = model.get("port_roles", {})
+    port_map = profile.get("port_map", {})
+
+    nodes = {}
+
+    for port in enabled_ports:
+        port_id = str(port)
+        role = port_roles.get(port_id, {}).get("role")
+        mapping = port_map.get(port_id, {})
+
+        if role not in ("simplex", "repeater"):
+            continue
+
+        nodes[port_id] = {
+            "port": port,
+            "role": role,
+            "enabled": True,
+            "name": f"Port {port} {role.title()}",
+            "callsign": None,
+            "language": model.get("language", {}).get("default", "en_GB"),
+            "audio": {
+                "rx_audio": mapping.get("rx_audio"),
+                "tx_audio": mapping.get("tx_audio"),
+            },
+            "gpio": {
+                "ptt": mapping.get("ptt"),
+                "cos": mapping.get("cos"),
+                "enable": mapping.get("enable"),
+                "control": mapping.get("control"),
+            },
+            "configured": False,
+        }
+
+    return nodes
+@app.route("/port-config", methods=["GET", "POST"])
+def port_config_page():
+    model = load_node_model()
+
+    hardware_profile_id = model.get("hardware_profile_id")
+    hardware = model.get("hardware", {})
+    ports = model.get("ports", {})
+    enabled_ports = ports.get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("node_page"))
+
+    if len(enabled_ports) <= 1:
+        return redirect(url_for("node_page"))
+
+    if not model.get("port_roles"):
+        return redirect(url_for("port_roles_page"))
+
+    try:
+        profile = load_hardware_profile(hardware_profile_id)
+    except FileNotFoundError:
+        return redirect(url_for("hardware_page"))
+
+    if request.method == "POST":
+        model["nodes"] = initialise_port_nodes(model, profile)
+
+        model.setdefault("build", {})
+        model["build"]["multi_node"] = True
+        model["build"]["active_port"] = str(enabled_ports[0])
+
+        save_node_model(model)
+
+        return redirect(url_for("port_config_page"))
+
+    nodes = model.get("nodes", {})
+
+    return render_template(
+        "port_config.html",
+        model=model,
+        profile=profile,
+        enabled_ports=enabled_ports,
+        port_roles=model.get("port_roles", {}),
+        nodes=nodes,
         version_info=get_version_info(),
     )
 

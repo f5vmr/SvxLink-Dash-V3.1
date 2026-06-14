@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Port Configuration - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Port Configuration</h1>
+                <p>
+                    Review the enabled radio ports and initialise the per-port node
+                    configuration model.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            This build contains more than one enabled ICS port. Each port will be
+            configured as its own logical SvxLink node, using the role selected on
+            the previous page.
+        </div>
+
+        <div class="form-section">
+            <div class="label">Enabled port summary</div>
+
+            {% for port in enabled_ports %}
+                {% set port_id = port|string %}
+                {% set role = port_roles.get(port_id, {}).get("role", "unknown") %}
+                {% set mapping = profile.port_map.get(port_id, {}) %}
+
+                <div class="status-box">
+                    <strong>Port {{ port }}</strong><br>
+                    Role:
+                    {% if role == "repeater" %}
+                        <span class="success-text">Repeater</span>
+                    {% elif role == "simplex" %}
+                        <span class="success-text">Simplex</span>
+                    {% else %}
+                        <span class="warning-text">Not selected</span>
+                    {% endif %}
+                    <br>
+                    RX audio: {{ mapping.get("rx_audio", "not mapped") }}<br>
+                    TX audio: {{ mapping.get("tx_audio", "not mapped") }}<br>
+                    PTT: {{ mapping.get("ptt", "not mapped") }} |
+                    COS: {{ mapping.get("cos", "not mapped") }} |
+                    EN: {{ mapping.get("enable", "not mapped") }} |
+                    CT: {{ mapping.get("control", "not mapped") }}
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if nodes %}
+            <div class="form-section">
+                <div class="label">Initialised node model</div>
+
+                {% for port_id, node in nodes.items() %}
+                    <div class="status-box">
+                        <strong>{{ node.name }}</strong><br>
+                        Port: {{ node.port }}<br>
+                        Role: {{ node.role }}<br>
+                        RX audio: {{ node.audio.rx_audio }}<br>
+                        TX audio: {{ node.audio.tx_audio }}<br>
+                        Configured:
+                        {% if node.configured %}
+                            <span class="success-text">Yes</span>
+                        {% else %}
+                            <span class="warning-text">No</span>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="note">
+                The per-port node model has been created. The next development step
+                is to configure each enabled port in turn, using the selected role.
+            </div>
+        {% else %}
+            <form action="{{ url_for('port_config_page') }}" method="post">
+                <div class="button-row">
+                    <a class="button-secondary" href="{{ url_for('port_roles_page') }}">Back</a>
+                    <button class="button-primary" type="submit">Initialise Port Nodes</button>
+                </div>
+            </form>
+        {% endif %}
+
+        {% if nodes %}
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_roles_page') }}">Back</a>
+                <a class="button-primary" href="{{ url_for('port_config_page') }}">Refresh</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
