@@ -560,6 +560,9 @@ def hardware_prepare_reviewed_page():
 
     save_node_model(model)
 
+    if profile.get("family") == "ics":
+        return redirect(url_for("ics_prepare_page"))
+
     return redirect(url_for("hardware_ports_page"))
 @app.route("/hardware-ports", methods=["GET", "POST"])
 def hardware_ports_page():
@@ -574,7 +577,10 @@ def hardware_ports_page():
         profile = load_hardware_profile(hardware_profile_id)
     except FileNotFoundError:
         return redirect(url_for("hardware_page"))
-
+    if profile.get("family") == "ics":
+        ics_prepare = model.get("ics_prepare", {})
+    if not ics_prepare.get("verified"):
+        return redirect(url_for("ics_prepare_page"))
     port_count = int(profile.get("ports", 1))
     available_ports = list(range(1, port_count + 1))
 
