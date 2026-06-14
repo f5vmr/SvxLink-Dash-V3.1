@@ -38,7 +38,7 @@
 
         <div class="form-section">
             <div class="label">Preparation status</div>
-
+                
             <div class="status-box">
                 <strong>Helper script:</strong>
                 {% if status.helper_available %}
@@ -47,7 +47,18 @@
                     <span class="error">Missing</span>
                 {% endif %}
             </div>
-
+        
+            <div class="status-box">
+                <strong>I²C status:</strong>
+                {% if status.i2c and status.i2c.ok %}
+                    <span class="success-text">Success - I²C is available</span>
+                {% elif status.i2c %}
+                    <span class="error">I²C not available</span>
+                {% else %}
+                    <span class="warning-text">Not checked</span>
+                {% endif %}
+            </div>
+        
             <div class="status-box">
                 <strong>Current ICS overlay:</strong>
                 {% if status.current_overlay %}
@@ -56,7 +67,7 @@
                     <span class="warning-text">None selected</span>
                 {% endif %}
             </div>
-
+        
             <div class="status-box">
                 <strong>Selected profile:</strong>
                 {% if status.selected_profile %}
@@ -65,7 +76,7 @@
                     <span class="warning-text">None</span>
                 {% endif %}
             </div>
-
+        
             <div class="status-box">
                 <strong>Selected overlay file:</strong>
                 {% if status.selected_overlay_exists %}
