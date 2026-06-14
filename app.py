@@ -1685,7 +1685,7 @@ def setup_auth_page():
             save_node_model(model)
             session.permanent = True
             session["authorised"] = True 
-            return redirect(url_for("start_page"))
+            return redirect("/start")
 
     return render_template(
         "setup_auth.html",
