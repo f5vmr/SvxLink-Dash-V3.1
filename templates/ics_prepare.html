@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>ICS Hardware Preparation - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>ICS Hardware Preparation</h1>
+                <p>
+                    Prepare the Raspberry Pi for ICS hardware by checking I²C,
+                    selecting the correct overlay, and confirming that the required
+                    overlay files are installed.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            ICS boards require Raspberry Pi I²C and the correct device-tree overlay
+            before the MCP23017 GPIO expanders can be detected. If the overlay is
+            changed, the Raspberry Pi must be rebooted before GPIO verification can
+            continue.
+        </div>
+
+        {% if message %}
+            <p class="success">{{ message }}</p>
+        {% endif %}
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <div class="form-section">
+            <div class="label">Preparation status</div>
+
+            <div class="status-box">
+                <strong>Helper script:</strong>
+                {% if status.helper_available %}
+                    <span class="success-text">Available</span>
+                {% else %}
+                    <span class="error">Missing</span>
+                {% endif %}
+            </div>
+
+            <div class="status-box">
+                <strong>Current ICS overlay:</strong>
+                {% if status.current_overlay %}
+                    <span class="success-text">{{ status.current_overlay }}</span>
+                {% else %}
+                    <span class="warning-text">None selected</span>
+                {% endif %}
+            </div>
+
+            <div class="status-box">
+                <strong>Selected profile:</strong>
+                {% if status.selected_profile %}
+                    {{ status.selected_profile.name }}
+                {% else %}
+                    <span class="warning-text">None</span>
+                {% endif %}
+            </div>
+
+            <div class="status-box">
+                <strong>Selected overlay file:</strong>
+                {% if status.selected_overlay_exists %}
+                    <span class="success-text">Found</span>
+                {% else %}
+                    <span class="error">Missing</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <form action="{{ url_for('ics_prepare_page') }}" method="post">
+            <div class="form-section">
+                <div class="label">ICS hardware profile</div>
+
+                {% for profile_id, profile in profiles.items() %}
+                    <div class="status-box">
+                        <label>
+                            <input
+                                type="radio"
+                                name="profile"
+                                value="{{ profile_id }}"
+                                required
+                                {% if profile_id == selected_profile %}checked{% endif %}
+                            >
+
+                            <strong>{{ profile.name }}</strong><br>
+                            Overlay: {{ profile.overlay }}<br>
+                            Maximum ports: {{ profile.max_ports }}
+
+                            {% if profile.expected_i2c %}
+                                <br>Expected I²C:
+                                {% for addr in profile.expected_i2c %}
+                                    {{ addr }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="form-section">
+                <div class="label">Actions</div>
+
+                <div class="note">
+                    Use <strong>Enable I²C</strong> only if I²C is not already available.
+                    Use <strong>Apply Selected ICS Overlay</strong> after selecting the correct
+                    board profile. A reboot is required after applying an overlay.
+                </div>
+
+                <div class="button-row">
+                    <button
+                        class="button-secondary"
+                        type="submit"
+                        name="action"
+                        value="enable_i2c"
+                        {% if not status.helper_available %}disabled{% endif %}
+                    >
+                        Enable I²C
+                    </button>
+
+                    <button
+                        class="button-primary"
+                        type="submit"
+                        name="action"
+                        value="set_overlay"
+                        {% if not status.helper_available or not status.selected_overlay_exists %}disabled{% endif %}
+                    >
+                        Apply Selected ICS Overlay
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        {% if status.i2c %}
+            <div class="form-section">
+                <div class="label">I²C check</div>
+
+                {% if status.i2c.ok %}
+                    <p class="success-text">I²C check completed successfully.</p>
+                {% else %}
+                    <p class="error">I²C check reported a problem.</p>
+                {% endif %}
+
+                {% if status.i2c.stdout %}
+                    <pre class="status-box">{{ status.i2c.stdout }}</pre>
+                {% endif %}
+
+                {% if status.i2c.stderr %}
+                    <pre class="status-box">{{ status.i2c.stderr }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if status.overlay_check %}
+            <div class="form-section">
+                <div class="label">Overlay check</div>
+
+                {% if status.overlay_check.ok %}
+                    <p class="success-text">Overlay check completed successfully.</p>
+                {% else %}
+                    <p class="error">Overlay check reported a problem.</p>
+                {% endif %}
+
+                {% if status.overlay_check.stdout %}
+                    <pre class="status-box">{{ status.overlay_check.stdout }}</pre>
+                {% endif %}
+
+                {% if status.overlay_check.stderr %}
+                    <pre class="status-box">{{ status.overlay_check.stderr }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="form-section">
+            <div class="label">Next step</div>
+
+            <div class="note">
+                After applying the correct overlay, reboot the Raspberry Pi. When the
+                dashboard resumes, the next stage should verify that the expected I²C
+                devices and named GPIO lines are present before allowing port selection.
+            </div>
+        </div>
+
+        <div class="button-row">
+            <a class="button-secondary" href="{{ url_for('hardware_page') }}">Back</a>
+            <a class="button-secondary" href="{{ url_for('status_page') }}">Status</a>
+            <a class="button-primary" href="{{ url_for('ics_prepare_page') }}">Refresh Checks</a>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
