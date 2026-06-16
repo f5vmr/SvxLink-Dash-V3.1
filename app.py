@@ -1997,6 +1997,7 @@ def status_page():
         activity=activity,
         talkgroups=talkgroups,
         monitor_tgs=monitor_tgs,
+        active_talkgroup=status.get("active_talkgroup"),
         system_info=system_info,
         version_info=get_version_info(),
     )
