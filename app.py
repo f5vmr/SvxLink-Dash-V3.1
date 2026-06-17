@@ -731,7 +731,7 @@ def ics_prepare_page():
         
             save_node_model(model)
         
-            result = schedule_reboot(3)
+            result = schedule_reboot(8)
         
             if result.returncode != 0:
                 error = result.stderr or result.stdout or "Failed to schedule reboot."
