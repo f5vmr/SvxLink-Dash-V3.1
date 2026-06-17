@@ -1514,13 +1514,105 @@ def port_courtesy_page():
 
         save_node_model(model)
 
-        return redirect(url_for("repeater_page"))
+        return redirect(url_for("port_repeater_page"))
 
     return render_template(
         "port_courtesy.html",
         model=model,
         nodes=nodes,
         enabled_ports=enabled_ports,
+        version_info=get_version_info(),
+    )
+@app.route("/port-repeater", methods=["GET", "POST"])
+def port_repeater_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("repeater_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    enabled_port_ids = [
+        str(port)
+        for port in enabled_ports
+    ]
+
+    repeater_port_ids = [
+        port_id
+        for port_id in enabled_port_ids
+        if nodes.get(port_id, {}).get("role") == "repeater"
+    ]
+
+    if request.method == "POST":
+        for port_id in repeater_port_ids:
+            node = nodes.get(port_id, {})
+
+            idle_timeout = request.form.get(
+                f"port_{port_id}_idle_timeout",
+                "10"
+            ).strip()
+
+            sql_timeout = request.form.get(
+                f"port_{port_id}_sql_timeout",
+                "180"
+            ).strip()
+
+            open_on_sql = request.form.get(
+                f"port_{port_id}_open_on_sql",
+                "200"
+            ).strip()
+
+            try:
+                idle_timeout_value = int(idle_timeout)
+            except ValueError:
+                idle_timeout_value = 10
+
+            try:
+                sql_timeout_value = int(sql_timeout)
+            except ValueError:
+                sql_timeout_value = 180
+
+            try:
+                open_on_sql_value = int(open_on_sql)
+            except ValueError:
+                open_on_sql_value = 200
+
+            node["repeater"] = {
+                "idle_timeout": idle_timeout_value,
+                "sql_timeout": sql_timeout_value,
+                "open_on_sql": open_on_sql_value,
+                "open_sql_flank": "OPEN",
+            }
+
+            node["repeater_configured"] = True
+            nodes[port_id] = node
+
+        for port_id in enabled_port_ids:
+            node = nodes.get(port_id, {})
+            if node.get("role") != "repeater":
+                node["repeater_configured"] = True
+                nodes[port_id] = node
+
+        model["nodes"] = nodes
+
+        model.setdefault("build", {})
+        model["build"]["port_repeater_configured"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("port_final_review_page"))
+
+    return render_template(
+        "port_repeater.html",
+        model=model,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
+        repeater_port_ids=repeater_port_ids,
         version_info=get_version_info(),
     )
 
