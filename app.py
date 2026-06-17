@@ -3,7 +3,8 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 import shutil
-import datetime
+import datetime 
+from datetime import timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
                                                                                        
 from services.sound_discovery import (
@@ -138,6 +139,7 @@ app = Flask(
     static_folder=str(STATIC_DIR),
     static_url_path="/static"
 )
+app.permanent_session_lifetime = timedelta(hours=8)
 app.secret_key = "change-this-dashboard-secret"
 
 app.permanent_session_lifetime = datetime.timedelta(minutes=15)
