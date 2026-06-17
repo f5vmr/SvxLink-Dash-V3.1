@@ -1158,7 +1158,7 @@ def port_squelch_complete_page():
 
     save_node_model(model)
 
-    return redirect(url_for("modules_page"))
+    return redirect(url_for("port_modules_page"))
 @app.route("/port-squelch/<port_id>", methods=["GET", "POST"])
 def port_squelch_detail_page(port_id):
     model = load_node_model()
@@ -1223,6 +1223,67 @@ def port_squelch_detail_page(port_id):
         node=node,
         squelch=node.get("squelch", {}),
         error=error,
+        version_info=get_version_info(),
+    )
+@app.route("/port-modules", methods=["GET", "POST"])
+def port_modules_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("modules_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    enabled_port_ids = [str(port) for port in enabled_ports]
+    modules_multi = model.get("modules_multi", {})
+
+    if request.method == "POST":
+        echolink_port = request.form.get("echolink_port", "none").strip()
+
+        if echolink_port == "none":
+            echolink_port = None
+        elif echolink_port not in enabled_port_ids:
+            echolink_port = None
+
+        metar_ports = request.form.getlist("metar_ports")
+        metar_ports = [
+            port_id
+            for port_id in metar_ports
+            if port_id in enabled_port_ids
+        ]
+
+        for port_id in enabled_port_ids:
+            node = nodes.get(port_id, {})
+            node["modules"] = {
+                "echolink": port_id == echolink_port,
+                "metar": port_id in metar_ports,
+            }
+            nodes[port_id] = node
+
+        model["nodes"] = nodes
+        model["modules_multi"] = {
+            "echolink_port": echolink_port,
+            "metar_ports": metar_ports,
+        }
+
+        model.setdefault("build", {})
+        model["build"]["port_modules_configured"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("ident_page"))
+
+    return render_template(
+        "port_modules.html",
+        model=model,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
+        modules_multi=modules_multi,
         version_info=get_version_info(),
     )
 

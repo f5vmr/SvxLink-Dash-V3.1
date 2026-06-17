@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Port Modules - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Port Modules</h1>
+                <p>
+                    Choose module availability for each configured ICS port.
+                </p>
+            </div>
+        </div>
+
+        <form action="{{ url_for('port_modules_page') }}" method="post">
+            <div class="form-section">
+                <div class="label">EchoLink allocation</div>
+
+                <div class="note">
+                    <strong>EchoLink can only be enabled on one configured port in this build.</strong>
+                    This is because a normal EchoLink instance uses one callsign/login and one network
+                    service from this device/IP address.
+                    <br><br>
+                    Choose the port that should own EchoLink, or select <strong>None</strong> if this
+                    build will not use EchoLink.
+                    <br><br>
+                    This choice is part of the dashboard configuration and may be changed later through
+                    the rebuild/reconfigure workflow when that function is available.
+                </div>
+
+                {% set saved_echolink_port = modules_multi.get("echolink_port") %}
+
+                <div class="status-box">
+                    <label>
+                        <input
+                            type="radio"
+                            name="echolink_port"
+                            value="none"
+                            {% if not saved_echolink_port %}checked{% endif %}
+                        >
+                        None
+                    </label>
+
+                    {% for port in enabled_ports %}
+                        {% set port_id = port|string %}
+                        {% set node = nodes.get(port_id, {}) %}
+
+                        <br>
+
+                        <label>
+                            <input
+                                type="radio"
+                                name="echolink_port"
+                                value="{{ port_id }}"
+                                {% if saved_echolink_port == port_id %}checked{% endif %}
+                            >
+                            Port {{ port }} - {{ node.callsign }} / {{ node.name }}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="label">METAR allocation</div>
+
+                <div class="note">
+                    <strong>METAR can be enabled independently per port.</strong>
+                    Enable it only on the ports where spoken weather reports are wanted.
+                    It may be disabled on some ports or on all ports.
+                </div>
+
+                {% set saved_metar_ports = modules_multi.get("metar_ports", []) %}
+
+                {% for port in enabled_ports %}
+                    {% set port_id = port|string %}
+                    {% set node = nodes.get(port_id, {}) %}
+
+                    <div class="status-box">
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="metar_ports"
+                                value="{{ port_id }}"
+                                {% if port_id in saved_metar_ports %}checked{% endif %}
+                            >
+                            Enable METAR on Port {{ port }} - {{ node.callsign }} / {{ node.name }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_squelch_page') }}">Back</a>
+                <button class="button-primary" type="submit">Save and Continue</button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
