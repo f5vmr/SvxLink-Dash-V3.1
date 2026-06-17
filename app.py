@@ -1163,8 +1163,8 @@ def port_squelch_detail_page(port_id):
         ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
         ctcss_freq = request.form.get("ctcss_freq", "").strip()
 
-        if method not in ("gpiod", "vox", "ctcss"):
-            error = "Please select a valid squelch method."
+        if method not in ("gpiod", "ctcss"):
+            error = "Please select a valid squelch source."
 
         elif ctcss_mode not in ("radio", "none", "rx", "tx", "rx_tx"):
             error = "Please select a valid CTCSS mode."

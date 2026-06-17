@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Port Squelch / CTCSS - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Port {{ port_id }} Squelch / CTCSS</h1>
+                <p>
+                    Configure how this port decides that a received signal is valid.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            For normal ICS operation, use the profile COS/GPIOD line and let the
+            radio handle CTCSS. Select SvxLink CTCSS only when SvxLink itself is
+            expected to decode or generate the tone.
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <div class="form-section">
+            <div class="label">Port summary</div>
+
+            <div class="status-box">
+                <strong>{{ node.name }}</strong><br>
+                Port: {{ node.port }}<br>
+                Callsign: {{ node.callsign }}<br>
+                Role: {{ node.role }}<br>
+                COS: {{ node.gpio.cos }}
+            </div>
+        </div>
+
+        <form action="{{ url_for('port_squelch_detail_page', port_id=port_id) }}" method="post">
+            <div class="form-section">
+                <div class="label">Squelch source</div>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="squelch_method"
+                        value="gpiod"
+                        {% if squelch.get("method", "gpiod") == "gpiod" %}checked{% endif %}
+                    >
+                    Profile COS/GPIOD line
+                </label>
+
+                <br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="squelch_method"
+                        value="ctcss"
+                        {% if squelch.get("method") == "ctcss" %}checked{% endif %}
+                    >
+                    SvxLink CTCSS-controlled squelch
+                </label>
+            </div>
+
+            <div class="form-section">
+                <div class="label">CTCSS handling</div>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="ctcss_mode"
+                        value="radio"
+                        {% if squelch.get("ctcss_mode", "radio") == "radio" %}checked{% endif %}
+                    >
+                    Radio handles CTCSS
+                </label>
+
+                <br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="ctcss_mode"
+                        value="none"
+                        {% if squelch.get("ctcss_mode") == "none" %}checked{% endif %}
+                    >
+                    No CTCSS
+                </label>
+
+                <br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="ctcss_mode"
+                        value="rx"
+                        {% if squelch.get("ctcss_mode") == "rx" %}checked{% endif %}
+                    >
+                    SvxLink RX CTCSS decode
+                </label>
+
+                <br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="ctcss_mode"
+                        value="tx"
+                        {% if squelch.get("ctcss_mode") == "tx" %}checked{% endif %}
+                    >
+                    SvxLink TX CTCSS encode
+                </label>
+
+                <br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="ctcss_mode"
+                        value="rx_tx"
+                        {% if squelch.get("ctcss_mode") == "rx_tx" %}checked{% endif %}
+                    >
+                    SvxLink RX and TX CTCSS
+                </label>
+
+                <br><br>
+
+                <label for="ctcss_freq">CTCSS frequency</label>
+                <input
+                    id="ctcss_freq"
+                    name="ctcss_freq"
+                    type="text"
+                    value="{{ squelch.get('ctcss_freq', '') }}"
+                    placeholder="Example: 103.5"
+                >
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_squelch_page') }}">Back</a>
+                <button class="button-primary" type="submit">Save and Return</button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>

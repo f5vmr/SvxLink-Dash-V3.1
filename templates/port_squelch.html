@@ -49,9 +49,6 @@
                             <option value="gpiod" {% if squelch.get("method", "gpiod") == "gpiod" %}selected{% endif %}>
                                 GPIO/COS from profile
                             </option>
-                            <option value="vox" {% if squelch.get("method") == "vox" %}selected{% endif %}>
-                                VOX
-                            </option>
                             <option value="ctcss" {% if squelch.get("method") == "ctcss" %}selected{% endif %}>
                                 CTCSS
                             </option>
