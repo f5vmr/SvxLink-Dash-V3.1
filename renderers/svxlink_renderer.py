@@ -694,6 +694,48 @@ def render_port_logic(model, port_id, node):
         "simplex_logic.template",
         values
     )
+def build_modules_for_node(node):
+    """
+    Build the MODULES line for one multi-port node.
+    """
+
+    modules = node.get("modules", {})
+
+    enabled = []
+
+    if modules.get("echolink"):
+        enabled.append("ModuleEchoLink")
+
+    if modules.get("metar"):
+        enabled.append("ModuleMetarInfo")
+
+    return ",".join(enabled)
+
+
+def render_port_report_ctcss(node):
+    """
+    Render REPORT_CTCSS for one port.
+    """
+
+    squelch = node.get("squelch", {})
+
+    if squelch.get("ctcss_mode") in ("rx", "rx_tx"):
+        return "REPORT_CTCSS=1"
+
+    return "#REPORT_CTCSS=1"
+
+
+def render_port_tx_ctcss_logic(node):
+    """
+    Render TX_CTCSS for one port.
+    """
+
+    squelch = node.get("squelch", {})
+
+    if squelch.get("ctcss_mode") == "rx_tx":
+        return "TX_CTCSS=always"
+
+    return "#TX_CTCSS=always"
 
 # =========================================================
 # DTMF Sender Renderer
