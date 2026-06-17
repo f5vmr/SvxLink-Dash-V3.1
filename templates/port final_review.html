@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Port Final Review - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Port Final Review</h1>
+                <p>
+                    Review the configured ICS ports before generating the SvxLink configuration.
+                </p>
+            </div>
+        </div>
+
+        {% if incomplete %}
+            <div class="warning-box">
+                Some ports are not fully configured yet. Return to the relevant page before continuing.
+            </div>
+        {% else %}
+            <div class="note">
+                All enabled ports have completed the current multi-port setup stages.
+                This page is the final checkpoint before the configuration renderer is updated.
+            </div>
+        {% endif %}
+
+        <div class="form-section">
+            <div class="label">Enabled port summary</div>
+
+            {% for port in enabled_ports %}
+                {% set port_id = port|string %}
+                {% set node = nodes.get(port_id, {}) %}
+                {% set audio = node.get("audio", {}) %}
+                {% set gpio = node.get("gpio", {}) %}
+                {% set modules = node.get("modules", {}) %}
+                {% set ident = node.get("ident", {}) %}
+                {% set cw = node.get("cw", {}) %}
+                {% set courtesy = node.get("courtesy", {}) %}
+                {% set repeater = node.get("repeater", {}) %}
+                {% set squelch = node.get("squelch", {}) %}
+
+                <div class="status-box">
+                    <strong>{{ node.get("name", "Port " ~ port_id) }}</strong><br>
+                    Port: {{ port_id }}<br>
+                    Callsign: {{ node.get("callsign", "Not set") }}<br>
+                    Role: {{ node.get("role", "unknown") }}<br><br>
+
+                    <strong>Audio</strong><br>
+                    RX: {{ audio.get("rx_audio", "Not set") }}<br>
+                    TX: {{ audio.get("tx_audio", "Not set") }}<br><br>
+
+                    <strong>GPIO / Control</strong><br>
+                    COS: {{ gpio.get("cos", "Not set") }}<br>
+                    PTT: {{ gpio.get("ptt", "Not set") }}<br><br>
+
+                    <strong>Squelch / CTCSS</strong><br>
+                    Method: {{ squelch.get("method", "Not set") }}<br>
+                    CTCSS mode: {{ squelch.get("ctcss_mode", "Not set") }}<br>
+                    CTCSS frequency: {{ squelch.get("ctcss_freq", "Not set") }}<br><br>
+
+                    <strong>Modules</strong><br>
+                    EchoLink: {% if modules.get("echolink") %}Enabled{% else %}Disabled{% endif %}<br>
+                    METAR: {% if modules.get("metar") %}Enabled{% else %}Disabled{% endif %}<br><br>
+
+                    <strong>Identification</strong><br>
+                    Short interval: {{ ident.get("short", {}).get("interval", 15) }} minutes<br>
+                    Short voice: {{ ident.get("short", {}).get("voice_enable", false) }}<br>
+                    Short CW: {{ ident.get("short", {}).get("cw_enable", true) }}<br>
+                    Short announce: {{ ident.get("short", {}).get("announce_enable", false) }}<br>
+                    Long interval: {{ ident.get("long", {}).get("interval", 60) }} minutes<br>
+                    Long voice: {{ ident.get("long", {}).get("voice_enable", true) }}<br>
+                    Long CW: {{ ident.get("long", {}).get("cw_enable", false) }}<br>
+                    Long announce: {{ ident.get("long", {}).get("announce_enable", false) }}<br><br>
+
+                    <strong>CW</strong><br>
+                    Amplitude: {{ cw.get("amp", -10) }} dB<br>
+                    Pitch: {{ cw.get("pitch", 650) }} Hz<br>
+                    Speed: {{ cw.get("cpm", 95) }} CPM<br><br>
+
+                    <strong>Courtesy</strong><br>
+                    Mode: {{ courtesy.get("mode", "none") }}<br>
+                    Idle tone: {{ courtesy.get("idle_tone", "none") }}<br>
+                    Down tone: {{ courtesy.get("down_tone", "none") }}<br><br>
+
+                    {% if node.get("role") == "repeater" %}
+                        <strong>Repeater</strong><br>
+                        Idle timeout: {{ repeater.get("idle_timeout", 10) }} seconds<br>
+                        SQL timeout: {{ repeater.get("sql_timeout", 180) }} seconds<br>
+                        Open on SQL: {{ repeater.get("open_on_sql", 200) }} ms<br><br>
+                    {% endif %}
+
+                    <strong>Completion flags</strong><br>
+                    Node details: {{ node.get("node_details_configured", false) }}<br>
+                    Squelch: {{ node.get("squelch_configured", false) }}<br>
+                    Ident: {{ node.get("ident_configured", false) }}<br>
+                    CW: {{ node.get("cw_configured", false) }}<br>
+                    Courtesy: {{ node.get("courtesy_configured", false) }}<br>
+                    Repeater: {{ node.get("repeater_configured", false) }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <form action="{{ url_for('port_final_review_page') }}" method="post">
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_repeater_page') }}">Back</a>
+
+                {% if incomplete %}
+                    <button class="button-primary" type="submit" disabled>
+                        Configuration Incomplete
+                    </button>
+                {% else %}
+                    <button class="button-primary" type="submit">
+                        Confirm Review
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>

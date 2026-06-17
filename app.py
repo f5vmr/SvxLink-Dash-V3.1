@@ -1615,6 +1615,66 @@ def port_repeater_page():
         repeater_port_ids=repeater_port_ids,
         version_info=get_version_info(),
     )
+@app.route("/port-final-review", methods=["GET", "POST"])
+def port_final_review_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("status_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    enabled_port_ids = [
+        str(port)
+        for port in enabled_ports
+    ]
+
+    required_flags = [
+        "node_details_configured",
+        "squelch_configured",
+        "ident_configured",
+        "cw_configured",
+        "courtesy_configured",
+        "repeater_configured",
+    ]
+
+    incomplete = []
+
+    for port_id in enabled_port_ids:
+        node = nodes.get(port_id, {})
+
+        for flag in required_flags:
+            if not node.get(flag):
+                incomplete.append({
+                    "port_id": port_id,
+                    "node": node,
+                    "missing": flag,
+                })
+
+    if request.method == "POST":
+        if incomplete:
+            return redirect(url_for("port_final_review_page"))
+
+        model.setdefault("build", {})
+        model["build"]["port_final_review_confirmed"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("status_page"))
+
+    return render_template(
+        "port_final_review.html",
+        model=model,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
+        incomplete=incomplete,
+        version_info=get_version_info(),
+    )
 
 @app.route("/node", methods=["GET", "POST"])
 def node_page():
