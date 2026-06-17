@@ -567,6 +567,8 @@ def render_active_logic(model):
             short_ident.get("mode"),
             "cw"
         ),
+        "SHORT_ANNOUNCE_ENABLE": 1 if short_ident.get("announce_enable", False) else 0,
+        "SHORT_ANNOUNCE_FILE": short_ident.get("announce_file", ""),
 
         "LONG_IDENT_INTERVAL": long_ident.get("interval", 60),
         "LONG_VOICE_ID_ENABLE": ident_enabled(
@@ -577,7 +579,8 @@ def render_active_logic(model):
             long_ident.get("mode"),
             "cw"
         ),
-
+        "LONG_ANNOUNCE_ENABLE": 1 if long_ident.get("announce_enable", False) else 0,
+        "LONG_ANNOUNCE_FILE": long_ident.get("announce_file", ""),
         "TIME_FORMAT": model.get("time_format", "24"),
 
         "CW_AMP": model.get("cw", {}).get("amp", -10),
