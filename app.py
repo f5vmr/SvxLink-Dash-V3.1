@@ -1107,7 +1107,7 @@ def port_profile_review_page():
         enabled_ports=enabled_ports,
         version_info=get_version_info(),
     )
-@app.route("/port-squelch", methods=["GET", "POST"])
+@app.route("/port-squelch", methods=["GET"])
 def port_squelch_page():
     model = load_node_model()
 
@@ -1125,16 +1125,7 @@ def port_squelch_page():
         nodes.get(str(port), {}).get("squelch_configured")
         for port in enabled_ports
     )
-    if request.method == "POST":
-        if not all_ports_configured:
-            return redirect(url_for("port_squelch_page"))
 
-        model.setdefault("build", {})
-        model["build"]["port_squelch_configured"] = True
-
-        save_node_model(model)
-
-        return redirect(url_for("modules_page"))
     return render_template(
         "port_squelch.html",
         model=model,
@@ -1143,6 +1134,31 @@ def port_squelch_page():
         all_ports_configured=all_ports_configured,
         version_info=get_version_info(),
     )
+@app.route("/port-squelch-complete", methods=["GET"])
+def port_squelch_complete_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("squelch_page"))
+
+    all_ports_configured = bool(enabled_ports) and all(
+        nodes.get(str(port), {}).get("squelch_configured")
+        for port in enabled_ports
+    )
+
+    if not all_ports_configured:
+        return redirect(url_for("port_squelch_page"))
+
+    model.setdefault("build", {})
+    model["build"]["port_squelch_configured"] = True
+
+    save_node_model(model)
+
+    return redirect(url_for("modules_page"))
 @app.route("/port-squelch/<port_id>", methods=["GET", "POST"])
 def port_squelch_detail_page(port_id):
     model = load_node_model()
