@@ -765,6 +765,120 @@ def render_multiport_logic_sections(model):
         "logics": ",".join(logic_names),
         "sections": "\n\n".join(logic_sections),
     }
+def render_port_rx_section(model, port_id, node):
+    """
+    Render one Rx section for an ICS port.
+    """
+
+    audio = node.get("audio", {})
+    squelch = node.get("squelch", {})
+    gpio = node.get("gpio", {})
+
+    rx_name = f"Rx{port_id}"
+    audio_dev = audio.get("rx_audio", f"alsa:rx{port_id}")
+
+    method = squelch.get("method", "gpiod")
+    ctcss_mode = squelch.get("ctcss_mode", "radio")
+    ctcss_freq = squelch.get("ctcss_freq")
+
+    lines = [
+        f"[{rx_name}]",
+        "TYPE=Local",
+        f"AUDIO_DEV={audio_dev}",
+        "AUDIO_CHANNEL=0",
+    ]
+
+    if method == "ctcss":
+        lines.append("SQL_DET=CTCSS")
+    else:
+        lines.append("SQL_DET=GPIOD")
+
+    lines.extend([
+        f"SQL_HANGTIME={model.get('sql_hangtime', 20)}",
+        f"SQL_TAIL_ELIM={model.get('sql_tail_elim', 270)}",
+    ])
+
+    if method == "gpiod":
+        lines.extend([
+            f"SQL_GPIO={gpio.get('cos', f'RX_{port_id}')}",
+            "SQL_GPIO_ACTIVE=LOW",
+        ])
+
+    if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
+        lines.extend([
+            f"CTCSS_FQ={ctcss_freq}",
+            "CTCSS_SNR_OFFSET=0",
+            "CTCSS_OPEN_THRESH=15",
+            "CTCSS_CLOSE_THRESH=9",
+        ])
+
+    return "\n".join(lines)
+
+
+def render_port_tx_section(model, port_id, node):
+    """
+    Render one Tx section for an ICS port.
+    """
+
+    audio = node.get("audio", {})
+    gpio = node.get("gpio", {})
+    squelch = node.get("squelch", {})
+
+    tx_name = f"Tx{port_id}"
+    audio_dev = audio.get("tx_audio", f"alsa:tx{port_id}")
+
+    ctcss_mode = squelch.get("ctcss_mode", "radio")
+    ctcss_freq = squelch.get("ctcss_freq")
+
+    lines = [
+        f"[{tx_name}]",
+        "TYPE=Local",
+        f"AUDIO_DEV={audio_dev}",
+        "AUDIO_CHANNEL=0",
+        "PTT_TYPE=GPIOD",
+        f"PTT_GPIO={gpio.get('ptt', f'TX_{port_id}')}",
+        "PTT_GPIO_ACTIVE=HIGH",
+    ]
+
+    if ctcss_mode == "rx_tx" and ctcss_freq:
+        lines.extend([
+            f"CTCSS_FQ={ctcss_freq}",
+            "CTCSS_LEVEL=9",
+        ])
+
+    return "\n".join(lines)
+
+
+def render_multiport_rx_tx_sections(model):
+    """
+    Render all Rx and Tx sections for enabled ICS ports.
+    """
+
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    rx_sections = []
+    tx_sections = []
+
+    for port in enabled_ports:
+        port_id = str(port)
+        node = nodes.get(port_id, {})
+
+        if not node:
+            continue
+
+        rx_sections.append(
+            render_port_rx_section(model, port_id, node)
+        )
+
+        tx_sections.append(
+            render_port_tx_section(model, port_id, node)
+        )
+
+    return {
+        "rx_sections": "\n\n".join(rx_sections),
+        "tx_sections": "\n\n".join(tx_sections),
+    }
 
 # =========================================================
 # DTMF Sender Renderer
