@@ -1012,6 +1012,57 @@ def port_config_page():
         all_ports_configured=all_ports_configured,
         version_info=get_version_info(),
     )
+@app.route("/port-node/<port_id>", methods=["GET", "POST"])
+def port_node_page(port_id):
+    model = load_node_model()
+
+    nodes = model.get("nodes", {})
+    node = nodes.get(port_id)
+
+    if not node:
+        return redirect(url_for("port_config_page"))
+
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if port_id not in enabled_ports:
+        return redirect(url_for("port_config_page"))
+
+    error = None
+
+    if request.method == "POST":
+        callsign = request.form.get("callsign", "").strip().upper()
+        name = request.form.get("name", "").strip()
+        name = name.capitalize() if name else ""
+
+        if not callsign:
+            error = "Please enter a callsign for this port."
+        else:
+            node["callsign"] = callsign
+            node["name"] = name or node.get("name") or f"Port {port_id} {node.get('role', '').title()}"
+            node["node_details_configured"] = True
+            node["configured"] = True
+
+            nodes[port_id] = node
+            model["nodes"] = nodes
+
+            model.setdefault("build", {})
+            model["build"]["active_port"] = port_id
+
+            save_node_model(model)
+
+            return redirect(url_for("port_config_page"))
+
+    return render_template(
+        "port_node.html",
+        model=model,
+        port_id=port_id,
+        node=node,
+        error=error,
+        version_info=get_version_info(),
+    )
 @app.route("/port-profile-review", methods=["GET", "POST"])
 def port_profile_review_page():
     model = load_node_model()
