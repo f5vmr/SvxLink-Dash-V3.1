@@ -1,7 +1,7 @@
-[RepeaterLogic]
+[{{LOGIC_NAME}}]
 TYPE=Repeater
-RX=Rx1
-TX=Tx1
+RX={{RX_NAME}}
+TX={{TX_NAME}}
 MODULES={{MODULES}}
 CALLSIGN={{CALLSIGN}}
 

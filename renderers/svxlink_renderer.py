@@ -550,11 +550,18 @@ def render_active_logic(model):
     """
 
     node_type = model.get("node", {}).get("type")
-
+    logic_name = (
+    "RepeaterLogic"
+    if node_type == "repeater"
+    else "SimplexLogic"
+    )
     short_ident = model.get("ident", {}).get("short", {})
     long_ident = model.get("ident", {}).get("long", {})
 
     values = {
+        "LOGIC_NAME": logic_name,
+        "RX_NAME": "Rx1",
+        "TX_NAME": "Tx1",
         "MODULES": build_modules(model),
         "CALLSIGN": model["node"]["callsign"],
 
@@ -605,6 +612,79 @@ def render_active_logic(model):
     }
 
     if node_type == "repeater":
+        return render_config_template(
+            "repeater_logic.template",
+            values
+        )
+
+    return render_config_template(
+        "simplex_logic.template",
+        values
+    )
+# =========================================================
+# ICS port logic rendering
+# =========================================================
+def render_port_logic(model, port_id, node):
+    """
+    Render one SimplexLogic or RepeaterLogic section for an ICS port.
+    """
+
+    role = node.get("role", "simplex")
+    logic_name = f"Port{port_id}Logic"
+
+    ident = node.get("ident", {})
+    short_ident = ident.get("short", {})
+    long_ident = ident.get("long", {})
+
+    cw = node.get("cw", {})
+    courtesy = node.get("courtesy", {})
+    repeater = node.get("repeater", {})
+
+    values = {
+        "LOGIC_NAME": logic_name,
+        "RX_NAME": f"Rx{port_id}",
+        "TX_NAME": f"Tx{port_id}",
+
+        "MODULES": build_modules_for_node(node),
+        "CALLSIGN": node.get("callsign", model.get("node", {}).get("callsign", "")),
+
+        "SHORT_IDENT_INTERVAL": short_ident.get("interval", 15),
+        "SHORT_VOICE_ID_ENABLE": 1 if short_ident.get("voice_enable", False) else 0,
+        "SHORT_CW_ID_ENABLE": 1 if short_ident.get("cw_enable", True) else 0,
+        "SHORT_ANNOUNCE_ENABLE": 1 if short_ident.get("announce_enable", False) else 0,
+        "SHORT_ANNOUNCE_FILE": short_ident.get("announce_file", ""),
+
+        "LONG_IDENT_INTERVAL": long_ident.get("interval", 60),
+        "LONG_VOICE_ID_ENABLE": 1 if long_ident.get("voice_enable", True) else 0,
+        "LONG_CW_ID_ENABLE": 1 if long_ident.get("cw_enable", False) else 0,
+        "LONG_ANNOUNCE_ENABLE": 1 if long_ident.get("announce_enable", False) else 0,
+        "LONG_ANNOUNCE_FILE": long_ident.get("announce_file", ""),
+
+        "TIME_FORMAT": model.get("time_format", "24"),
+
+        "CW_AMP": cw.get("amp", -10),
+        "CW_PITCH": cw.get("pitch", 650),
+        "CW_CPM": cw.get("cpm", 95),
+
+        "DEFAULT_LANG": get_default_language(model),
+
+        "RGR_SOUND_ALWAYS": 1 if courtesy.get("mode", "none") != "none" else 0,
+
+        "REPORT_CTCSS_LINE": render_port_report_ctcss(node),
+        "TX_CTCSS_LINE": render_port_tx_ctcss_logic(node),
+
+        "FX_GAIN_NORMAL": model.get("fx_gain_normal", 0),
+        "FX_GAIN_LOW": model.get("fx_gain_low", -12),
+
+        "ONLINE_CONTROL_BLOCK": "",
+        "DTMF_CTRL_PTY": f"/dev/shm/port{port_id}_dtmf_ctrl",
+
+        "IDLE_TIMEOUT": repeater.get("idle_timeout", 10),
+        "OPEN_ON_CTCSS_LINE": "",
+        "REPEATER_SQL_TIMEOUT": repeater.get("sql_timeout", 180),
+    }
+
+    if role == "repeater":
         return render_config_template(
             "repeater_logic.template",
             values
