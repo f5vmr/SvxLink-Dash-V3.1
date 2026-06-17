@@ -2,7 +2,7 @@
 <html lang="en" class="light-theme">
 <head>
     <meta charset="UTF-8">
-    <title>Port Squelch Settings - {{ version_info.dashboard_name }}</title>
+    <title>Port Squelch / CTCSS - {{ version_info.dashboard_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
 </head>
@@ -12,91 +12,68 @@
         <div class="page-header">
             <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
             <div class="page-heading">
-                <h1>Port Squelch Settings</h1>
+                <h1>Port Squelch / CTCSS</h1>
                 <p>
-                    Configure squelch and optional CTCSS behaviour for each enabled ICS port.
+                    Configure squelch and CTCSS behaviour for each enabled ICS port.
                 </p>
             </div>
         </div>
 
         <div class="note">
             The ICS hardware profile has already supplied the COS line for each port.
-            For normal ICS operation, use <strong>GPIO/COS</strong> unless a particular
-            port needs a different method.
+            Configure each enabled port individually. Continue will become available
+            when every enabled port has been saved.
         </div>
 
-        <form action="{{ url_for('port_squelch_page') }}" method="post">
-            <div class="form-section">
-                <div class="label">Per-port squelch configuration</div>
+        <div class="form-section">
+            <div class="label">Enabled port squelch status</div>
 
-                {% for port in enabled_ports %}
-                    {% set port_id = port|string %}
-                    {% set node = nodes.get(port_id, {}) %}
-                    {% set squelch = node.get("squelch", {}) %}
+            {% for port in enabled_ports %}
+                {% set port_id = port|string %}
+                {% set node = nodes.get(port_id, {}) %}
+                {% set squelch = node.get("squelch", {}) %}
 
-                    <div class="status-box">
-                        <strong>{{ node.name }}</strong><br>
-                        Port: {{ node.port }}<br>
-                        Callsign: {{ node.callsign }}<br>
-                        Role: {{ node.role }}<br>
-                        COS: {{ node.gpio.cos }}<br><br>
+                <div class="status-box">
+                    <strong>{{ node.name }}</strong><br>
+                    Port: {{ node.port }}<br>
+                    Callsign: {{ node.callsign }}<br>
+                    Role: {{ node.role }}<br>
+                    COS: {{ node.gpio.cos }}<br>
 
-                        <label for="port_{{ port_id }}_squelch_method">Squelch method</label>
-                        <select
-                            id="port_{{ port_id }}_squelch_method"
-                            name="port_{{ port_id }}_squelch_method"
-                        >
-                            <option value="gpiod" {% if squelch.get("method", "gpiod") == "gpiod" %}selected{% endif %}>
-                                GPIO/COS from profile
-                            </option>
-                            <option value="ctcss" {% if squelch.get("method") == "ctcss" %}selected{% endif %}>
-                                CTCSS
-                            </option>
-                        </select>
+                    {% if node.squelch_configured %}
+                        Squelch source: {{ squelch.get("method", "gpiod") }}<br>
+                        CTCSS mode: {{ squelch.get("ctcss_mode", "radio") }}<br>
+                        CTCSS frequency:
+                        {% if squelch.get("ctcss_freq") %}
+                            {{ squelch.get("ctcss_freq") }}
+                        {% else %}
+                            Not set
+                        {% endif %}
+                        <br>
+                        Configured: <span class="success-text">Yes</span>
+                    {% else %}
+                        Configured: <span class="warning-text">No</span>
+                    {% endif %}
 
-                        <br><br>
+                    <br><br>
 
-                        <label for="port_{{ port_id }}_ctcss_mode">CTCSS mode</label>
-                        <select
-                            id="port_{{ port_id }}_ctcss_mode"
-                            name="port_{{ port_id }}_ctcss_mode"
-                        >
-                            <option value="none" {% if squelch.get("ctcss_mode", "none") == "none" %}selected{% endif %}>
-                                None / radio handles CTCSS
-                            </option>
-                            <option value="rx" {% if squelch.get("ctcss_mode") == "rx" %}selected{% endif %}>
-                                RX CTCSS decode in SvxLink
-                            </option>                            
-                            <option value="rx_tx" {% if squelch.get("ctcss_mode") == "rx_tx" %}selected{% endif %}>
-                                RX and TX CTCSS in SvxLink
-                            </option>
-                        </select>
+                    <a class="button-secondary" href="{{ url_for('port_squelch_detail_page', port_id=port_id) }}">
+                        Configure Port {{ port_id }}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
 
-                        <br><br>
+        <div class="button-row">
+            <a class="button-secondary" href="{{ url_for('port_profile_review_page') }}">Back</a>
+            <a class="button-secondary" href="{{ url_for('port_squelch_page') }}">Refresh</a>
 
-                        <label for="port_{{ port_id }}_ctcss_freq">CTCSS frequency</label>
-                        <input
-                            id="port_{{ port_id }}_ctcss_freq"
-                            name="port_{{ port_id }}_ctcss_freq"
-                            type="text"
-                            value="{{ squelch.get('ctcss_freq', '') }}"
-                            placeholder="Example: 103.5"
-                        >
-                    </div>
-                {% endfor %}
-            </div>
-            </form>
-            <div class="button-row">
-                <a class="button-secondary" href="{{ url_for('port_profile_review_page') }}">Back</a>
-                <a class="button-secondary" href="{{ url_for('port_squelch_page') }}">Refresh</a>
-                        
-                {% if all_ports_configured %}
-                    <a class="button-primary" href="{{ url_for('port_squelch_complete_page') }}">Continue</a>
-                {% else %}
-                    <button class="button-primary" type="button" disabled>Continue</button>
-                {% endif %}
-            </div>
-        
+            {% if all_ports_configured %}
+                <a class="button-primary" href="{{ url_for('port_squelch_complete_page') }}">Continue</a>
+            {% else %}
+                <button class="button-primary" type="button" disabled>Continue</button>
+            {% endif %}
+        </div>
     </section>
 
     <footer class="site-footer">
