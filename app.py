@@ -1027,6 +1027,7 @@ def port_node_page(port_id):
     if request.method == "POST":
         callsign = request.form.get("callsign", "").strip().upper()
         name = request.form.get("name", "").strip()
+        name = name.capitalize() if name else ""
 
         if not callsign:
             error = "Please enter a callsign for this port."
