@@ -23,6 +23,10 @@
             Each enabled port is treated as its own logical SvxLink node. The
             callsign was set earlier; this page controls how and when each port
             identifies itself.
+            <br><br>
+            Short and long ident settings are stored separately because SvxLink
+            allows voice, CW and announcement-file identification to be enabled
+            independently.
         </div>
 
         <form action="{{ url_for('port_ident_page') }}" method="post">
@@ -42,25 +46,11 @@
                         Callsign: {{ node.callsign }}<br>
                         Role: {{ node.role }}<br><br>
 
-                        <label for="port_{{ port_id }}_short_ident_mode">Short ident mode</label>
-                        <select
-                            id="port_{{ port_id }}_short_ident_mode"
-                            name="port_{{ port_id }}_short_ident_mode"
-                        >
-                            <option value="cw" {% if short_ident.get("mode", "cw") == "cw" %}selected{% endif %}>
-                                CW
-                            </option>
-                            <option value="voice" {% if short_ident.get("mode") == "voice" %}selected{% endif %}>
-                                Voice
-                            </option>
-                            <option value="none" {% if short_ident.get("mode") == "none" %}selected{% endif %}>
-                                Disabled
-                            </option>
-                        </select>
+                        <div class="label">Short ident</div>
 
-                        <br><br>
-
-                        <label for="port_{{ port_id }}_short_ident_interval">Short ident interval, minutes</label>
+                        <label for="port_{{ port_id }}_short_ident_interval">
+                            Short ident interval, minutes
+                        </label>
                         <input
                             id="port_{{ port_id }}_short_ident_interval"
                             name="port_{{ port_id }}_short_ident_interval"
@@ -71,31 +61,115 @@
 
                         <br><br>
 
-                        <label for="port_{{ port_id }}_long_ident_mode">Long ident mode</label>
-                        <select
-                            id="port_{{ port_id }}_long_ident_mode"
-                            name="port_{{ port_id }}_long_ident_mode"
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="port_{{ port_id }}_short_voice_enable"
+                                value="1"
+                                {% if short_ident.get("voice_enable", false) %}checked{% endif %}
+                            >
+                            Enable short voice ident
+                        </label>
+
+                        <br>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="port_{{ port_id }}_short_cw_enable"
+                                value="1"
+                                {% if short_ident.get("cw_enable", true) %}checked{% endif %}
+                            >
+                            Enable short CW ident
+                        </label>
+
+                        <br>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="port_{{ port_id }}_short_announce_enable"
+                                value="1"
+                                {% if short_ident.get("announce_enable", false) %}checked{% endif %}
+                            >
+                            Enable short announcement file
+                        </label>
+
+                        <br>
+
+                        <label for="port_{{ port_id }}_short_announce_file">
+                            Short announcement file
+                        </label>
+                        <input
+                            id="port_{{ port_id }}_short_announce_file"
+                            name="port_{{ port_id }}_short_announce_file"
+                            type="text"
+                            value="{{ short_ident.get('announce_file', '') }}"
+                            placeholder="Example: short_announce.wav"
                         >
-                            <option value="voice" {% if long_ident.get("mode", "voice") == "voice" %}selected{% endif %}>
-                                Voice
-                            </option>
-                            <option value="cw" {% if long_ident.get("mode") == "cw" %}selected{% endif %}>
-                                CW
-                            </option>
-                            <option value="none" {% if long_ident.get("mode") == "none" %}selected{% endif %}>
-                                Disabled
-                            </option>
-                        </select>
 
                         <br><br>
 
-                        <label for="port_{{ port_id }}_long_ident_interval">Long ident interval, minutes</label>
+                        <div class="label">Long ident</div>
+
+                        <label for="port_{{ port_id }}_long_ident_interval">
+                            Long ident interval, minutes
+                        </label>
                         <input
                             id="port_{{ port_id }}_long_ident_interval"
                             name="port_{{ port_id }}_long_ident_interval"
                             type="number"
                             min="1"
                             value="{{ long_ident.get('interval', 60) }}"
+                        >
+
+                        <br><br>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="port_{{ port_id }}_long_voice_enable"
+                                value="1"
+                                {% if long_ident.get("voice_enable", true) %}checked{% endif %}
+                            >
+                            Enable long voice ident
+                        </label>
+
+                        <br>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="port_{{ port_id }}_long_cw_enable"
+                                value="1"
+                                {% if long_ident.get("cw_enable", false) %}checked{% endif %}
+                            >
+                            Enable long CW ident
+                        </label>
+
+                        <br>
+
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="port_{{ port_id }}_long_announce_enable"
+                                value="1"
+                                {% if long_ident.get("announce_enable", false) %}checked{% endif %}
+                            >
+                            Enable long announcement file
+                        </label>
+
+                        <br>
+
+                        <label for="port_{{ port_id }}_long_announce_file">
+                            Long announcement file
+                        </label>
+                        <input
+                            id="port_{{ port_id }}_long_announce_file"
+                            name="port_{{ port_id }}_long_announce_file"
+                            type="text"
+                            value="{{ long_ident.get('announce_file', '') }}"
+                            placeholder="Example: long_announce.wav"
                         >
                     </div>
                 {% endfor %}
