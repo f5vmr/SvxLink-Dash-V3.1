@@ -48,56 +48,70 @@
                     RX audio: {{ mapping.get("rx_audio", "not mapped") }}<br>
                     TX audio: {{ mapping.get("tx_audio", "not mapped") }}<br>
                     PTT: {{ mapping.get("ptt", "not mapped") }} |
-                    COS: {{ mapping.get("cos", "not mapped") }} |
-                    EN: {{ mapping.get("enable", "not mapped") }} |
-                    CT: {{ mapping.get("control", "not mapped") }}
+                    COS: {{ mapping.get("cos", "not mapped") }}
                 </div>
             {% endfor %}
         </div>
 
         {% if nodes %}
-    <div class="form-section">
-        <div class="label">Initialised node model</div>
+            <div class="form-section">
+                <div class="label">Initialised node model</div>
 
-        {% for port_id, node in nodes.items() %}
-            <div class="status-box">
-                <strong>{{ node.name }}</strong><br>
-                Port: {{ node.port }}<br>
-                Role: {{ node.role }}<br>
-                RX audio: {{ node.audio.rx_audio }}<br>
-                TX audio: {{ node.audio.tx_audio }}<br>
-                Configured:
-                {% if node.node_details_configured %}
-                    <span class="success-text">Yes</span>
-                {% else %}
-                    <span class="warning-text">No</span>
-                {% endif %}
+                <div class="note">
+                    Configure each enabled port. When every port shows as configured,
+                    the Continue button will become available.
+                </div>
 
-                <br><br>
+                {% for port_id, node in nodes.items() %}
+                    <div class="status-box">
+                        <strong>{{ node.name }}</strong><br>
+                        Port: {{ node.port }}<br>
+                        Role: {{ node.role }}<br>
+                        Callsign:
+                        {% if node.callsign %}
+                            {{ node.callsign }}
+                        {% else %}
+                            <span class="warning-text">Not set</span>
+                        {% endif %}
+                        <br>
+                        RX audio: {{ node.audio.rx_audio }}<br>
+                        TX audio: {{ node.audio.tx_audio }}<br>
+                        PTT: {{ node.gpio.ptt }}<br>
+                        COS: {{ node.gpio.cos }}<br>
+                        Configured:
+                        {% if node.node_details_configured %}
+                            <span class="success-text">Yes</span>
+                        {% else %}
+                            <span class="warning-text">No</span>
+                        {% endif %}
 
-                <a class="button-secondary" href="{{ url_for('port_node_page', port_id=port_id) }}">
-                    Configure Port {{ port_id }}
-                </a>
+                        <br><br>
+
+                        <a class="button-secondary" href="{{ url_for('port_node_page', port_id=port_id) }}">
+                            Configure Port {{ port_id }}
+                        </a>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-    </div>
 
-    <div class="note">
-        The per-port node model has been created. Configure each enabled port in turn.
-    </div>
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_roles_page') }}">Back</a>
+                <a class="button-secondary" href="{{ url_for('port_config_page') }}">Refresh</a>
 
-    <div class="button-row">
-        <a class="button-secondary" href="{{ url_for('port_roles_page') }}">Back</a>
-        <a class="button-primary" href="{{ url_for('port_config_page') }}">Refresh</a>
-    </div>
-    {% else %}
-    <form action="{{ url_for('port_config_page') }}" method="post">
-        <div class="button-row">
-            <a class="button-secondary" href="{{ url_for('port_roles_page') }}">Back</a>
-            <button class="button-primary" type="submit">Initialise Port Nodes</button>
-        </div>
-    </form>
-    {% endif %}
+                {% if all_ports_configured %}
+                    <a class="button-primary" href="{{ url_for('port_profile_review_page') }}">Continue</a>
+                {% else %}
+                    <button class="button-primary" type="button" disabled>Continue</button>
+                {% endif %}
+            </div>
+        {% else %}
+            <form action="{{ url_for('port_config_page') }}" method="post">
+                <div class="button-row">
+                    <a class="button-secondary" href="{{ url_for('port_roles_page') }}">Back</a>
+                    <button class="button-primary" type="submit">Initialise Port Nodes</button>
+                </div>
+            </form>
+        {% endif %}
     </section>
 
     <footer class="site-footer">

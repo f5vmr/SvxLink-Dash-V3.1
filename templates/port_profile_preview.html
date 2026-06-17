@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>ICS Port Profile Review - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>ICS Port Profile Review</h1>
+                <p>
+                    Confirm the profile-defined audio and radio control mapping for
+                    each enabled port.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            This ICS hardware profile defines the audio, PTT and COS mapping.
+            The normal single-port interface selection page is skipped because
+            these choices are already fixed by the selected board profile.
+            <br><br>
+            At this stage SvxLink will use only the PTT and COS mappings. EN and CT
+            lines remain hardware metadata unless later configuration makes use of them.
+        </div>
+
+        <div class="form-section">
+            <div class="label">Enabled ICS ports</div>
+
+            {% for port in enabled_ports %}
+                {% set port_id = port|string %}
+                {% set node = nodes.get(port_id, {}) %}
+
+                <div class="status-box">
+                    <strong>Port {{ port }}</strong><br>
+                    Name: {{ node.name }}<br>
+                    Callsign: {{ node.callsign }}<br>
+                    Role: {{ node.role }}<br>
+                    RX audio: {{ node.audio.rx_audio }}<br>
+                    TX audio: {{ node.audio.tx_audio }}<br>
+                    PTT: {{ node.gpio.ptt }}<br>
+                    COS: {{ node.gpio.cos }}
+                </div>
+            {% endfor %}
+        </div>
+
+        <form action="{{ url_for('port_profile_review_page') }}" method="post">
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_config_page') }}">Back</a>
+                <button class="button-primary" type="submit">Confirm and Continue</button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>

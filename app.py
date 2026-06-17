@@ -1010,6 +1010,50 @@ def port_config_page():
         all_ports_configured=all_ports_configured,
         version_info=get_version_info(),
     )
+@app.route("/port-profile-review", methods=["GET", "POST"])
+def port_profile_review_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    hardware_profile_id = model.get("hardware_profile_id")
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("interface_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    all_ports_configured = bool(enabled_ports) and all(
+        nodes.get(str(port), {}).get("node_details_configured")
+        for port in enabled_ports
+    )
+
+    if not all_ports_configured:
+        return redirect(url_for("port_config_page"))
+
+    try:
+        profile = load_hardware_profile(hardware_profile_id)
+    except FileNotFoundError:
+        return redirect(url_for("hardware_page"))
+
+    if request.method == "POST":
+        model.setdefault("build", {})
+        model["build"]["profile_interface_confirmed"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("squelch_page"))
+
+    return render_template(
+        "port_profile_review.html",
+        model=model,
+        profile=profile,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
+        version_info=get_version_info(),
+    )
 @app.route("/node", methods=["GET", "POST"])
 def node_page():
     model = load_node_model()
