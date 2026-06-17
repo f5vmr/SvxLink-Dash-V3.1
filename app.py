@@ -1441,10 +1441,83 @@ def port_cw_page():
 
         save_node_model(model)
 
-        return redirect(url_for("courtesy_page"))
+        return redirect(url_for("port_courtesy_page"))
 
     return render_template(
         "port_cw.html",
+        model=model,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
+        version_info=get_version_info(),
+    )
+@app.route("/port-courtesy", methods=["GET", "POST"])
+def port_courtesy_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("courtesy_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    enabled_port_ids = [
+        str(port)
+        for port in enabled_ports
+    ]
+
+    if request.method == "POST":
+        for port_id in enabled_port_ids:
+            node = nodes.get(port_id, {})
+            role = node.get("role", "simplex")
+
+            courtesy_mode = request.form.get(
+                f"port_{port_id}_courtesy_mode",
+                "none"
+            ).strip()
+
+            idle_tone = request.form.get(
+                f"port_{port_id}_idle_tone",
+                "none"
+            ).strip()
+
+            down_tone = request.form.get(
+                f"port_{port_id}_down_tone",
+                "none"
+            ).strip()
+
+            if courtesy_mode not in ("none", "pip", "chime", "cw"):
+                courtesy_mode = "none"
+
+            if idle_tone not in ("none", "pip", "chime", "cw"):
+                idle_tone = "none"
+
+            if down_tone not in ("none", "biboop", "pip", "chime"):
+                down_tone = "none"
+
+            node["courtesy"] = {
+                "mode": courtesy_mode,
+                "idle_tone": idle_tone,
+                "down_tone": down_tone,
+            }
+
+            node["courtesy_configured"] = True
+            nodes[port_id] = node
+
+        model["nodes"] = nodes
+
+        model.setdefault("build", {})
+        model["build"]["port_courtesy_configured"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("repeater_page"))
+
+    return render_template(
+        "port_courtesy.html",
         model=model,
         nodes=nodes,
         enabled_ports=enabled_ports,
