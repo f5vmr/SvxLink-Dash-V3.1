@@ -1107,7 +1107,7 @@ def port_profile_review_page():
         enabled_ports=enabled_ports,
         version_info=get_version_info(),
     )
-@app.route("/port-squelch", methods=["GET"])
+@app.route("/port-squelch", methods=["GET", "POST"])
 def port_squelch_page():
     model = load_node_model()
 
@@ -1125,7 +1125,16 @@ def port_squelch_page():
         nodes.get(str(port), {}).get("squelch_configured")
         for port in enabled_ports
     )
+    if request.method == "POST":
+        if not all_ports_configured:
+            return redirect(url_for("port_squelch_page"))
 
+        model.setdefault("build", {})
+        model["build"]["port_squelch_configured"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("modules_page"))
     return render_template(
         "port_squelch.html",
         model=model,
