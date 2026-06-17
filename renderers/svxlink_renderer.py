@@ -736,6 +736,35 @@ def render_port_tx_ctcss_logic(node):
         return "TX_CTCSS=always"
 
     return "#TX_CTCSS=always"
+def render_multiport_logic_sections(model):
+    """
+    Render all SimplexLogic/RepeaterLogic sections for enabled ICS ports.
+    """
+
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    logic_names = []
+    logic_sections = []
+
+    for port in enabled_ports:
+        port_id = str(port)
+        node = nodes.get(port_id, {})
+
+        if not node:
+            continue
+
+        logic_name = f"Port{port_id}Logic"
+
+        logic_names.append(logic_name)
+        logic_sections.append(
+            render_port_logic(model, port_id, node)
+        )
+
+    return {
+        "logics": ",".join(logic_names),
+        "sections": "\n\n".join(logic_sections),
+    }
 
 # =========================================================
 # DTMF Sender Renderer
