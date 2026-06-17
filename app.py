@@ -1276,7 +1276,7 @@ def port_modules_page():
 
         save_node_model(model)
 
-        return redirect(url_for("ident_page"))
+        return redirect(url_for("port_ident_page"))
 
     return render_template(
         "port_modules.html",
@@ -1284,6 +1284,82 @@ def port_modules_page():
         nodes=nodes,
         enabled_ports=enabled_ports,
         modules_multi=modules_multi,
+        version_info=get_version_info(),
+    )
+@app.route("/port-ident", methods=["GET", "POST"])
+def port_ident_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("ident_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    enabled_port_ids = [
+        str(port)
+        for port in enabled_ports
+    ]
+
+    if request.method == "POST":
+        for port_id in enabled_port_ids:
+            node = nodes.get(port_id, {})
+            role = node.get("role", "simplex")
+
+            short_mode = request.form.get(f"port_{port_id}_short_ident_mode", "cw").strip()
+            short_interval = request.form.get(f"port_{port_id}_short_ident_interval", "15").strip()
+
+            long_mode = request.form.get(f"port_{port_id}_long_ident_mode", "voice").strip()
+            long_interval = request.form.get(f"port_{port_id}_long_ident_interval", "60").strip()
+
+            if short_mode not in ("cw", "voice", "none"):
+                short_mode = "cw"
+
+            if long_mode not in ("voice", "cw", "none"):
+                long_mode = "voice"
+
+            try:
+                short_interval_value = int(short_interval)
+            except ValueError:
+                short_interval_value = 15
+
+            try:
+                long_interval_value = int(long_interval)
+            except ValueError:
+                long_interval_value = 60
+
+            node["ident"] = {
+                "short": {
+                    "mode": short_mode,
+                    "interval": short_interval_value,
+                },
+                "long": {
+                    "mode": long_mode,
+                    "interval": long_interval_value,
+                },
+            }
+
+            node["ident_configured"] = True
+            nodes[port_id] = node
+
+        model["nodes"] = nodes
+
+        model.setdefault("build", {})
+        model["build"]["port_ident_configured"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("cw_page"))
+
+    return render_template(
+        "port_ident.html",
+        model=model,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
         version_info=get_version_info(),
     )
 
