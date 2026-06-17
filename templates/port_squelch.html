@@ -88,7 +88,15 @@
 
             <div class="button-row">
                 <a class="button-secondary" href="{{ url_for('port_profile_review_page') }}">Back</a>
-                <button class="button-primary" type="submit">Save and Continue</button>
+                <a class="button-secondary" href="{{ url_for('port_squelch_page') }}">Refresh</a>
+                        
+                {% if all_ports_configured %}
+                    <form action="{{ url_for('port_squelch_page') }}" method="post" style="display:inline;">
+                        <button class="button-primary" type="submit">Continue</button>
+                    </form>
+                {% else %}
+                    <button class="button-primary" type="button" disabled>Continue</button>
+                {% endif %}
             </div>
         </form>
     </section>
