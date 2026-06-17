@@ -111,22 +111,10 @@
                     <input
                         type="radio"
                         name="ctcss_mode"
-                        value="tx"
-                        {% if squelch.get("ctcss_mode") == "tx" %}checked{% endif %}
-                    >
-                    SvxLink TX CTCSS encode
-                </label>
-
-                <br>
-
-                <label>
-                    <input
-                        type="radio"
-                        name="ctcss_mode"
                         value="rx_tx"
                         {% if squelch.get("ctcss_mode") == "rx_tx" %}checked{% endif %}
                     >
-                    SvxLink RX and TX CTCSS
+                    SvxLink RX Decode and TX Encode CTCSS
                 </label>
 
                 <br><br>

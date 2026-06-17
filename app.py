@@ -1166,10 +1166,10 @@ def port_squelch_detail_page(port_id):
         if method not in ("gpiod", "ctcss"):
             error = "Please select a valid squelch source."
 
-        elif ctcss_mode not in ("radio", "none", "rx", "tx", "rx_tx"):
+        elif ctcss_mode not in ("radio", "none", "rx", "rx_tx"):
             error = "Please select a valid CTCSS mode."
 
-        elif ctcss_mode in ("rx", "tx", "rx_tx") and not ctcss_freq:
+        elif ctcss_mode in ("rx", "rx_tx") and not ctcss_freq:
             error = "Please enter a CTCSS frequency when SvxLink CTCSS is selected."
 
         else:
