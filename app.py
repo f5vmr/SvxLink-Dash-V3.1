@@ -1097,7 +1097,7 @@ def port_profile_review_page():
 
         save_node_model(model)
 
-        return redirect(url_for("squelch_page"))
+        return redirect(url_for("port_squelch_page"))
 
     return render_template(
         "port_profile_review.html",
@@ -1107,6 +1107,100 @@ def port_profile_review_page():
         enabled_ports=enabled_ports,
         version_info=get_version_info(),
     )
+@app.route("/port-squelch", methods=["GET"])
+def port_squelch_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("squelch_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    all_ports_configured = bool(enabled_ports) and all(
+        nodes.get(str(port), {}).get("squelch_configured")
+        for port in enabled_ports
+    )
+
+    return render_template(
+        "port_squelch.html",
+        model=model,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
+        all_ports_configured=all_ports_configured,
+        version_info=get_version_info(),
+    )
+@app.route("/port-squelch/<port_id>", methods=["GET", "POST"])
+def port_squelch_detail_page(port_id):
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    node = nodes.get(port_id)
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("squelch_page"))
+
+    if not node:
+        return redirect(url_for("port_squelch_page"))
+
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if port_id not in enabled_ports:
+        return redirect(url_for("port_squelch_page"))
+
+    error = None
+
+    if request.method == "POST":
+        method = request.form.get("squelch_method", "gpiod").strip()
+        ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
+        ctcss_freq = request.form.get("ctcss_freq", "").strip()
+
+        if method not in ("gpiod", "vox", "ctcss"):
+            error = "Please select a valid squelch method."
+
+        elif ctcss_mode not in ("radio", "none", "rx", "tx", "rx_tx"):
+            error = "Please select a valid CTCSS mode."
+
+        elif ctcss_mode in ("rx", "tx", "rx_tx") and not ctcss_freq:
+            error = "Please enter a CTCSS frequency when SvxLink CTCSS is selected."
+
+        else:
+            node["squelch"] = {
+                "method": method,
+                "ctcss_mode": ctcss_mode,
+                "ctcss_freq": ctcss_freq or None,
+            }
+
+            node["squelch_configured"] = True
+
+            nodes[port_id] = node
+            model["nodes"] = nodes
+
+            model.setdefault("build", {})
+            model["build"]["active_port"] = port_id
+
+            save_node_model(model)
+
+            return redirect(url_for("port_squelch_page"))
+
+    return render_template(
+        "port_squelch_detail.html",
+        model=model,
+        port_id=port_id,
+        node=node,
+        squelch=node.get("squelch", {}),
+        error=error,
+        version_info=get_version_info(),
+    )
+
 @app.route("/node", methods=["GET", "POST"])
 def node_page():
     model = load_node_model()

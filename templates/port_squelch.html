@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Port Squelch Settings - {{ version_info.dashboard_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+        <div class="page-header">
+            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <div class="page-heading">
+                <h1>Port Squelch Settings</h1>
+                <p>
+                    Configure squelch and optional CTCSS behaviour for each enabled ICS port.
+                </p>
+            </div>
+        </div>
+
+        <div class="note">
+            The ICS hardware profile has already supplied the COS line for each port.
+            For normal ICS operation, use <strong>GPIO/COS</strong> unless a particular
+            port needs a different method.
+        </div>
+
+        <form action="{{ url_for('port_squelch_page') }}" method="post">
+            <div class="form-section">
+                <div class="label">Per-port squelch configuration</div>
+
+                {% for port in enabled_ports %}
+                    {% set port_id = port|string %}
+                    {% set node = nodes.get(port_id, {}) %}
+                    {% set squelch = node.get("squelch", {}) %}
+
+                    <div class="status-box">
+                        <strong>{{ node.name }}</strong><br>
+                        Port: {{ node.port }}<br>
+                        Callsign: {{ node.callsign }}<br>
+                        Role: {{ node.role }}<br>
+                        COS: {{ node.gpio.cos }}<br><br>
+
+                        <label for="port_{{ port_id }}_squelch_method">Squelch method</label>
+                        <select
+                            id="port_{{ port_id }}_squelch_method"
+                            name="port_{{ port_id }}_squelch_method"
+                        >
+                            <option value="gpiod" {% if squelch.get("method", "gpiod") == "gpiod" %}selected{% endif %}>
+                                GPIO/COS from profile
+                            </option>
+                            <option value="vox" {% if squelch.get("method") == "vox" %}selected{% endif %}>
+                                VOX
+                            </option>
+                            <option value="ctcss" {% if squelch.get("method") == "ctcss" %}selected{% endif %}>
+                                CTCSS
+                            </option>
+                        </select>
+
+                        <br><br>
+
+                        <label for="port_{{ port_id }}_ctcss_mode">CTCSS mode</label>
+                        <select
+                            id="port_{{ port_id }}_ctcss_mode"
+                            name="port_{{ port_id }}_ctcss_mode"
+                        >
+                            <option value="none" {% if squelch.get("ctcss_mode", "none") == "none" %}selected{% endif %}>
+                                None / radio handles CTCSS
+                            </option>
+                            <option value="rx" {% if squelch.get("ctcss_mode") == "rx" %}selected{% endif %}>
+                                RX CTCSS decode in SvxLink
+                            </option>
+                            <option value="tx" {% if squelch.get("ctcss_mode") == "tx" %}selected{% endif %}>
+                                TX CTCSS encode in SvxLink
+                            </option>
+                            <option value="rx_tx" {% if squelch.get("ctcss_mode") == "rx_tx" %}selected{% endif %}>
+                                RX and TX CTCSS in SvxLink
+                            </option>
+                        </select>
+
+                        <br><br>
+
+                        <label for="port_{{ port_id }}_ctcss_freq">CTCSS frequency</label>
+                        <input
+                            id="port_{{ port_id }}_ctcss_freq"
+                            name="port_{{ port_id }}_ctcss_freq"
+                            type="text"
+                            value="{{ squelch.get('ctcss_freq', '') }}"
+                            placeholder="Example: 103.5"
+                        >
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary" href="{{ url_for('port_profile_review_page') }}">Back</a>
+                <button class="button-primary" type="submit">Save and Continue</button>
+            </div>
+        </form>
+    </section>
+
+    <footer class="site-footer">
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html>
