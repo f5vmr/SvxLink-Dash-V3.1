@@ -957,7 +957,34 @@ def render_link_to_reflector(model):
             "ACTIVE_LOGIC_NAME": logic_name,
         }
     )
+def render_multiport_svxlink_config(model):
+    """
+    Render final svxlink.conf text for ICS multi-port builds.
+    """
 
+    logic_result = render_multiport_logic_sections(model)
+    audio_result = render_multiport_rx_tx_sections(model)
+
+    values = {
+        "LOGIC_CORE_PATH": get_library_path(),
+        "LOGICS": logic_result["logics"],
+        "LINKS_LINE": "#LINKS=LinkToReflector",
+
+        "ACTIVE_LOGIC_SECTION": logic_result["sections"],
+
+        "REFLECTOR_LOGIC_SECTION": "",
+        "LINK_TO_REFLECTOR_SECTION": "",
+
+        "RX_SECTIONS": audio_result["rx_sections"],
+        "TX_SECTIONS": audio_result["tx_sections"],
+
+        "MACROS_SECTION": render_macros(model),
+    }
+
+    return render_config_template(
+        "svxlink_multiport.conf.template",
+        values
+    )
 
 # =========================================================
 # Final configuration renderer
