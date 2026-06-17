@@ -1308,19 +1308,16 @@ def port_ident_page():
     if request.method == "POST":
         for port_id in enabled_port_ids:
             node = nodes.get(port_id, {})
-            role = node.get("role", "simplex")
 
-            short_mode = request.form.get(f"port_{port_id}_short_ident_mode", "cw").strip()
-            short_interval = request.form.get(f"port_{port_id}_short_ident_interval", "15").strip()
+            short_interval = request.form.get(
+                f"port_{port_id}_short_ident_interval",
+                "15"
+            ).strip()
 
-            long_mode = request.form.get(f"port_{port_id}_long_ident_mode", "voice").strip()
-            long_interval = request.form.get(f"port_{port_id}_long_ident_interval", "60").strip()
-
-            if short_mode not in ("cw", "voice", "none"):
-                short_mode = "cw"
-
-            if long_mode not in ("voice", "cw", "none"):
-                long_mode = "voice"
+            long_interval = request.form.get(
+                f"port_{port_id}_long_ident_interval",
+                "60"
+            ).strip()
 
             try:
                 short_interval_value = int(short_interval)
@@ -1334,12 +1331,36 @@ def port_ident_page():
 
             node["ident"] = {
                 "short": {
-                    "mode": short_mode,
                     "interval": short_interval_value,
+                    "voice_enable": request.form.get(
+                        f"port_{port_id}_short_voice_enable"
+                    ) == "1",
+                    "cw_enable": request.form.get(
+                        f"port_{port_id}_short_cw_enable"
+                    ) == "1",
+                    "announce_enable": request.form.get(
+                        f"port_{port_id}_short_announce_enable"
+                    ) == "1",
+                    "announce_file": request.form.get(
+                        f"port_{port_id}_short_announce_file",
+                        ""
+                    ).strip(),
                 },
                 "long": {
-                    "mode": long_mode,
                     "interval": long_interval_value,
+                    "voice_enable": request.form.get(
+                        f"port_{port_id}_long_voice_enable"
+                    ) == "1",
+                    "cw_enable": request.form.get(
+                        f"port_{port_id}_long_cw_enable"
+                    ) == "1",
+                    "announce_enable": request.form.get(
+                        f"port_{port_id}_long_announce_enable"
+                    ) == "1",
+                    "announce_file": request.form.get(
+                        f"port_{port_id}_long_announce_file",
+                        ""
+                    ).strip(),
                 },
             }
 
@@ -1353,10 +1374,77 @@ def port_ident_page():
 
         save_node_model(model)
 
-        return redirect(url_for("cw_page"))
+        return redirect(url_for("port_cw_page"))
 
     return render_template(
         "port_ident.html",
+        model=model,
+        nodes=nodes,
+        enabled_ports=enabled_ports,
+        version_info=get_version_info(),
+    )
+@app.route("/port-cw", methods=["GET", "POST"])
+def port_cw_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    if hardware.get("family") != "ics":
+        return redirect(url_for("cw_page"))
+
+    if not nodes:
+        return redirect(url_for("port_config_page"))
+
+    enabled_port_ids = [
+        str(port)
+        for port in enabled_ports
+    ]
+
+    if request.method == "POST":
+        for port_id in enabled_port_ids:
+            node = nodes.get(port_id, {})
+
+            amp = request.form.get(f"port_{port_id}_cw_amp", "-10").strip()
+            pitch = request.form.get(f"port_{port_id}_cw_pitch", "650").strip()
+            cpm = request.form.get(f"port_{port_id}_cw_cpm", "95").strip()
+
+            try:
+                amp_value = int(amp)
+            except ValueError:
+                amp_value = -10
+
+            try:
+                pitch_value = int(pitch)
+            except ValueError:
+                pitch_value = 650
+
+            try:
+                cpm_value = int(cpm)
+            except ValueError:
+                cpm_value = 95
+
+            node["cw"] = {
+                "amp": amp_value,
+                "pitch": pitch_value,
+                "cpm": cpm_value,
+            }
+
+            node["cw_configured"] = True
+            nodes[port_id] = node
+
+        model["nodes"] = nodes
+
+        model.setdefault("build", {})
+        model["build"]["port_cw_configured"] = True
+
+        save_node_model(model)
+
+        return redirect(url_for("courtesy_page"))
+
+    return render_template(
+        "port_cw.html",
         model=model,
         nodes=nodes,
         enabled_ports=enabled_ports,
