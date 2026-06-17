@@ -215,10 +215,10 @@ def require_dashboard_auth():
         if session.get("authorised"):
             return None
 
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     return None
 # ========================================================
@@ -1797,7 +1797,7 @@ def wifi_page():
 def node_info_edit_page():
     saved = request.args.get("saved") == "1"
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     model = load_node_model()
 
@@ -2124,10 +2124,12 @@ def sound_calibration_page():
 @app.route("/authorise", methods=["GET", "POST"])
 def authorise_page():
     error = None
+    next_page = request.args.get("next", "")
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
+        next_page = request.form.get("next", "").strip()
 
         auth = load_node_model().get(
             "dashboard_auth",
@@ -2146,6 +2148,9 @@ def authorise_page():
             session.permanent = True
             session["authorised"] = True
 
+            if next_page and next_page.startswith("/") and not next_page.startswith("//"):
+                return redirect(next_page)
+
             return redirect(url_for("status_page"))
 
         error = "Incorrect username or password."
@@ -2153,8 +2158,8 @@ def authorise_page():
     return render_template(
         "authorise.html",
         error=error,
+        next_page=next_page,
     )
-
 @app.route("/api/status", methods=["GET"])
 def api_status_page():
     model = load_node_model()
@@ -2172,7 +2177,7 @@ def api_status_page():
 def talkgroups_page():
     saved = request.args.get("saved")
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))    
+        return redirect(url_for("authorise_page", next=request.path))    
     model = load_node_model()
         
 
@@ -2217,7 +2222,7 @@ def talkgroups_page():
 def monitor_tgs_page():
     saved = request.args.get("saved")
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
     model = load_node_model()
     error = None
 
@@ -2288,7 +2293,7 @@ def monitor_tgs_page():
 def echolink_edit_page():
     saved = request.args.get("saved")
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     model = load_node_model()
 
@@ -2353,7 +2358,7 @@ def echolink_edit_page():
 def metar_edit_page():
     saved = request.args.get("saved")
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     model = load_node_model()
 
@@ -2432,7 +2437,7 @@ def metar_edit_page():
 def log_page():
 
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     log_file = get_svxlink_log_path()
 
@@ -2487,7 +2492,7 @@ def log_data():
 def maintenance_page():
 
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     return render_template(
         "maintenance.html"
@@ -2591,7 +2596,7 @@ def reconfigure_page():
 def restart_services_page():
 
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     restart_services()
 
@@ -2605,7 +2610,7 @@ def restart_services_page():
 def reboot_device_page():
 
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     reboot_device()
 
@@ -2618,7 +2623,7 @@ def reboot_device_page():
 def shutdown_device_page():
 
     if not session.get("authorised"):
-        return redirect(url_for("authorise_page"))
+        return redirect(url_for("authorise_page", next=request.path))
 
     shutdown_device()
 
