@@ -99,7 +99,7 @@
                 <a class="button-secondary" href="{{ url_for('port_config_page') }}">Refresh</a>
 
                 {% if all_ports_configured %}
-                    <a class="button-primary" href="{{ url_for('port_profile_review_page') }}">Continue</a>
+                    <a class="button-primary" href="{{ url_for('port_squelch_page') }}">Continue</a>
                 {% else %}
                     <button class="button-primary" type="button" disabled>Continue</button>
                 {% endif %}
