@@ -625,6 +625,9 @@ def hardware_ports_page():
 
         save_node_model(model)
 
+        if len(enabled_ports) > 1:
+            return redirect(url_for("port_roles_page"))
+
         return redirect(url_for("hardware_review_page"))
 
     enabled_ports = (
