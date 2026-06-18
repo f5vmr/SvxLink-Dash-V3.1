@@ -744,7 +744,8 @@ def resolve_gpiod_line(model, node, label):
     Fall back to the top-level discovered line map.
     Finally fall back to the stable line name itself.
     """
-
+    if model.get("hardware", {}).get("family") == "ics":
+        return render_multiport_svxlink_config(model)
     gpio = node.get("gpio", {})
 
     if label.startswith("RX_"):
