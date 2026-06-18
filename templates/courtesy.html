@@ -157,16 +157,14 @@
             <div class="field-group">
                 <label class="label">Tone type</label>
 
-            {% if model.node.type == "simplex" %}
             <div class="checkbox-row">
                 <input type="radio"
                        id="courtesy_none"
                        name="courtesy_mode"
                        value="none"
                        {% if model.courtesy.mode == "none" %}checked{% endif %}>
-                <label for="courtesy_none">No courtesy tone</label>
+                <label for="courtesy_none">None</label>
             </div>
-            {% endif %}
 
                 <div class="checkbox-row">
                     <input type="radio"
