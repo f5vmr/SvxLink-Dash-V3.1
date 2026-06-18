@@ -157,7 +157,10 @@ p + p {
   box-shadow: var(--shadow);
   padding: 28px 32px;
 }
-
+.wide-card {
+    max-width: 1400px;
+    width: 95%;
+}
 .page-header {
   display: flex;
   align-items: center;
