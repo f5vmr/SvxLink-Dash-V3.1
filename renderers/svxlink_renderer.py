@@ -724,6 +724,17 @@ def render_port_report_ctcss(node):
 
     return "#REPORT_CTCSS=1"
 
+def render_port_tx_ctcss_logic(node):
+    """
+    Render TX_CTCSS for one multi-port node.
+    """
+
+    squelch = node.get("squelch", {})
+
+    if squelch.get("ctcss_mode") == "rx_tx":
+        return "TX_CTCSS=always"
+
+    return "#TX_CTCSS=always"
 
 def resolve_gpiod_line(model, node, label):
     """
