@@ -725,46 +725,60 @@ def render_port_report_ctcss(node):
     return "#REPORT_CTCSS=1"
 
 
-def render_port_tx_ctcss_logic(node):
+def resolve_gpiod_line(model, node, label):
     """
-    Render TX_CTCSS for one port.
-    """
+    Resolve a stable GPIO line name to chip/line details.
 
-    squelch = node.get("squelch", {})
-
-    if squelch.get("ctcss_mode") == "rx_tx":
-        return "TX_CTCSS=always"
-
-    return "#TX_CTCSS=always"
-def render_multiport_logic_sections(model):
-    """
-    Render all SimplexLogic/RepeaterLogic sections for enabled ICS ports.
+    Prefer per-node data created during ICS GPIOD discovery.
+    Fall back to the top-level discovered line map.
+    Finally fall back to the stable line name itself.
     """
 
-    nodes = model.get("nodes", {})
-    enabled_ports = model.get("ports", {}).get("enabled", [])
+    gpio = node.get("gpio", {})
 
-    logic_names = []
-    logic_sections = []
-
-    for port in enabled_ports:
-        port_id = str(port)
-        node = nodes.get(port_id, {})
-
-        if not node:
-            continue
-
-        logic_name = f"Port{port_id}Logic"
-
-        logic_names.append(logic_name)
-        logic_sections.append(
-            render_port_logic(model, port_id, node)
+    if label.startswith("RX_"):
+        chip = gpio.get("cos_chip", "")
+        line = (
+            gpio.get("cos_line")
+            or gpio.get("cos")
+            or label
         )
+        offset = gpio.get("cos_offset")
+
+    elif label.startswith("TX_"):
+        chip = gpio.get("ptt_chip", "")
+        line = (
+            gpio.get("ptt_line")
+            or gpio.get("ptt")
+            or label
+        )
+        offset = gpio.get("ptt_offset")
+
+    else:
+        chip = ""
+        line = label
+        offset = None
+
+    if chip:
+        return {
+            "chip": chip,
+            "line": line,
+            "offset": offset,
+        }
+
+    resolved = (
+        model.get("gpiod", {})
+        .get("resolved_lines", {})
+        .get(label, {})
+    )
 
     return {
-        "logics": ",".join(logic_names),
-        "sections": "\n\n".join(logic_sections),
+        "chip": resolved.get("chip", ""),
+        "line": resolved.get("line", line),
+        "offset": resolved.get("offset", offset),
     }
+
+
 def render_port_rx_section(model, port_id, node):
     """
     Render one Rx section for an ICS port.
@@ -772,9 +786,10 @@ def render_port_rx_section(model, port_id, node):
 
     audio = node.get("audio", {})
     squelch = node.get("squelch", {})
-    gpio = node.get("gpio", {})
 
     rx_name = f"Rx{port_id}"
+    rx_label = f"RX_{port_id}"
+
     audio_dev = audio.get("rx_audio", f"alsa:rx{port_id}")
 
     method = squelch.get("method", "gpiod")
@@ -790,19 +805,25 @@ def render_port_rx_section(model, port_id, node):
 
     if method == "ctcss":
         lines.append("SQL_DET=CTCSS")
+
     else:
-        lines.append("SQL_DET=GPIOD")
+        resolved = resolve_gpiod_line(
+            model,
+            node,
+            rx_label,
+        )
+
+        lines.extend([
+            "SQL_DET=GPIOD",
+            f"SQL_GPIOD_CHIP={resolved.get('chip', '')}",
+            f"SQL_GPIOD_LINE={resolved.get('line', rx_label)}",
+            "SQL_GPIOD_ACTIVE=LOW",
+        ])
 
     lines.extend([
         f"SQL_HANGTIME={model.get('sql_hangtime', 20)}",
         f"SQL_TAIL_ELIM={model.get('sql_tail_elim', 270)}",
     ])
-
-    if method == "gpiod":
-        lines.extend([
-            f"SQL_GPIO={gpio.get('cos', f'RX_{port_id}')}",
-            "SQL_GPIO_ACTIVE=LOW",
-        ])
 
     if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
         lines.extend([
@@ -821,14 +842,21 @@ def render_port_tx_section(model, port_id, node):
     """
 
     audio = node.get("audio", {})
-    gpio = node.get("gpio", {})
     squelch = node.get("squelch", {})
 
     tx_name = f"Tx{port_id}"
+    tx_label = f"TX_{port_id}"
+
     audio_dev = audio.get("tx_audio", f"alsa:tx{port_id}")
 
     ctcss_mode = squelch.get("ctcss_mode", "radio")
     ctcss_freq = squelch.get("ctcss_freq")
+
+    resolved = resolve_gpiod_line(
+        model,
+        node,
+        tx_label,
+    )
 
     lines = [
         f"[{tx_name}]",
@@ -836,8 +864,9 @@ def render_port_tx_section(model, port_id, node):
         f"AUDIO_DEV={audio_dev}",
         "AUDIO_CHANNEL=0",
         "PTT_TYPE=GPIOD",
-        f"PTT_GPIO={gpio.get('ptt', f'TX_{port_id}')}",
-        "PTT_GPIO_ACTIVE=HIGH",
+        f"PTT_GPIOD_CHIP={resolved.get('chip', '')}",
+        f"PTT_GPIOD_LINE={resolved.get('line', tx_label)}",
+        "PTT_GPIOD_ACTIVE=HIGH",
     ]
 
     if ctcss_mode == "rx_tx" and ctcss_freq:
@@ -847,7 +876,6 @@ def render_port_tx_section(model, port_id, node):
         ])
 
     return "\n".join(lines)
-
 
 def render_multiport_rx_tx_sections(model):
     """
