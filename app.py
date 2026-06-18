@@ -625,8 +625,8 @@ def hardware_ports_page():
 
         save_node_model(model)
 
-        if len(enabled_ports) > 1:
-            return redirect(url_for("port_roles_page"))
+#        if len(enabled_ports) > 1:
+#            return redirect(url_for("port_roles_page"))
 
         return redirect(url_for("hardware_review_page"))
 
@@ -856,7 +856,7 @@ def environment_page():
             model["language"] = {
                 "default": language,
             }
-
+            model.setdefault("metar", {})
             model["metar"]["region"] = metar_region
 
             save_node_model(model)
@@ -1711,7 +1711,7 @@ def port_final_review_page():
 
         save_node_model(model)
 
-        return redirect(url_for("status_page"))
+        return redirect(url_for("port_final_review_page"))
 
     return render_template(
         "port_final_review.html",
