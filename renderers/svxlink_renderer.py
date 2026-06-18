@@ -744,8 +744,7 @@ def resolve_gpiod_line(model, node, label):
     Fall back to the top-level discovered line map.
     Finally fall back to the stable line name itself.
     """
-    if model.get("hardware", {}).get("family") == "ics":
-        return render_multiport_svxlink_config(model)
+
     gpio = node.get("gpio", {})
 
     if label.startswith("RX_"):
@@ -1062,6 +1061,18 @@ def render_svxlink_config(model):
     """
     Render final svxlink.conf text.
     """
+    hardware = model.get("hardware", {})
+
+    profile_id = (
+        model.get("hardware_profile_id")
+        or hardware.get("profile_id")
+        or hardware.get("id")
+        or hardware.get("profile")
+        or ""
+    )
+
+    if hardware.get("family") == "ics" or str(profile_id).startswith("ics_"):
+        return render_multiport_svxlink_config(model)
 
     node_type = model.get("node", {}).get("type")
 
