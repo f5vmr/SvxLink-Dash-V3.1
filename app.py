@@ -69,7 +69,10 @@ from services.ics_prepare_service import (
     enable_i2c,
 )
 from services.log_service import get_svxlink_log_path
-from services.gpio_service import flatten_gpio_lines
+from services.gpio_service import (
+    flatten_gpio_lines,
+    update_model_gpiod_discovery,
+)
 from services.node_info_service import write_node_info_json
 from renderers.svxlink_renderer import (
     render_echolink_module,
@@ -753,7 +756,27 @@ def ics_prepare_page():
         model["ics_prepare"]["reboot_required"] = False
         model["ics_prepare"]["verified"] = True
 
-        if "build" in model:
+        try:
+            model = update_model_gpiod_discovery(model)
+
+            missing_lines = (
+                model.get("gpiod", {})
+                .get("missing_lines", [])
+            )
+
+            if missing_lines:
+                error = (
+                    "GPIOD discovery completed, but these required lines "
+                    "were not found: "
+                    + ", ".join(missing_lines)
+                )
+            else:
+                message = message or "ICS GPIO lines discovered successfully."
+
+        except Exception as exc:
+            error = f"GPIOD discovery failed: {exc}"
+
+        if "build" in model and not error:
             model["build"].pop("resume_after_reboot", None)
 
     save_node_model(model)
