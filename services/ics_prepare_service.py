@@ -135,7 +135,19 @@ def set_overlay(profile_id):
         }
 
     return _run_helper("set-overlay", profile["overlay"])
+def configure_pcm1803(profile_id):
+    profile = get_profile(profile_id)
 
+    if not profile:
+        return {
+            "ok": False,
+            "returncode": 1,
+            "stdout": "",
+            "stderr": f"Unknown ICS profile: {profile_id}",
+            "command": "",
+        }
+
+    return _run_helper("configure-pcm1803", profile_id)
 
 def build_ics_status(profile_id=None):
     """
