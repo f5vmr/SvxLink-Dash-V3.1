@@ -38,6 +38,845 @@
             <div class="field-group">
                 <label class="label">Tone type</label>
 
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_none"
+                           name="courtesy_mode"
+                           value="none"
+                           {% if model.courtesy.mode == "none" %}checked{% endif %}>
+                    <label for="courtesy_none">None</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_beep"
+                           name="courtesy_mode"
+                           value="beep"
+                           {% if model.courtesy.mode == "beep" %}checked{% endif %}>
+                    <label for="courtesy_beep">Beep</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_t"
+                           name="courtesy_mode"
+                           value="morse_t"
+                           {% if model.courtesy.mode == "morse_t" %}checked{% endif %}>
+                    <label for="courtesy_morse_t">Morse T</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_k"
+                           name="courtesy_mode"
+                           value="morse_k"
+                           {% if model.courtesy.mode == "morse_k" %}checked{% endif %}>
+                    <label for="courtesy_morse_k">Morse K</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="tone_freq">
+                    Beep frequency
+                </label>
+
+                <input class="input-field"
+                       id="tone_freq"
+                       name="tone_freq"
+                       type="number"
+                       min="300"
+                       max="3000"
+                       value="{{ model.courtesy.frequency or 800 }}">
+
+                <div class="note">
+                    Used only for single beep. Default is 800 Hz.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+    <footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard {{ version_info.dashboard_name }}|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Courtesy Tone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Courtesy Tone</h1>
+                <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('courtesy_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">Tone type</label>
+
+            {% if model.node.type == "simplex" %}
+            <div class="checkbox-row">
+                <input type="radio"
+                       id="courtesy_none"
+                       name="courtesy_mode"
+                       value="none"
+                       {% if model.courtesy.mode == "none" %}checked{% endif %}>
+                <label for="courtesy_none">No courtesy tone</label>
+            </div>
+            {% endif %}
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_beep"
+                           name="courtesy_mode"
+                           value="beep"
+                           {% if model.courtesy.mode == "beep" %}checked{% endif %}>
+                    <label for="courtesy_beep">Single beep</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_t"
+                           name="courtesy_mode"
+                           value="morse_t"
+                           {% if model.courtesy.mode == "morse_t" %}checked{% endif %}>
+                    <label for="courtesy_morse_t">Morse T</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_k"
+                           name="courtesy_mode"
+                           value="morse_k"
+                           {% if model.courtesy.mode == "morse_k" %}checked{% endif %}>
+                    <label for="courtesy_morse_k">Morse K</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="tone_freq">
+                    Beep frequency
+                </label>
+
+                <input class="input-field"
+                       id="tone_freq"
+                       name="tone_freq"
+                       type="number"
+                       min="300"
+                       max="3000"
+                       value="{{ model.courtesy.frequency or 800 }}">
+
+                <div class="note">
+                    Used only for single beep. Default is 800 Hz.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+    <footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard {{ version_info.dashboard_name }}|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Courtesy Tone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Courtesy Tone</h1>
+                <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('courtesy_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">Tone type</label>
+
+            <div class="checkbox-row">
+    <input type="radio"
+           id="courtesy_none"
+           name="courtesy_mode"
+           value="none"
+           {% if model.courtesy.mode == "none" %}checked{% endif %}>
+    <label for="courtesy_none">None</label>
+</div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_beep"
+                           name="courtesy_mode"
+                           value="beep"
+                           {% if model.courtesy.mode == "beep" %}checked{% endif %}>
+                    <label for="courtesy_beep">Single beep</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_t"
+                           name="courtesy_mode"
+                           value="morse_t"
+                           {% if model.courtesy.mode == "morse_t" %}checked{% endif %}>
+                    <label for="courtesy_morse_t">Morse T</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_k"
+                           name="courtesy_mode"
+                           value="morse_k"
+                           {% if model.courtesy.mode == "morse_k" %}checked{% endif %}>
+                    <label for="courtesy_morse_k">Morse K</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="tone_freq">
+                    Beep frequency
+                </label>
+
+                <input class="input-field"
+                       id="tone_freq"
+                       name="tone_freq"
+                       type="number"
+                       min="300"
+                       max="3000"
+                       value="{{ model.courtesy.frequency or 800 }}">
+
+                <div class="note">
+                    Used only for single beep. Default is 800 Hz.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+    <footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard {{ version_info.dashboard_name }}|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Courtesy Tone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Courtesy Tone</h1>
+                <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('courtesy_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">Tone type</label>
+
+            {% if model.node.type == "simplex" %}
+            <div class="checkbox-row">
+                <input type="radio"
+                       id="courtesy_none"
+                       name="courtesy_mode"
+                       value="none"
+                       {% if model.courtesy.mode == "none" %}checked{% endif %}>
+                <label for="courtesy_none">No courtesy tone</label>
+            </div>
+            {% endif %}
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_beep"
+                           name="courtesy_mode"
+                           value="beep"
+                           {% if model.courtesy.mode == "beep" %}checked{% endif %}>
+                    <label for="courtesy_beep">Single beep</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_t"
+                           name="courtesy_mode"
+                           value="morse_t"
+                           {% if model.courtesy.mode == "morse_t" %}checked{% endif %}>
+                    <label for="courtesy_morse_t">Morse T</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_k"
+                           name="courtesy_mode"
+                           value="morse_k"
+                           {% if model.courtesy.mode == "morse_k" %}checked{% endif %}>
+                    <label for="courtesy_morse_k">Morse K</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="tone_freq">
+                    Beep frequency
+                </label>
+
+                <input class="input-field"
+                       id="tone_freq"
+                       name="tone_freq"
+                       type="number"
+                       min="300"
+                       max="3000"
+                       value="{{ model.courtesy.frequency or 800 }}">
+
+                <div class="note">
+                    Used only for single beep. Default is 800 Hz.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+    <footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard {{ version_info.dashboard_name }}|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Courtesy Tone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Courtesy Tone</h1>
+                <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('courtesy_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">Tone type</label>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_none"
+                           name="courtesy_mode"
+                           value="none"
+                           {% if model.courtesy.mode == "none" %}checked{% endif %}>
+                    <label for="courtesy_none">None</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_beep"
+                           name="courtesy_mode"
+                           value="beep"
+                           {% if model.courtesy.mode == "beep" %}checked{% endif %}>
+                    <label for="courtesy_beep">Single beep</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_t"
+                           name="courtesy_mode"
+                           value="morse_t"
+                           {% if model.courtesy.mode == "morse_t" %}checked{% endif %}>
+                    <label for="courtesy_morse_t">Morse T</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_k"
+                           name="courtesy_mode"
+                           value="morse_k"
+                           {% if model.courtesy.mode == "morse_k" %}checked{% endif %}>
+                    <label for="courtesy_morse_k">Morse K</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="tone_freq">
+                    Beep frequency
+                </label>
+
+                <input class="input-field"
+                       id="tone_freq"
+                       name="tone_freq"
+                       type="number"
+                       min="300"
+                       max="3000"
+                       value="{{ model.courtesy.frequency or 800 }}">
+
+                <div class="note">
+                    Used only for single beep. Default is 800 Hz.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+    <footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard {{ version_info.dashboard_name }}|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Courtesy Tone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Courtesy Tone</h1>
+                <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('courtesy_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">Tone type</label>
+
+            {% if model.node.type == "simplex" %}
+            <div class="checkbox-row">
+                <input type="radio"
+                       id="courtesy_none"
+                       name="courtesy_mode"
+                       value="none"
+                       {% if model.courtesy.mode == "none" %}checked{% endif %}>
+                <label for="courtesy_none">No courtesy tone</label>
+            </div>
+            {% endif %}
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_beep"
+                           name="courtesy_mode"
+                           value="beep"
+                           {% if model.courtesy.mode == "beep" %}checked{% endif %}>
+                    <label for="courtesy_beep">Single beep</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_t"
+                           name="courtesy_mode"
+                           value="morse_t"
+                           {% if model.courtesy.mode == "morse_t" %}checked{% endif %}>
+                    <label for="courtesy_morse_t">Morse T</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_k"
+                           name="courtesy_mode"
+                           value="morse_k"
+                           {% if model.courtesy.mode == "morse_k" %}checked{% endif %}>
+                    <label for="courtesy_morse_k">Morse K</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="tone_freq">
+                    Beep frequency
+                </label>
+
+                <input class="input-field"
+                       id="tone_freq"
+                       name="tone_freq"
+                       type="number"
+                       min="300"
+                       max="3000"
+                       value="{{ model.courtesy.frequency or 800 }}">
+
+                <div class="note">
+                    Used only for single beep. Default is 800 Hz.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+    <footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard {{ version_info.dashboard_name }}|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Courtesy Tone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Courtesy Tone</h1>
+                <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('courtesy_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">Tone type</label>
+
+            <div class="checkbox-row">
+    <input type="radio"
+           id="courtesy_none"
+           name="courtesy_mode"
+           value="none"
+           {% if model.courtesy.mode == "none" %}checked{% endif %}>
+    <label for="courtesy_none">None</label>
+</div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_beep"
+                           name="courtesy_mode"
+                           value="beep"
+                           {% if model.courtesy.mode == "beep" %}checked{% endif %}>
+                    <label for="courtesy_beep">Single beep</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_t"
+                           name="courtesy_mode"
+                           value="morse_t"
+                           {% if model.courtesy.mode == "morse_t" %}checked{% endif %}>
+                    <label for="courtesy_morse_t">Morse T</label>
+                </div>
+
+                <div class="checkbox-row">
+                    <input type="radio"
+                           id="courtesy_morse_k"
+                           name="courtesy_mode"
+                           value="morse_k"
+                           {% if model.courtesy.mode == "morse_k" %}checked{% endif %}>
+                    <label for="courtesy_morse_k">Morse K</label>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="label" for="tone_freq">
+                    Beep frequency
+                </label>
+
+                <input class="input-field"
+                       id="tone_freq"
+                       name="tone_freq"
+                       type="number"
+                       min="300"
+                       max="3000"
+                       value="{{ model.courtesy.frequency or 800 }}">
+
+                <div class="note">
+                    Used only for single beep. Default is 800 Hz.
+                </div>
+            </div>
+
+            <div class="button-row">
+                <a class="button-secondary"
+                   href="{{ url_for('ident_page') }}">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+    <footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard {{ version_info.dashboard_name }}|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+    </footer>
+</main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Courtesy Tone</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+<body>
+<main class="page">
+    <section class="card">
+
+        <div class="page-header">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
+            <div class="page-heading">
+                <h1>Courtesy Tone</h1>
+                <p>Select the courtesy tone behaviour for this node.</p>
+            
+                <div class="note">
+                {% if model.node.type == "repeater" %}
+                    Repeater systems require a courtesy tone.
+                {% else %}
+                    Courtesy tones are optional for simplex systems.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form action="{{ url_for('courtesy_page') }}" method="post">
+
+            <div class="field-group">
+                <label class="label">Tone type</label>
+
             {% if model.node.type == "simplex" %}
             <div class="checkbox-row">
                 <input type="radio"
