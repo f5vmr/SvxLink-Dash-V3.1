@@ -45,16 +45,16 @@
                             name="port_{{ port_id }}_courtesy_mode"
                         >
                             <option value="none" {% if courtesy.get("mode", "none") == "none" %}selected{% endif %}>
-                                Disabled
+                                None
                             </option>
-                            <option value="pip" {% if courtesy.get("mode") == "pip" %}selected{% endif %}>
-                                Pip
+                            <option value="beep" {% if courtesy.get("mode") == "beep" %}selected{% endif %}>
+                                Beep
                             </option>
-                            <option value="chime" {% if courtesy.get("mode") == "chime" %}selected{% endif %}>
-                                Chime
+                            <option value="morse_k" {% if courtesy.get("mode") == "morse_k" %}selected{% endif %}>
+                                CW "K"
                             </option>
-                            <option value="cw" {% if courtesy.get("mode") == "cw" %}selected{% endif %}>
-                                CW
+                            <option value="morse_t" {% if courtesy.get("mode") == "morse_t" %}selected{% endif %}>
+                                CW "T"
                             </option>
                         </select>
 
@@ -90,13 +90,10 @@
                                 None
                             </option>
                             <option value="biboop" {% if courtesy.get("down_tone") == "biboop" %}selected{% endif %}>
-                                Bi-boop
+                                Biboop
                             </option>
-                            <option value="pip" {% if courtesy.get("down_tone") == "pip" %}selected{% endif %}>
-                                Pip
-                            </option>
-                            <option value="chime" {% if courtesy.get("down_tone") == "chime" %}selected{% endif %}>
-                                Chime
+                            <option value="va" {% if courtesy.get("down_tone") == "va" %}selected{% endif %}>
+                                VA
                             </option>
                         </select>
                     </div>
