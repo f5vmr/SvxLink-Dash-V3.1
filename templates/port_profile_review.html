@@ -30,25 +30,228 @@
         </div>
 
         <div class="form-section">
-            <div class="label">Enabled ICS ports</div>
-
-            {% for port in enabled_ports %}
-                {% set port_id = port|string %}
-                {% set node = nodes.get(port_id, {}) %}
-
-                <div class="status-box">
-                    <strong>Port {{ port }}</strong><br>
-                    Name: {{ node.name }}<br>
-                    Callsign: {{ node.callsign }}<br>
-                    Role: {{ node.role }}<br>
-                    RX audio: {{ node.audio.rx_audio }}<br>
-                    TX audio: {{ node.audio.tx_audio }}<br>
-                    PTT: {{ node.gpio.ptt }}<br>
-                    COS: {{ node.gpio.cos }}
-                </div>
-            {% endfor %}
+            <div class="label">Enabled port summary</div>
+                
+            <div class="review-grid">
+                {% for port in enabled_ports %}
+                    {% set port_id = port|string %}
+                    {% set node = nodes.get(port_id, {}) %}
+                    {% set audio = node.get("audio", {}) %}
+                    {% set gpio = node.get("gpio", {}) %}
+                    {% set modules = node.get("modules", {}) %}
+                    {% set ident = node.get("ident", {}) %}
+                    {% set cw = node.get("cw", {}) %}
+                    {% set courtesy = node.get("courtesy", {}) %}
+                    {% set repeater = node.get("repeater", {}) %}
+                    {% set squelch = node.get("squelch", {}) %}
+                    {% set role = node.get("role", "unknown") %}
+            
+                    <article class="review-card">
+                        <h2 class="review-card-title">
+                            {{ node.get("name", "Port " ~ port_id) }}
+                        </h2>
+                        <p class="review-card-subtitle">
+                            Port {{ port_id }} · {{ role|title }}
+                        </p>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">Node</h3>
+                            <div class="review-row">
+                                <span class="review-label">Callsign</span>
+                                <span class="review-value">{{ node.get("callsign", "Not set") }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Role</span>
+                                <span class="review-value">{{ role|title }}</span>
+                            </div>
+                        </div>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">Audio</h3>
+                            <div class="review-row">
+                                <span class="review-label">RX</span>
+                                <span class="review-value">{{ audio.get("rx_audio", "Not set") }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">TX</span>
+                                <span class="review-value">{{ audio.get("tx_audio", "Not set") }}</span>
+                            </div>
+                        </div>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">GPIO / Control</h3>
+                            <div class="review-row">
+                                <span class="review-label">COS</span>
+                                <span class="review-value">{{ gpio.get("cos", "Not set") }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">PTT</span>
+                                <span class="review-value">{{ gpio.get("ptt", "Not set") }}</span>
+                            </div>
+                        </div>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">Squelch / CTCSS</h3>
+                            <div class="review-row">
+                                <span class="review-label">Method</span>
+                                <span class="review-value">{{ squelch.get("method", "Not set") }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">CTCSS mode</span>
+                                <span class="review-value">{{ squelch.get("ctcss_mode", "Not set") }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">CTCSS freq</span>
+                                <span class="review-value">{{ squelch.get("ctcss_freq", "Not set") }}</span>
+                            </div>
+                        </div>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">Modules</h3>
+                            <div class="review-row">
+                                <span class="review-label">EchoLink</span>
+                                <span class="review-value">
+                                    {% if modules.get("echolink") %}Enabled{% else %}Disabled{% endif %}
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">METAR</span>
+                                <span class="review-value">
+                                    {% if modules.get("metar") %}Enabled{% else %}Disabled{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">Identification</h3>
+                            <div class="review-row">
+                                <span class="review-label">Short interval</span>
+                                <span class="review-value">{{ ident.get("short", {}).get("interval", 15) }} min</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Short voice</span>
+                                <span class="review-value">{{ ident.get("short", {}).get("voice_enable", false) }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Short CW</span>
+                                <span class="review-value">{{ ident.get("short", {}).get("cw_enable", true) }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Short announce</span>
+                                <span class="review-value">{{ ident.get("short", {}).get("announce_enable", false) }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Long interval</span>
+                                <span class="review-value">{{ ident.get("long", {}).get("interval", 60) }} min</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Long voice</span>
+                                <span class="review-value">{{ ident.get("long", {}).get("voice_enable", true) }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Long CW</span>
+                                <span class="review-value">{{ ident.get("long", {}).get("cw_enable", false) }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Long announce</span>
+                                <span class="review-value">{{ ident.get("long", {}).get("announce_enable", false) }}</span>
+                            </div>
+                        </div>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">CW</h3>
+                            <div class="review-row">
+                                <span class="review-label">Amplitude</span>
+                                <span class="review-value">{{ cw.get("amp", -10) }} dB</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Pitch</span>
+                                <span class="review-value">{{ cw.get("pitch", 650) }} Hz</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Speed</span>
+                                <span class="review-value">{{ cw.get("cpm", 95) }} CPM</span>
+                            </div>
+                        </div>
+                    
+                        <div class="review-section">
+                            <h3 class="review-section-title">Courtesy</h3>
+                            <div class="review-row">
+                                <span class="review-label">Tone</span>
+                                <span class="review-value">{{ courtesy.get("mode", "none") }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Idle tone</span>
+                                <span class="review-value">{{ courtesy.get("idle_tone", "none") }}</span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Close tone</span>
+                                <span class="review-value">{{ courtesy.get("down_tone", "none") }}</span>
+                            </div>
+                        </div>
+                    
+                        {% if role == "repeater" %}
+                            <div class="review-section">
+                                <h3 class="review-section-title">Repeater</h3>
+                                <div class="review-row">
+                                    <span class="review-label">Idle timeout</span>
+                                    <span class="review-value">{{ repeater.get("idle_timeout", 10) }} s</span>
+                                </div>
+                                <div class="review-row">
+                                    <span class="review-label">SQL timeout</span>
+                                    <span class="review-value">{{ repeater.get("sql_timeout", 180) }} s</span>
+                                </div>
+                                <div class="review-row">
+                                    <span class="review-label">Open on SQL</span>
+                                    <span class="review-value">{{ repeater.get("open_on_sql", 200) }} ms</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="review-section">
+                            <h3 class="review-section-title">Completion</h3>
+                            <div class="review-row">
+                                <span class="review-label">Node details</span>
+                                <span class="review-value {% if node.get("node_details_configured", false) %}review-badge-ok{% else %}review-badge-warn{% endif %}">
+                                    {{ node.get("node_details_configured", false) }}
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Squelch</span>
+                                <span class="review-value {% if node.get("squelch_configured", false) %}review-badge-ok{% else %}review-badge-warn{% endif %}">
+                                    {{ node.get("squelch_configured", false) }}
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Ident</span>
+                                <span class="review-value {% if node.get("ident_configured", false) %}review-badge-ok{% else %}review-badge-warn{% endif %}">
+                                    {{ node.get("ident_configured", false) }}
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">CW</span>
+                                <span class="review-value {% if node.get("cw_configured", false) %}review-badge-ok{% else %}review-badge-warn{% endif %}">
+                                    {{ node.get("cw_configured", false) }}
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Courtesy</span>
+                                <span class="review-value {% if node.get("courtesy_configured", false) %}review-badge-ok{% else %}review-badge-warn{% endif %}">
+                                    {{ node.get("courtesy_configured", false) }}
+                                </span>
+                            </div>
+                            <div class="review-row">
+                                <span class="review-label">Repeater</span>
+                                <span class="review-value {% if node.get("repeater_configured", false) %}review-badge-ok{% else %}review-badge-warn{% endif %}">
+                                    {{ node.get("repeater_configured", false) }}
+                                </span>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
         </div>
-
+        
         <form action="{{ url_for('port_profile_review_page') }}" method="post">
             <div class="button-row">
                 <a class="button-secondary" href="{{ url_for('port_config_page') }}">Back</a>
