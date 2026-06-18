@@ -64,6 +64,9 @@ from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
 from services.ics_prepare_service import (
     build_ics_status,
+    check_i2c,
+    check_overlay,
+    configure_pcm1803,
     get_ics_profiles,
     set_overlay,
     enable_i2c,
@@ -771,7 +774,24 @@ def ics_prepare_page():
                     + ", ".join(missing_lines)
                 )
             else:
-                message = message or "ICS GPIO lines discovered successfully."
+                pcm1803_result = configure_pcm1803(selected_profile)
+
+                if not pcm1803_result["ok"]:
+                    error = (
+                        pcm1803_result["stderr"]
+                        or pcm1803_result["stdout"]
+                        or "Failed to configure PCM1803 service."
+                    )
+                elif selected_profile in ("ics_4x", "ics_8x"):
+                    message = (
+                        message
+                        or "ICS GPIO lines discovered and PCM1803 service enabled."
+                    )
+                else:
+                    message = (
+                        message
+                        or "ICS GPIO lines discovered. PCM1803 service disabled for this profile."
+                    )
 
         except Exception as exc:
             error = f"GPIOD discovery failed: {exc}"
