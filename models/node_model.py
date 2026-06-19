@@ -219,7 +219,7 @@ def validate_model(model):
 
     errors = []
     
-    if is_ics_port_model(model):
+    if is_ics_multiport_model(model):
         nodes = model.get("nodes", {})
         enabled_ports = model.get("ports", {}).get("enabled", [])
 
