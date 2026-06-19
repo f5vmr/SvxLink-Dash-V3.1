@@ -11,11 +11,7 @@ CARD_SAMPLE_RATE=48000
 #LOCATION_INFO=LocationInfo
 {{LINKS_LINE}}
 
-
-[ReflectorLogic]
-# Disabled in this multi-port renderer until reflector allocation is explicit.
-
-
+{{REFLECTOR_LOGIC_SECTION}}
 
 # =========================================================
 # Logic Sections
@@ -23,20 +19,17 @@ CARD_SAMPLE_RATE=48000
 
 {{ACTIVE_LOGIC_SECTION}}
 
-
 # =========================================================
 # Receiver Sections
 # =========================================================
 
 {{RX_SECTIONS}}
 
-
 # =========================================================
 # Transmitter Sections
 # =========================================================
 
 {{TX_SECTIONS}}
-
 
 # =========================================================
 # Macros
