@@ -995,6 +995,7 @@ def initialise_port_nodes(model, profile):
     port_roles = model.get("port_roles", {})
     port_map = profile.get("port_map", {})
 
+    existing_nodes = model.get("nodes", {})
     nodes = {}
 
     for port in enabled_ports:
@@ -1005,25 +1006,30 @@ def initialise_port_nodes(model, profile):
         if role not in ("simplex", "repeater"):
             continue
 
-        nodes[port_id] = {
-            "port": port,
-            "role": role,
-            "enabled": True,
-            "name": f"Port {port} {role.title()}",
-            "callsign": None,
-            "language": model.get("language", {}).get("default", "en_GB"),
-            "audio": {
-                "rx_audio": mapping.get("rx_audio"),
-                "tx_audio": mapping.get("tx_audio"),
-            },
-            "gpio": {
-                "ptt": mapping.get("ptt"),
-                "cos": mapping.get("cos"),
-                "enable": mapping.get("enable"),
-                "control": mapping.get("control"),
-            },
-            "configured": False,
-        }
+        node = existing_nodes.get(port_id, {}).copy()
+
+        node.setdefault("port", port)
+        node.setdefault("role", role)
+        node.setdefault("enabled", True)
+        node.setdefault("name", f"Port {port} {role.title()}")
+        node.setdefault("callsign", None)
+        node.setdefault("language", model.get("language", {}).get("default", "en_GB"))
+        node.setdefault("configured", False)
+
+        node.setdefault("audio", {})
+        node["audio"].setdefault("rx_audio", mapping.get("rx_audio"))
+        node["audio"].setdefault("tx_audio", mapping.get("tx_audio"))
+
+        node.setdefault("gpio", {})
+        node["gpio"].setdefault("ptt", mapping.get("ptt"))
+        node["gpio"].setdefault("cos", mapping.get("cos"))
+        node["gpio"].setdefault("enable", mapping.get("enable"))
+        node["gpio"].setdefault("control", mapping.get("control"))
+
+        # Keep role current if the role page is deliberately changed
+        node["role"] = role
+
+        nodes[port_id] = node
 
     return nodes
 @app.route("/port-config", methods=["GET", "POST"])
@@ -2653,7 +2659,7 @@ def build_page():
             model,
             restart=True,
         )
-    
+
         return render_template(
             "done.html",
             model=model,
