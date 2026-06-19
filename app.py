@@ -1562,13 +1562,13 @@ def port_courtesy_page():
                 "none"
             ).strip()
 
-            if courtesy_mode not in ("none", "pip", "chime", "cw"):
+            if courtesy_mode not in ("none", "beep", "morse_k", "morse_t"):
                 courtesy_mode = "none"
-
-            if idle_tone not in ("none", "pip", "chime", "cw"):
+            
+            if idle_tone not in ("none", "pip", "chime"):
                 idle_tone = "none"
-
-            if down_tone not in ("none", "biboop", "pip", "chime"):
+            
+            if down_tone not in ("none", "biboop", "va"):
                 down_tone = "none"
 
             node["courtesy"] = {
