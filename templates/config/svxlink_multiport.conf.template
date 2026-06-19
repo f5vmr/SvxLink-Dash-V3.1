@@ -9,7 +9,7 @@ CFG_DIR=svxlink.d
 TIMESTAMP_FORMAT="%c"
 CARD_SAMPLE_RATE=48000
 #LOCATION_INFO=LocationInfo
-LINKS=
+{{LINKS_LINE}}
 
 
 [ReflectorLogic]
