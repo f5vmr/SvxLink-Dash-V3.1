@@ -1777,7 +1777,6 @@ def render_port_rx_section(model, port_id, node):
     if method == "gpiod":
         lines.extend([
             f"SQL_GPIO={gpio.get('cos', f'RX_{port_id}')}",
-            "SQL_GPIO_ACTIVE=LOW",
         ])
 
     if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
@@ -1813,7 +1812,6 @@ def render_port_tx_section(model, port_id, node):
         "AUDIO_CHANNEL=0",
         "PTT_TYPE=GPIOD",
         f"PTT_GPIO={gpio.get('ptt', f'TX_{port_id}')}",
-        "PTT_GPIO_ACTIVE=HIGH",
     ]
 
     if ctcss_mode == "rx_tx" and ctcss_freq:
