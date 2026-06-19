@@ -915,7 +915,7 @@ def next_after_timezone(model):
     family = hardware.get("family")
     enabled_ports = ports.get("enabled", [])
 
-    if family == "ics" and len(enabled_ports) > 1:
+    if family == "ics":
         return url_for("reflector_page")
 
     return url_for("node_page")
@@ -925,7 +925,6 @@ def is_ics_multiport(model):
 
     return (
         hardware.get("family") == "ics"
-        and len(enabled_ports) > 1
     )
 
 def next_after_reflector(model):
@@ -935,7 +934,7 @@ def next_after_reflector(model):
     family = hardware.get("family")
     enabled_ports = ports.get("enabled", [])
 
-    if family == "ics" and len(enabled_ports) > 1:
+    if family == "ics":
         return url_for("port_roles_page")
 
     return url_for("review_page")
@@ -951,8 +950,8 @@ def port_roles_page():
     if hardware.get("family") != "ics":
         return redirect(url_for("node_page"))
 
-    if len(enabled_ports) <= 1:
-        return redirect(url_for("node_page"))
+    if not enabled_ports:
+        return redirect(url_for("hardware_ports_page"))
 
     existing_roles = model.get("port_roles", {})
 
@@ -1044,8 +1043,8 @@ def port_config_page():
     if hardware.get("family") != "ics":
         return redirect(url_for("node_page"))
 
-    if len(enabled_ports) <= 1:
-        return redirect(url_for("node_page"))
+    if not enabled_ports:
+        return redirect(url_for("hardware_ports_page"))
 
     if not model.get("port_roles"):
         return redirect(url_for("port_roles_page"))
@@ -1564,10 +1563,10 @@ def port_courtesy_page():
 
             if courtesy_mode not in ("none", "beep", "morse_k", "morse_t"):
                 courtesy_mode = "none"
-            
+
             if idle_tone not in ("none", "pip", "chime"):
                 idle_tone = "none"
-            
+
             if down_tone not in ("none", "biboop", "va"):
                 down_tone = "none"
 
