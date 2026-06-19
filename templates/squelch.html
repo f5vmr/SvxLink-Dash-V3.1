@@ -131,51 +131,52 @@
                 CTCSS frequency
             </label>
 
-            <div class="ctcss-grid">
-                {% for freq in ctcss_frequencies %}
-                    <div class="radio-row">
-                        <input type="radio"
-                               id="ctcss_{{ freq }}"
-                               name="ctcss_freq"
-                               value="{{ freq }}"
-                               {% if model.squelch.ctcss_freq|string == freq|string %}checked{% endif %}>
-                        <label for="ctcss_{{ freq }}">
-                            {{ freq }} Hz
-                        </label>
-                    </div>
+        <div class="field-group">
+        
+            <label class="label" for="ctcss_freq">
+                CTCSS frequency
+            </label>
+        
+            <select class="input-field"
+                    id="ctcss_freq"
+                    name="ctcss_freq">
+                {% for value, label in ctcss_frequencies %}
+                    <option value="{{ value }}"
+                        {% if (model.squelch.ctcss_freq or '') == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
                 {% endfor %}
-            </div>
-
+            </select>
+        
             <div class="note">
-                Only required when CTCSS is selected.
+                Select None / disabled unless CTCSS is required.
             </div>
-
+        
         </div>
-
-        <div class="option-group">
-
-            <div class="radio-row">
-                <input type="radio"
-                       id="ctcss_rx_only"
-                       name="ctcss_tx"
-                       value="no"
-                       {% if not model.squelch.ctcss_tx %}checked{% endif %}>
-                <label for="ctcss_rx_only">
+        
+        <div class="field-group">
+        
+            <label class="label" for="ctcss_tx">
+                Transmit CTCSS
+            </label>
+        
+            <select class="input-field"
+                    id="ctcss_tx"
+                    name="ctcss_tx">
+                <option value="no"
+                    {% if not model.squelch.ctcss_tx %}selected{% endif %}>
                     Receive only
-                </label>
-            </div>
-
-            <div class="radio-row">
-                <input type="radio"
-                       id="ctcss_tx_rx"
-                       name="ctcss_tx"
-                       value="yes"
-                       {% if model.squelch.ctcss_tx %}checked{% endif %}>
-                <label for="ctcss_tx_rx">
+                </option>
+                <option value="yes"
+                    {% if model.squelch.ctcss_tx %}selected{% endif %}>
                     Receive and transmit CTCSS
-                </label>
+                </option>
+            </select>
+        
+            <div class="note">
+                Use transmit CTCSS only when the connected radio or system requires it.
             </div>
-
+        
         </div>
 
         <div class="form-section">

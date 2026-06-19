@@ -35,7 +35,12 @@ from services.hardware_profile_service import (
     list_hardware_profiles,
     load_hardware_profile,
 )
-
+from services.model_store import (
+    load_node_model,
+    save_node_model,
+    CTCSS_TONES,
+    normalise_ctcss_tone,
+)
 from services.build_svxlink import build_svxlink_configuration
 
 from services.model_store import (
@@ -1993,13 +1998,22 @@ def squelch_page():
     model = load_node_model()
     error = None
 
+    if "squelch" not in model:
+        model["squelch"] = {}
+        
     if request.method == "POST":
         squelch_method = request.form.get("squelch_method")
 
         model["squelch"]["method"] = squelch_method
 
-        ctcss_freq = request.form.get("ctcss_freq")
-        if ctcss_freq:
+        ctcss_freq = request.form.get("ctcss_freq", "").strip()
+
+        valid_ctcss_values = {
+            value
+            for value, _label in CTCSS_FREQUENCIES
+        }
+
+        if ctcss_freq in valid_ctcss_values:
             model["squelch"]["ctcss_freq"] = ctcss_freq
         else:
             model["squelch"]["ctcss_freq"] = None
