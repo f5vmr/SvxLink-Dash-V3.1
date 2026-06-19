@@ -201,7 +201,14 @@ def new_node_model(platform=None):
 
     return model
 
+def is_ics_multiport_model(model):
+    hardware = model.get("hardware", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
 
+    return (
+        hardware.get("family") == "ics"
+        and len(enabled_ports) > 1
+    )
 def validate_model(model):
     """
     Validate high-level model consistency.
@@ -211,7 +218,31 @@ def validate_model(model):
     """
 
     errors = []
+    if is_ics_multiport_model(model):
+        nodes = model.get("nodes", {})
+        enabled_ports = model.get("ports", {}).get("enabled", [])
 
+        if not enabled_ports:
+            errors.append("At least one port must be enabled.")
+
+        if not nodes:
+            errors.append("Port configuration is required.")
+
+        for port in enabled_ports:
+            port_id = str(port)
+            node = nodes.get(port_id, {})
+
+            if node.get("role") not in SUPPORTED_NODE_TYPES:
+                errors.append(
+                    f"Port {port_id} type must be simplex or repeater."
+                )
+
+            if not node.get("callsign"):
+                errors.append(
+                    f"Port {port_id} callsign is required."
+                )
+
+        return errors
     node_type = model.get("node", {}).get("type")
     callsign = model.get("node", {}).get("callsign")
 
