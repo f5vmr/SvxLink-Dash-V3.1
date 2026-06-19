@@ -207,7 +207,7 @@ def is_ics_multiport_model(model):
 
     return (
         hardware.get("family") == "ics"
-        and len(enabled_ports) > 1
+        and len(enabled_ports)
     )
 def validate_model(model):
     """
@@ -218,7 +218,8 @@ def validate_model(model):
     """
 
     errors = []
-    if is_ics_multiport_model(model):
+    
+    if is_ics_port_model(model):
         nodes = model.get("nodes", {})
         enabled_ports = model.get("ports", {}).get("enabled", [])
 
@@ -232,15 +233,11 @@ def validate_model(model):
             port_id = str(port)
             node = nodes.get(port_id, {})
 
-            if node.get("role") not in SUPPORTED_NODE_TYPES:
-                errors.append(
-                    f"Port {port_id} type must be simplex or repeater."
-                )
+            if node.get("role") not in ("simplex", "repeater"):
+                errors.append(f"Port {port_id} type must be simplex or repeater.")
 
             if not node.get("callsign"):
-                errors.append(
-                    f"Port {port_id} callsign is required."
-                )
+                errors.append(f"Port {port_id} callsign is required.")
 
         return errors
     node_type = model.get("node", {}).get("type")
