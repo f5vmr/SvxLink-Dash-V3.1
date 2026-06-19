@@ -959,7 +959,26 @@ def get_dtmf_ctrl_pty(model):
 # =========================================================
 # Reflector rendering
 # =========================================================
+def get_primary_callsign(model):
+    """
+    Return the best callsign for shared/global config sections.
+    For multi-port builds, use the first enabled port callsign.
+    """
 
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+    nodes = model.get("nodes", {})
+
+    for port in enabled_ports:
+        node = nodes.get(str(port), {})
+        callsign = node.get("callsign")
+        if callsign:
+            return callsign
+
+    return (
+        model.get("node", {}).get("callsign")
+        or model.get("ident", {}).get("callsign")
+        or "NOCALL"
+    )
 def render_reflector_logic(model):
     """
     Render ReflectorLogic section if enabled.
@@ -990,7 +1009,7 @@ def render_reflector_logic(model):
         {
             "REFLECTOR_HOST": reflector["host"],
             "REFLECTOR_PORT": reflector["port"],
-            "CALLSIGN": model["node"]["callsign"],
+            "CALLSIGN": get_primary_callsign(model),
             "REFLECTOR_AUTH_KEY": reflector["auth_key"],
             "MONITOR_TGS": monitor_tgs,
             "TG_SELECT_TIMEOUT": model.get("tg_timeout", 60),
@@ -1001,27 +1020,59 @@ def render_reflector_logic(model):
 
 def render_link_to_reflector(model):
     """
-    Render LinkToReflector section if enabled.
+    Render LinkToReflector section if reflector is enabled.
     """
 
-    reflector = model.get("reflector", {})
-
-    if not reflector.get("enabled"):
+    if not model.get("reflector", {}).get("enabled"):
         return ""
 
     node_type = model.get("node", {}).get("type")
 
-    logic_name = (
+    active_logic_name = (
         "RepeaterLogic"
         if node_type == "repeater"
         else "SimplexLogic"
     )
 
+    values = {
+        "CONNECT_LOGICS": f"{active_logic_name}:9,ReflectorLogic",
+        "ACTIVATE_ON_ACTIVITY": active_logic_name,
+    }
+
     return render_config_template(
-        "link_to_reflector.template",
-        {
-            "ACTIVE_LOGIC_NAME": logic_name,
-        }
+        "LinkToReflector.template",
+        values
+    )
+def render_multiport_link_to_reflector(model, active_logics):
+    """
+    Render LinkToReflector section for ICS multi-port builds.
+    """
+
+    if not model.get("reflector", {}).get("enabled"):
+        return ""
+
+    connect_logics = [
+        f"{logic}:9"
+        for logic in active_logics
+        if logic
+    ]
+
+    connect_logics.append("ReflectorLogic")
+
+    activate_on_activity = (
+        active_logics[0]
+        if active_logics
+        else "SimplexLogic"
+    )
+
+    values = {
+        "CONNECT_LOGICS": ",".join(connect_logics),
+        "ACTIVATE_ON_ACTIVITY": activate_on_activity,
+    }
+
+    return render_config_template(
+        "LinkToReflector.template",
+        values
     )
 def render_multiport_svxlink_config(model):
     """
@@ -1031,15 +1082,45 @@ def render_multiport_svxlink_config(model):
     logic_result = render_multiport_logic_sections(model)
     audio_result = render_multiport_rx_tx_sections(model)
 
+    reflector_enabled = bool(
+        model.get("reflector", {}).get("enabled")
+    )
+
+    active_logics = [
+        logic.strip()
+        for logic in logic_result["logics"].split(",")
+        if logic.strip()
+    ]
+
+    global_logics = list(active_logics)
+
+    if reflector_enabled and "ReflectorLogic" not in global_logics:
+        global_logics.append("ReflectorLogic")
+
+    links_line = (
+        "LINKS=LinkToReflector"
+        if reflector_enabled
+        else "#LINKS=LinkToReflector"
+    )
+
     values = {
         "LOGIC_CORE_PATH": get_library_path(),
-        "LOGICS": logic_result["logics"],
-        "LINKS_LINE": "#LINKS=LinkToReflector",
+        "LOGICS": ",".join(global_logics),
+        "LINKS_LINE": links_line,
 
         "ACTIVE_LOGIC_SECTION": logic_result["sections"],
 
-        "REFLECTOR_LOGIC_SECTION": "",
-        "LINK_TO_REFLECTOR_SECTION": "",
+        "REFLECTOR_LOGIC_SECTION": (
+            render_reflector_logic(model)
+            if reflector_enabled
+            else ""
+        ),
+
+        "LINK_TO_REFLECTOR_SECTION": (
+            render_multiport_link_to_reflector(model, active_logics)
+            if reflector_enabled
+            else ""
+        ),
 
         "RX_SECTIONS": audio_result["rx_sections"],
         "TX_SECTIONS": audio_result["tx_sections"],

@@ -16,18 +16,6 @@ LINKS=
 # Disabled in this multi-port renderer until reflector allocation is explicit.
 
 
-[LocationInfo]
-APRS_SERVER_LIST=euro.aprs2.net:14580
-STATUS_SERVER_LIST=aprs.echolink.org:5199
-LON_POSITION=0.00
-LAT_POSITION=0.00
-CALLSIGN=NOCALL
-FREQUENCY=0
-TX_POWER=0
-ANTENNA_GAIN=0
-ANTENNA_HEIGHT=0
-ANTENNA_DIR=-1
-
 
 # =========================================================
 # Logic Sections

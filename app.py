@@ -916,9 +916,30 @@ def next_after_timezone(model):
     enabled_ports = ports.get("enabled", [])
 
     if family == "ics" and len(enabled_ports) > 1:
-        return url_for("port_roles_page")
+        return url_for("reflector_page")
 
     return url_for("node_page")
+def is_ics_multiport(model):
+    hardware = model.get("hardware", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+
+    return (
+        hardware.get("family") == "ics"
+        and len(enabled_ports) > 1
+    )
+
+def next_after_reflector(model):
+    hardware = model.get("hardware", {})
+    ports = model.get("ports", {})
+
+    family = hardware.get("family")
+    enabled_ports = ports.get("enabled", [])
+
+    if family == "ics" and len(enabled_ports) > 1:
+        return url_for("port_roles_page")
+
+    return url_for("review_page")
+
 @app.route("/port-roles", methods=["GET", "POST"])
 def port_roles_page():
     model = load_node_model()
@@ -1711,7 +1732,7 @@ def port_final_review_page():
 
         save_node_model(model)
 
-        return redirect(url_for("port_final_review_page"))
+        return redirect(url_for("review_page"))
 
     return render_template(
         "port_final_review.html",
@@ -2399,7 +2420,7 @@ def reflector_page():
             model["reflector"]["auth_key"] = None
 
             save_node_model(model)
-            return redirect(url_for("review_page"))
+            return redirect(next_after_reflector(model))
 
         reflector_id = request.form.get("reflector")
         password = request.form.get("password", "").strip()
@@ -2418,7 +2439,7 @@ def reflector_page():
             model["reflector"]["auth_key"] = password
 
             save_node_model(model)
-            return redirect(url_for("review_page"))
+            return redirect(next_after_reflector(model))
 
     return render_template(
         "reflector.html",
