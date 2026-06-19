@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from pyexpat import model
+
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from pathlib import Path
 import shutil
@@ -2007,20 +2009,23 @@ def squelch_page():
         model["squelch"]["method"] = squelch_method
 
         ctcss_freq = request.form.get("ctcss_freq", "").strip()
-
+        
         valid_ctcss_values = {
             value
             for value, _label in CTCSS_FREQUENCIES
         }
-
-        if ctcss_freq in valid_ctcss_values:
+        
+        if ctcss_freq in valid_ctcss_values and ctcss_freq:
             model["squelch"]["ctcss_freq"] = ctcss_freq
         else:
             model["squelch"]["ctcss_freq"] = None
-
+        
         model["squelch"]["ctcss_tx"] = (
-            request.form.get("ctcss_tx") == "yes"
+            request.form.get("ctcss_tx", "no") == "yes"
         )
+        
+        if not model["squelch"]["ctcss_freq"]:
+            model["squelch"]["ctcss_tx"] = False
         if "serial" not in model:
             model["serial"] = {}
 
