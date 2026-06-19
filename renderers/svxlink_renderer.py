@@ -1071,7 +1071,7 @@ def render_multiport_link_to_reflector(model, active_logics):
     }
 
     return render_config_template(
-        "LinkToReflector.template",
+        "link_to_reflector.template",
         values
     )
 def render_multiport_svxlink_config(model):
