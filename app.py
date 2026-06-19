@@ -2648,19 +2648,19 @@ def build_page():
     model = load_node_model()
     result = None
 
-if request.method == "POST":
-    result = build_svxlink_configuration(
-        model,
-        restart=True,
-    )
-
-    return render_template(
-        "done.html",
-        model=model,
-        svxlink_status=result.get("service_status"),
-        build_result=result,
-        error=None if result.get("success") else "Build or launch failed.",
-    )
+    if request.method == "POST":
+        result = build_svxlink_configuration(
+            model,
+            restart=True,
+        )
+    
+        return render_template(
+            "done.html",
+            model=model,
+            svxlink_status=result.get("service_status"),
+            build_result=result,
+            error=None if result.get("success") else "Build or launch failed.",
+        )
 
     return render_template(
         "build.html",
