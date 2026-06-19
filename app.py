@@ -1672,7 +1672,7 @@ def port_repeater_page():
 
         save_node_model(model)
 
-        return redirect(url_for("port_final_review_page"))
+        return redirect(url_for("build_page"))
 
     return render_template(
         "port_repeater.html",
@@ -1732,7 +1732,7 @@ def port_final_review_page():
 
         save_node_model(model)
 
-        return redirect(url_for("review_page"))
+        return redirect(url_for("build_page"))
 
     return render_template(
         "port_final_review.html",

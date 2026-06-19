@@ -15,27 +15,7 @@
                 <h1>Build Configuration</h1>
                 <p>The dashboard will now generate the SvxLink configuration files.</p>
             </div>
-            <div class="info-box">
-                <h3>Editable settings after build</h3>
-
-                <p>
-                    Some dashboard settings can still be edited later at the discretion of
-                    the builder. These include programmable talkgroup buttons, monitored
-                    talkgroups, audio level maintenance, transmit and receive calibration,
-                    later addition or adjustment of EchoLink and MetarInfo settings, and
-                    the node location and display information.
-                </p>
             
-                <p>
-                    The initial build creates the working SvxLink configuration from the
-                    choices made so far, but these editable dashboard sections remain
-                    available for later refinement. For further information, please refer
-                    to the detailed guidance in the manual.
-                </p>
-                <p> Caution: The SvxLink configuration files are generated and written to the active
-                    configuration location. Any existing configuration will be overwritten. <br>
-                    Any self-edited configuration files will be lost unless backed up. </p>
-            </div>
         </div>
 
         {% if build_result %}
@@ -74,6 +54,27 @@
         {% else %}
             <div class="note">
                 This step writes the generated configuration to the active SvxLink configuration location.
+            </div>
+            <div class="info-box">
+                <h3>Editable settings after build</h3>
+
+                <p>
+                    Some dashboard settings can still be edited later at the discretion of
+                    the builder. These include programmable talkgroup buttons, monitored
+                    talkgroups, audio level maintenance, transmit and receive calibration,
+                    later addition or adjustment of EchoLink and MetarInfo settings, and
+                    the node location and display information.
+                </p>
+            
+                <p>
+                    The initial build creates the working SvxLink configuration from the
+                    choices made so far, but these editable dashboard sections remain
+                    available for later refinement. For further information, please refer
+                    to the detailed guidance in the manual.
+                </p>
+                <p> Caution: The SvxLink configuration files are not intended to be edited directly.<br>
+                    Any changes made outside of the dashboard may be overwritten by future builds.<br>
+                    Consider backing up your configuration made with any manual changes.</p>
             </div>
         {% endif %}
 
