@@ -1040,7 +1040,7 @@ def render_link_to_reflector(model):
     }
 
     return render_config_template(
-        "linktoreflector.template",
+        "link_to_reflector.template",
         values
     )
 def render_multiport_link_to_reflector(model, active_logics):
