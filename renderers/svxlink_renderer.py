@@ -856,7 +856,6 @@ def render_port_rx_section(model, port_id, node):
             "SQL_DET=GPIOD",
             f"SQL_GPIOD_CHIP={resolved.get('chip', '')}",
             f"SQL_GPIOD_LINE={resolved.get('line', rx_label)}",
-            "SQL_GPIOD_ACTIVE=LOW",
         ])
 
     lines.extend([
