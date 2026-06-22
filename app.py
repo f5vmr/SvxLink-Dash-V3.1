@@ -1306,7 +1306,7 @@ def port_squelch_detail_page(port_id):
 
     if request.method == "POST":
         method = request.form.get("squelch_method", "gpiod").strip()
-        ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
+        ctcss_mode = request.form.get("ctcss_mode", "rx").strip()
         ctcss_freq = request.form.get("ctcss_freq", "").strip()
 
         valid_ctcss_values = {
@@ -1317,18 +1317,20 @@ def port_squelch_detail_page(port_id):
         if method not in ("gpiod", "ctcss"):
             error = "Please select a valid squelch source."
 
-        elif ctcss_mode not in ("radio", "none", "rx", "rx_tx"):
-            error = "Please select a valid CTCSS mode."
-
-        elif ctcss_mode in ("rx", "rx_tx") and not ctcss_freq:
-            error = "Please select a CTCSS frequency when SvxLink CTCSS is selected."
+        elif method == "ctcss" and ctcss_mode not in ("rx", "rx_tx"):
+            error = "Please select a valid CTCSS behaviour."
 
         elif ctcss_freq and ctcss_freq not in valid_ctcss_values:
             error = "Please select a valid CTCSS frequency."
 
+        elif method == "ctcss" and not ctcss_freq:
+            error = "Please select a CTCSS frequency when SvxLink CTCSS squelch is selected."
+
         else:
-            if ctcss_mode in ("radio", "none"):
+            if method != "ctcss":
+                ctcss_mode = "none"
                 ctcss_freq = ""
+
             node["squelch"] = {
                 "method": method,
                 "ctcss_mode": ctcss_mode,
@@ -1345,8 +1347,7 @@ def port_squelch_detail_page(port_id):
 
             save_node_model(model)
 
-        return redirect(url_for("port_squelch_page"))
-
+            return redirect(url_for("port_squelch_page"))
     return render_template(
         "port_squelch_detail.html",
         model=model,
@@ -2080,10 +2081,12 @@ def squelch_page():
             model["squelch"]["ctcss_tx"] = (
                 request.form.get("ctcss_tx", "no") == "yes"
             )
-            if not squelch_method != "ctcss":
+            if squelch_method != "ctcss":
+                model["squelch"]["ctcss_freq"] = None
                 model["squelch"]["ctcss_tx"] = False
-            if not model["squelch"]["ctcss_freq"]:
-                model["squelch"]["ctcss_tx"] = False
+            else:    
+                if not model["squelch"]["ctcss_freq"]:
+                    error = "Please select a valid CTCSS frequency for CTCSS squelch."
             if "serial" not in model:
                 model["serial"] = {}
 

@@ -68,25 +68,24 @@
                 </label>
             </div>
 
-            <div class="form-section">
+            <div id="port_ctcss_controls_section" class="form-section">
+                <div class="label">CTCSS settings</div>
+            
+                <div class="note">
+                    These settings are used only when the squelch source is
+                    SvxLink CTCSS-controlled squelch.
+                </div>
+            
                 <div class="field-group">
                     <label class="label" for="ctcss_mode">
-                        CTCSS handling
+                        CTCSS behaviour
                     </label>
                 
                     <select class="input-field"
                             id="ctcss_mode"
                             name="ctcss_mode">
-                        <option value="radio"
-                            {% if squelch.get("ctcss_mode", "radio") == "radio" %}selected{% endif %}>
-                            Radio handles CTCSS
-                        </option>
-                        <option value="none"
-                            {% if squelch.get("ctcss_mode") == "none" %}selected{% endif %}>
-                            No CTCSS
-                        </option>
                         <option value="rx"
-                            {% if squelch.get("ctcss_mode") == "rx" %}selected{% endif %}>
+                            {% if squelch.get("ctcss_mode", "rx") in ("rx", "none", "radio") %}selected{% endif %}>
                             SvxLink RX decode CTCSS
                         </option>
                         <option value="rx_tx"

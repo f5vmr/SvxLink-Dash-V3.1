@@ -1856,3 +1856,6 @@ footer a:hover {
     font-weight: 700;
     color: #b45309;
 }
+.muted-section {
+    opacity: 0.55;
+}
