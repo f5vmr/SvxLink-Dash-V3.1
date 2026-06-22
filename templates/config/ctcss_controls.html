@@ -1,0 +1,45 @@
+<div class="field-group">
+    <label class="label" for="{{ ctcss_freq_id }}">
+        CTCSS frequency
+    </label>
+
+    <select class="input-field"
+            id="{{ ctcss_freq_id }}"
+            name="{{ ctcss_freq_name }}">
+        {% for value, label in ctcss_frequencies %}
+            <option value="{{ value }}"
+                {% if (ctcss_freq_value or "") == value %}selected{% endif %}>
+                {{ label }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <div class="note">
+        Select None / disabled unless CTCSS is required.
+    </div>
+</div>
+
+{% if show_ctcss_tx %}
+<div class="field-group">
+    <label class="label" for="{{ ctcss_tx_id }}">
+        Transmit CTCSS
+    </label>
+
+    <select class="input-field"
+            id="{{ ctcss_tx_id }}"
+            name="{{ ctcss_tx_name }}">
+        <option value="no"
+            {% if not ctcss_tx_value %}selected{% endif %}>
+            Receive only
+        </option>
+        <option value="yes"
+            {% if ctcss_tx_value %}selected{% endif %}>
+            Receive and transmit CTCSS
+        </option>
+    </select>
+
+    <div class="note">
+        Use transmit CTCSS only when the connected radio or system requires it.
+    </div>
+</div>
+{% endif %}

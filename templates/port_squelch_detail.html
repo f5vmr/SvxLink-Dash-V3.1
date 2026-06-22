@@ -69,64 +69,41 @@
             </div>
 
             <div class="form-section">
-                <div class="label">CTCSS handling</div>
+            <div class="label">CTCSS handling</div>
 
-                <label>
-                    <input
-                        type="radio"
-                        name="ctcss_mode"
-                        value="radio"
-                        {% if squelch.get("ctcss_mode", "radio") == "radio" %}checked{% endif %}
-                    >
-                    Radio handles CTCSS
-                </label>
-
-                <br>
-
-                <label>
-                    <input
-                        type="radio"
-                        name="ctcss_mode"
-                        value="none"
-                        {% if squelch.get("ctcss_mode") == "none" %}checked{% endif %}
-                    >
-                    No CTCSS
-                </label>
-
-                <br>
-
-                <label>
-                    <input
-                        type="radio"
-                        name="ctcss_mode"
-                        value="rx"
-                        {% if squelch.get("ctcss_mode") == "rx" %}checked{% endif %}
-                    >
-                    SvxLink RX Decode CTCSS 
-                </label>
-
-                <br>
-
-                <label>
-                    <input
-                        type="radio"
-                        name="ctcss_mode"
-                        value="rx_tx"
-                        {% if squelch.get("ctcss_mode") == "rx_tx" %}checked{% endif %}
-                    >
-                    SvxLink RX Decode and TX Encode CTCSS
-                </label>
-
-                <br><br>
-
-                <label for="ctcss_freq">CTCSS frequency</label>
-                <input
-                    id="ctcss_freq"
-                    name="ctcss_freq"
-                    type="text"
-                    value="{{ squelch.get('ctcss_freq', '') }}"
-                    placeholder="Example: 103.5"
-                >
+                <div class="field-group">
+                    <label class="label" for="ctcss_mode">
+                        CTCSS handling
+                    </label>
+                
+                    <select class="input-field"
+                            id="ctcss_mode"
+                            name="ctcss_mode">
+                        <option value="radio"
+                            {% if squelch.get("ctcss_mode", "radio") == "radio" %}selected{% endif %}>
+                            Radio handles CTCSS
+                        </option>
+                        <option value="none"
+                            {% if squelch.get("ctcss_mode") == "none" %}selected{% endif %}>
+                            No CTCSS
+                        </option>
+                        <option value="rx"
+                            {% if squelch.get("ctcss_mode") == "rx" %}selected{% endif %}>
+                            SvxLink RX decode CTCSS
+                        </option>
+                        <option value="rx_tx"
+                            {% if squelch.get("ctcss_mode") == "rx_tx" %}selected{% endif %}>
+                            SvxLink RX decode and TX encode CTCSS
+                        </option>
+                    </select>
+                </div>
+            
+                {% set ctcss_freq_id = "ctcss_freq" %}
+                {% set ctcss_freq_name = "ctcss_freq" %}
+                {% set ctcss_freq_value = squelch.get("ctcss_freq") %}
+                {% set show_ctcss_tx = false %}
+            
+                {% include "config/ctcss_controls.html" %}
             </div>
 
             <div class="button-row">

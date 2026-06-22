@@ -125,59 +125,15 @@
                 </option>
             </select>
         </div>
-        <div class="field-group">
-
-            <label class="label">
-                CTCSS frequency
-            </label>
-
-        <div class="field-group">
-        
-            <label class="label" for="ctcss_freq">
-                CTCSS frequency
-            </label>
-        
-            <select class="input-field"
-                    id="ctcss_freq"
-                    name="ctcss_freq">
-                {% for value, label in ctcss_frequencies %}
-                    <option value="{{ value }}"
-                        {% if (model.squelch.ctcss_freq or '') == value %}selected{% endif %}>
-                        {{ label }}
-                    </option>
-                {% endfor %}
-            </select>
-        
-            <div class="note">
-                Select None / disabled unless CTCSS is required.
-            </div>
-        
-        </div>
-        
-        <div class="field-group">
-        
-            <label class="label" for="ctcss_tx">
-                Transmit CTCSS
-            </label>
-        
-            <select class="input-field"
-                    id="ctcss_tx"
-                    name="ctcss_tx">
-                <option value="no"
-                    {% if not model.squelch.ctcss_tx %}selected{% endif %}>
-                    Receive only
-                </option>
-                <option value="yes"
-                    {% if model.squelch.ctcss_tx %}selected{% endif %}>
-                    Receive and transmit CTCSS
-                </option>
-            </select>
-        
-            <div class="note">
-                Use transmit CTCSS only when the connected radio or system requires it.
-            </div>
-        
-        </div>
+            {% set ctcss_freq_id = "ctcss_freq" %}
+            {% set ctcss_freq_name = "ctcss_freq" %}
+            {% set ctcss_freq_value = model.squelch.ctcss_freq %}
+            {% set show_ctcss_tx = true %}
+            {% set ctcss_tx_id = "ctcss_tx" %}
+            {% set ctcss_tx_name = "ctcss_tx" %}
+            {% set ctcss_tx_value = model.squelch.ctcss_tx %}
+                
+            {% include "config/ctcss_controls.html" %}
 
         <div class="form-section">
 
