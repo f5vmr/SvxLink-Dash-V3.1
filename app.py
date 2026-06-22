@@ -1304,15 +1304,15 @@ def port_squelch_detail_page(port_id):
 
     error = None
 
-if request.method == "POST":
-    method = request.form.get("squelch_method", "gpiod").strip()
-    ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
-    ctcss_freq = request.form.get("ctcss_freq", "").strip()
-
-    valid_ctcss_values = {
-        value
-        for value, _label in CTCSS_FREQUENCIES
-    }
+    if request.method == "POST":
+        method = request.form.get("squelch_method", "gpiod").strip()
+        ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
+        ctcss_freq = request.form.get("ctcss_freq", "").strip()
+    
+        valid_ctcss_values = {
+            value
+            for value, _label in CTCSS_FREQUENCIES
+        }
 
     if method not in ("gpiod", "ctcss"):
         error = "Please select a valid squelch source."
