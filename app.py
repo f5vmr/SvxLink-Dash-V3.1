@@ -1304,38 +1304,46 @@ def port_squelch_detail_page(port_id):
 
     error = None
 
-    if request.method == "POST":
-        method = request.form.get("squelch_method", "gpiod").strip()
-        ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
-        ctcss_freq = request.form.get("ctcss_freq", "").strip()
+if request.method == "POST":
+    method = request.form.get("squelch_method", "gpiod").strip()
+    ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
+    ctcss_freq = request.form.get("ctcss_freq", "").strip()
 
-        if method not in ("gpiod", "ctcss"):
-            error = "Please select a valid squelch source."
+    valid_ctcss_values = {
+        value
+        for value, _label in CTCSS_FREQUENCIES
+    }
 
-        elif ctcss_mode not in ("radio", "none", "rx", "rx_tx"):
-            error = "Please select a valid CTCSS mode."
+    if method not in ("gpiod", "ctcss"):
+        error = "Please select a valid squelch source."
 
-        elif ctcss_mode in ("rx", "rx_tx") and not ctcss_freq:
-            error = "Please enter a CTCSS frequency when SvxLink CTCSS is selected."
+    elif ctcss_mode not in ("radio", "none", "rx", "rx_tx"):
+        error = "Please select a valid CTCSS mode."
 
-        else:
-            node["squelch"] = {
-                "method": method,
-                "ctcss_mode": ctcss_mode,
-                "ctcss_freq": ctcss_freq or None,
-            }
+    elif ctcss_mode in ("rx", "rx_tx") and not ctcss_freq:
+        error = "Please select a CTCSS frequency when SvxLink CTCSS is selected."
 
-            node["squelch_configured"] = True
+    elif ctcss_freq and ctcss_freq not in valid_ctcss_values:
+        error = "Please select a valid CTCSS frequency."
 
-            nodes[port_id] = node
-            model["nodes"] = nodes
+    else:
+        node["squelch"] = {
+            "method": method,
+            "ctcss_mode": ctcss_mode,
+            "ctcss_freq": ctcss_freq or None,
+        }
 
-            model.setdefault("build", {})
-            model["build"]["active_port"] = port_id
+        node["squelch_configured"] = True
 
-            save_node_model(model)
+        nodes[port_id] = node
+        model["nodes"] = nodes
 
-            return redirect(url_for("port_squelch_page"))
+        model.setdefault("build", {})
+        model["build"]["active_port"] = port_id
+
+        save_node_model(model)
+
+        return redirect(url_for("port_squelch_page"))
 
     return render_template(
         "port_squelch_detail.html",
@@ -1343,6 +1351,7 @@ def port_squelch_detail_page(port_id):
         port_id=port_id,
         node=node,
         squelch=node.get("squelch", {}),
+        ctcss_frequencies=CTCSS_FREQUENCIES,
         error=error,
         version_info=get_version_info(),
     )
@@ -2116,7 +2125,8 @@ def squelch_page():
         supports_gpiod=supports_gpiod,
         error=error,
         ctcss_frequencies=CTCSS_FREQUENCIES,
-    )
+        version_info=get_version_info(),
+        )
 @app.route("/ident", methods=["GET", "POST"])
 def ident_page():
     model = load_node_model()
