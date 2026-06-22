@@ -1308,40 +1308,40 @@ def port_squelch_detail_page(port_id):
         method = request.form.get("squelch_method", "gpiod").strip()
         ctcss_mode = request.form.get("ctcss_mode", "radio").strip()
         ctcss_freq = request.form.get("ctcss_freq", "").strip()
-    
+
         valid_ctcss_values = {
             value
             for value, _label in CTCSS_FREQUENCIES
         }
 
-    if method not in ("gpiod", "ctcss"):
-        error = "Please select a valid squelch source."
+        if method not in ("gpiod", "ctcss"):
+            error = "Please select a valid squelch source."
 
-    elif ctcss_mode not in ("radio", "none", "rx", "rx_tx"):
-        error = "Please select a valid CTCSS mode."
+        elif ctcss_mode not in ("radio", "none", "rx", "rx_tx"):
+            error = "Please select a valid CTCSS mode."
 
-    elif ctcss_mode in ("rx", "rx_tx") and not ctcss_freq:
-        error = "Please select a CTCSS frequency when SvxLink CTCSS is selected."
+        elif ctcss_mode in ("rx", "rx_tx") and not ctcss_freq:
+            error = "Please select a CTCSS frequency when SvxLink CTCSS is selected."
 
-    elif ctcss_freq and ctcss_freq not in valid_ctcss_values:
-        error = "Please select a valid CTCSS frequency."
+        elif ctcss_freq and ctcss_freq not in valid_ctcss_values:
+            error = "Please select a valid CTCSS frequency."
 
-    else:
-        node["squelch"] = {
-            "method": method,
-            "ctcss_mode": ctcss_mode,
-            "ctcss_freq": ctcss_freq or None,
-        }
+        else:
+            node["squelch"] = {
+                "method": method,
+                "ctcss_mode": ctcss_mode,
+                "ctcss_freq": ctcss_freq or None,
+            }
 
-        node["squelch_configured"] = True
+            node["squelch_configured"] = True
 
-        nodes[port_id] = node
-        model["nodes"] = nodes
+            nodes[port_id] = node
+            model["nodes"] = nodes
 
-        model.setdefault("build", {})
-        model["build"]["active_port"] = port_id
+            model.setdefault("build", {})
+            model["build"]["active_port"] = port_id
 
-        save_node_model(model)
+            save_node_model(model)
 
         return redirect(url_for("port_squelch_page"))
 
