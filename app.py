@@ -2058,29 +2058,34 @@ def squelch_page():
         
     if request.method == "POST":
         squelch_method = request.form.get("squelch_method")
-
-        model["squelch"]["method"] = squelch_method
-
-        ctcss_freq = request.form.get("ctcss_freq", "").strip()
+        valid_squelch_methods = {"hidraw", "gpiod", "ctcss", "serial"}
         
-        valid_ctcss_values = {
-            value
-            for value, _label in CTCSS_FREQUENCIES
-        }
-        
-        if ctcss_freq in valid_ctcss_values and ctcss_freq:
-            model["squelch"]["ctcss_freq"] = ctcss_freq
+        if squelch_method not in valid_squelch_methods:
+            error = "Please select a valid squelch method."
         else:
-            model["squelch"]["ctcss_freq"] = None
+            model["squelch"]["method"] = squelch_method
+
+            ctcss_freq = request.form.get("ctcss_freq", "").strip()
         
-        model["squelch"]["ctcss_tx"] = (
-            request.form.get("ctcss_tx", "no") == "yes"
-        )
+            valid_ctcss_values = {
+                value
+                for value, _label in CTCSS_FREQUENCIES
+            }
         
-        if not model["squelch"]["ctcss_freq"]:
-            model["squelch"]["ctcss_tx"] = False
-        if "serial" not in model:
-            model["serial"] = {}
+            if ctcss_freq in valid_ctcss_values and ctcss_freq:
+                model["squelch"]["ctcss_freq"] = ctcss_freq
+            else:
+                model["squelch"]["ctcss_freq"] = None
+        
+            model["squelch"]["ctcss_tx"] = (
+                request.form.get("ctcss_tx", "no") == "yes"
+            )
+            if not squelch_method != "ctcss":
+                model["squelch"]["ctcss_tx"] = False
+            if not model["squelch"]["ctcss_freq"]:
+                model["squelch"]["ctcss_tx"] = False
+            if "serial" not in model:
+                model["serial"] = {}
 
         model["serial"]["sql_port"] = request.form.get(
             "serial_sql_port",

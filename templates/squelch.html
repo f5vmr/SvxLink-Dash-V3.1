@@ -51,17 +51,7 @@
                     GPIOD squelch only
                 </label>
             </div>
-
-            <div class="radio-row">
-                <input type="radio"
-                       id="sq_both"
-                       name="squelch_method"
-                       value="gpiod_ctcss"
-                       {% if model.squelch.method == 'gpiod_ctcss' %}checked{% endif %}>
-                <label for="sq_both">
-                    GPIOD plus CTCSS
-                </label>
-            </div>
+            
             {% endif %}
             <div class="radio-row">
                 <input type="radio"
@@ -70,7 +60,7 @@
                        value="ctcss"
                        {% if model.squelch.method == 'ctcss' %}checked{% endif %}>
                 <label for="sq_ctcss">
-                    CTCSS tone only
+                    SvxLink CTCSS-controlled squelch
                 </label>
             </div>
             <div class="radio-row">
@@ -82,18 +72,7 @@
                 <label for="sq_serial">
                     Serial port squelch only
                 </label>
-            </div>
-
-            <div class="radio-row">
-                <input type="radio"
-                       id="sq_serial_ctcss"
-                       name="squelch_method"
-                       value="serial_ctcss"
-                       {% if model.squelch.method == 'serial_ctcss' %}checked{% endif %}>
-                <label for="sq_serial_ctcss">
-                    Serial port squelch plus CTCSS
-                </label>
-            </div>
+            </div>            
 
         </div>
         <div class="field-group">
@@ -125,6 +104,16 @@
                 </option>
             </select>
         </div>
+        <div id="ctcss_controls_section" class="form-section">
+            <div class="label">CTCSS settings
+
+            </div>
+
+            <div class="note">
+                These settings are used only when the squelch source is
+                SvxLink CTCSS-controlled squelch.
+            </div>
+
             {% set ctcss_freq_id = "ctcss_freq" %}
             {% set ctcss_freq_name = "ctcss_freq" %}
             {% set ctcss_freq_value = model.squelch.ctcss_freq %}
@@ -132,15 +121,16 @@
             {% set ctcss_tx_id = "ctcss_tx" %}
             {% set ctcss_tx_name = "ctcss_tx" %}
             {% set ctcss_tx_value = model.squelch.ctcss_tx %}
-                
+
             {% include "config/ctcss_controls.html" %}
+        </div>
 
         <div class="form-section">
 
             <h3>Serial Port Squelch</h3>
 
             <p>
-                Only required when using Serial or Serial plus CTCSS squelch.
+                Only required when using Serial squelch.
                 The operator must know the Linux serial device name and the
                 control pin arrangement for the interface.
             </p>
