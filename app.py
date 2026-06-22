@@ -1327,6 +1327,8 @@ def port_squelch_detail_page(port_id):
             error = "Please select a valid CTCSS frequency."
 
         else:
+            if ctcss_mode in ("radio", "none"):
+                ctcss_freq = ""
             node["squelch"] = {
                 "method": method,
                 "ctcss_mode": ctcss_mode,
