@@ -198,5 +198,32 @@
     </footer>
 
 </main>
+<script>
+(function () {
+    function updateCtcssControls() {
+        const selected = document.querySelector('input[name="squelch_method"]:checked');
+        const ctcssEnabled = selected && selected.value === "ctcss";
+
+        const section = document.getElementById("ctcss_controls_section");
+        if (!section) {
+            return;
+        }
+
+        const controls = section.querySelectorAll("select, input");
+
+        controls.forEach(function (control) {
+            control.disabled = !ctcssEnabled;
+        });
+
+        section.classList.toggle("muted-section", !ctcssEnabled);
+    }
+
+    document.querySelectorAll('input[name="squelch_method"]').forEach(function (radio) {
+        radio.addEventListener("change", updateCtcssControls);
+    });
+
+    updateCtcssControls();
+})();
+</script>
 </body>
 </html>
