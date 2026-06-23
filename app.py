@@ -2732,6 +2732,21 @@ def build_page():
     model = load_node_model()
     result = None
 
+    hardware = model.get("hardware", {})
+
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if not enabled_ports:
+        enabled_ports = ["1"]
+
+    is_multi_port = (
+        hardware.get("family") == "ics"
+        or len(enabled_ports) > 1
+    )
+
     if request.method == "POST":
         result = build_svxlink_configuration(
             model,
@@ -2744,12 +2759,16 @@ def build_page():
             svxlink_status=result.get("service_status"),
             build_result=result,
             error=None if result.get("success") else "Build or launch failed.",
+            is_multi_port=is_multi_port,
+            version_info=get_version_info(),
         )
 
     return render_template(
         "build.html",
         model=model,
         build_result=result,
+        is_multi_port=is_multi_port,
+        version_info=get_version_info(),
     )
 
 @app.route("/setup-auth", methods=["GET", "POST"])
@@ -3624,10 +3643,14 @@ def reconfigure_page():
             if target["id"] == target_id:
                 active_port = target.get("active_port")
 
+                model.setdefault("build", {})
+                model["build"]["reconfigure_mode"] = True
+                model["build"]["reconfigure_return"] = "reconfigure_page"
+
                 if active_port:
-                    model.setdefault("build", {})
                     model["build"]["active_port"] = str(active_port)
-                    save_node_model(model)
+
+                save_node_model(model)
 
                 route_args = target.get("route_args", {})
 
