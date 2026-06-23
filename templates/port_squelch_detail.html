@@ -56,32 +56,6 @@
                 </label>
 
                 <div class="form-section">
-                    <div class="label">GPIOD COS sense</div>
-
-                    <div class="field-group">
-                        <label class="label" for="sql_gpio_invert">
-                            RX COS / squelch input polarity
-                        </label>
-                    
-                        <select class="input-field"
-                                id="sql_gpio_invert"
-                                name="sql_gpio_invert">
-                            <option value="no"
-                                {% if not node.get("gpio", {}).get("sql", {}).get("invert") %}selected{% endif %}>
-                                Active High
-                            </option>
-                            <option value="yes"
-                                {% if node.get("gpio", {}).get("sql", {}).get("invert") %}selected{% endif %}>
-                                Active Low
-                            </option>
-                        </select>
-                    
-                        <div class="note">
-                            Use Active Low when the COS/GPIOD input is asserted by pulling the line low.
-                        </div>
-                    </div>
-                </div>
-                <div class="form-section">
                     <div class="label">GPIOD polarity</div>
 
                     <div class="field-group">
