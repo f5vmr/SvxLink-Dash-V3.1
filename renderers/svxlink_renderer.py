@@ -39,6 +39,39 @@ def build_modules(model):
     enabled = model.get("modules", {}).get("enabled", [])
 
     return ",".join(enabled)
+
+def build_modules_line(model):
+    """
+    Render the complete MODULES line for a single-node logic section.
+    """
+
+    enabled = model.get("modules", {}).get("enabled", [])
+
+    if not enabled:
+        return "#MODULES="
+
+    return "MODULES=" + ",".join(enabled)
+
+
+def build_modules_line_for_node(node):
+    """
+    Render the complete MODULES line for one multi-port node.
+    """
+
+    modules = node.get("modules", {})
+
+    enabled = []
+
+    if modules.get("echolink"):
+        enabled.append("ModuleEchoLink")
+
+    if modules.get("metar"):
+        enabled.append("ModuleMetarInfo")
+
+    if not enabled:
+        return "#MODULES="
+
+    return "MODULES=" + ",".join(enabled)
 # =========================================================
 # Language rendering
 # =========================================================
@@ -562,7 +595,7 @@ def render_active_logic(model):
         "LOGIC_NAME": logic_name,
         "RX_NAME": "Rx1",
         "TX_NAME": "Tx1",
-        "MODULES": build_modules(model),
+        "MODULES": build_modules_line(model),
         "CALLSIGN": model["node"]["callsign"],
 
         "SHORT_IDENT_INTERVAL": short_ident.get("interval", 15),
@@ -645,7 +678,7 @@ def render_port_logic(model, port_id, node):
         "RX_NAME": f"Rx{port_id}",
         "TX_NAME": f"Tx{port_id}",
 
-        "MODULES": build_modules_for_node(node),
+        "MODULES": build_modules_line_for_node(node),
         "CALLSIGN": node.get("callsign", model.get("node", {}).get("callsign", "")),
 
         "SHORT_IDENT_INTERVAL": short_ident.get("interval", 15),
