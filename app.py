@@ -1818,88 +1818,88 @@ def port_final_review_page():
         incomplete=incomplete,
         version_info=get_version_info(),
     )
-def render_port_rx_section(model, port_id, node):
-    """
-    Render one Rx section for an ICS port.
-    """
-
-    audio = node.get("audio", {})
-    squelch = node.get("squelch", {})
-    gpio = node.get("gpio", {})
-
-    rx_name = f"Rx{port_id}"
-    audio_dev = audio.get("rx_audio", f"alsa:rx{port_id}")
-
-    method = squelch.get("method", "gpiod")
-    ctcss_mode = squelch.get("ctcss_mode", "radio")
-    ctcss_freq = squelch.get("ctcss_freq")
-
-    lines = [
-        f"[{rx_name}]",
-        "TYPE=Local",
-        f"AUDIO_DEV={audio_dev}",
-        "AUDIO_CHANNEL=0",
-        "SQL_DET=GPIOD" if method == "gpiod" else "SQL_DET=CTCSS",
-        f"SQL_HANGTIME={model.get('sql_hangtime', 20)}",
-        f"SQL_TAIL_ELIM={model.get('sql_tail_elim', 270)}",
-    ]
-
-    if method == "gpiod":
-        sql_gpio = gpio.get("cos", f"RX_{port_id}")
-
-        if gpio.get("cos_invert"):
-            sql_gpio = f"!{sql_gpio}"
-
-        lines.extend([
-            f"SQL_GPIO={sql_gpio}",
-        ])        
-    if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
-        lines.extend([
-            f"CTCSS_FQ={ctcss_freq}",
-            "CTCSS_SNR_OFFSET=0",
-            "CTCSS_OPEN_THRESH=15",
-            "CTCSS_CLOSE_THRESH=9",
-        ])
-
-    return "\n".join(lines)
-
-
-def render_port_tx_section(model, port_id, node):
-    """
-    Render one Tx section for an ICS port.
-    """
-
-    audio = node.get("audio", {})
-    gpio = node.get("gpio", {})
-    squelch = node.get("squelch", {})
-
-    tx_name = f"Tx{port_id}"
-    audio_dev = audio.get("tx_audio", f"alsa:tx{port_id}")
-
-    ctcss_mode = squelch.get("ctcss_mode", "radio")
-    ctcss_freq = squelch.get("ctcss_freq")
-
-    ptt_gpio = gpio.get("ptt", f"TX_{port_id}")
-
-    if gpio.get("ptt_invert"):
-        ptt_gpio = f"!{ptt_gpio}"
-
-    lines = [
-        f"[{tx_name}]",
-        "TYPE=Local",
-        f"AUDIO_DEV={audio_dev}",
-        "AUDIO_CHANNEL=0",
-        "PTT_TYPE=GPIOD",
-        f"PTT_GPIO={ptt_gpio}",
-    ]
-
-    if ctcss_mode == "rx_tx" and ctcss_freq:
-        lines.extend([
-            f"CTCSS_FQ={ctcss_freq}",
-            "CTCSS_LEVEL=9",
-        ])
-
-    return "\n".join(lines)
+#def render_port_rx_section(model, port_id, node):
+#    """
+#    Render one Rx section for an ICS port.
+#    """
+#
+#    audio = node.get("audio", {})
+#    squelch = node.get("squelch", {})
+#    gpio = node.get("gpio", {})
+#
+#    rx_name = f"Rx{port_id}"
+#    audio_dev = audio.get("rx_audio", f"alsa:rx{port_id}")
+#
+#    method = squelch.get("method", "gpiod")
+#    ctcss_mode = squelch.get("ctcss_mode", "radio")
+#    ctcss_freq = squelch.get("ctcss_freq")
+#
+#    lines = [
+#        f"[{rx_name}]",
+#        "TYPE=Local",
+#        f"AUDIO_DEV={audio_dev}",
+#        "AUDIO_CHANNEL=0",
+#        "SQL_DET=GPIOD" if method == "gpiod" else "SQL_DET=CTCSS",
+#        f"SQL_HANGTIME={model.get('sql_hangtime', 20)}",
+#        f"SQL_TAIL_ELIM={model.get('sql_tail_elim', 270)}",
+#    ]
+#
+#    if method == "gpiod":
+#        sql_gpio = gpio.get("cos", f"RX_{port_id}")
+#
+#        if gpio.get("cos_invert"):
+#            sql_gpio = f"!{sql_gpio}"
+#
+#        lines.extend([
+#            f"SQL_GPIO={sql_gpio}",
+#        ])        
+#    if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
+#        lines.extend([
+#            f"CTCSS_FQ={ctcss_freq}",
+#            "CTCSS_SNR_OFFSET=0",
+#            "CTCSS_OPEN_THRESH=15",
+#            "CTCSS_CLOSE_THRESH=9",
+#        ])
+#
+#    return "\n".join(lines)
+#
+#
+#def render_port_tx_section(model, port_id, node):
+#    """
+#    Render one Tx section for an ICS port.
+#    """
+#
+#    audio = node.get("audio", {})
+#    gpio = node.get("gpio", {})
+#    squelch = node.get("squelch", {})
+#
+#    tx_name = f"Tx{port_id}"
+#    audio_dev = audio.get("tx_audio", f"alsa:tx{port_id}")
+#
+#    ctcss_mode = squelch.get("ctcss_mode", "radio")
+#    ctcss_freq = squelch.get("ctcss_freq")
+#
+#    ptt_gpio = gpio.get("ptt", f"TX_{port_id}")
+#
+#    if gpio.get("ptt_invert"):
+#        ptt_gpio = f"!{ptt_gpio}"
+#
+#    lines = [
+#        f"[{tx_name}]",
+#        "TYPE=Local",
+#        f"AUDIO_DEV={audio_dev}",
+#        "AUDIO_CHANNEL=0",
+#        "PTT_TYPE=GPIOD",
+#        f"PTT_GPIO={ptt_gpio}",
+#    ]
+#
+#    if ctcss_mode == "rx_tx" and ctcss_freq:
+#        lines.extend([
+#            f"CTCSS_FQ={ctcss_freq}",
+#            "CTCSS_LEVEL=9",
+#        ])
+#
+#    return "\n".join(lines)
 
 
 def render_multiport_rx_tx_sections(model):
