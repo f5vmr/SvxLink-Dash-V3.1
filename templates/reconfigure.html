@@ -21,6 +21,14 @@
             The hardware platform is preserved and cannot be casually redefined here.
             Environment, region, node settings, modules, and build stages may be revisited.
         </div>
+        
+        {% if is_multi_port %}
+            <div class="note">
+                This is a multi-port build. Port-specific options are shown for each
+                enabled port so that individual port settings can be corrected without
+                forcing a full rebuild from the beginning.
+            </div>
+        {% endif %}
 
         {% if error %}
             <p class="error">{{ error }}</p>

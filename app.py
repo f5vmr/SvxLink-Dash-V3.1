@@ -3427,6 +3427,24 @@ def maintenance_page():
     )
 @app.route("/reconfigure", methods=["GET", "POST"])
 def reconfigure_page():
+    model = load_node_model()
+
+    hardware = model.get("hardware", {})
+    nodes = model.get("nodes", {})
+
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if not enabled_ports:
+        enabled_ports = ["1"]
+
+    is_multi_port = (
+        hardware.get("family") == "ics"
+        or len(enabled_ports) > 1
+    )
+
     reconfigure_targets = [
         {
             "id": "environment",
@@ -3440,54 +3458,151 @@ def reconfigure_page():
             "route": "timezone_page",
             "description": "Change the configured timezone.",
         },
-        {
-            "id": "node",
-            "label": "Node Details",
-            "route": "node_page",
-            "description": "Change callsign, node type, location, and related node identity settings.",
-        },
-        {
-            "id": "interface",
-            "label": "Radio Interface",
-            "route": "interface_page",
-            "description": "Change radio interface settings.",
-        },
-        {
-            "id": "squelch",
-            "label": "Squelch / COS",
-            "route": "squelch_page",
-            "description": "Change squelch or COS detection settings.",
-        },
-        {
-            "id": "ident",
-            "label": "Ident",
-            "route": "ident_page",
-            "description": "Change ident settings.",
-        },
-        {
-            "id": "cw",
-            "label": "CW Settings",
-            "route": "cw_page",
-            "description": "Change CW pitch, speed, and level settings.",
-        },
-        {
-            "id": "courtesy",
-            "label": "Courtesy Tones",
-            "route": "courtesy_page",
-            "description": "Change courtesy tone settings.",
-        },
-        {
-            "id": "modules",
-            "label": "Modules",
-            "route": "modules_page",
-            "description": "Change enabled modules such as EchoLink and MetarInfo.",
-        },
-        {
+    ]
+
+    if is_multi_port:
+        reconfigure_targets.extend([
+            {
+                "id": "hardware_ports",
+                "label": "Enabled Hardware Ports",
+                "route": "hardware_ports_page",
+                "description": "Change which hardware ports are enabled for this build.",
+            },
+            {
+                "id": "port_roles",
+                "label": "Port Roles",
+                "route": "port_roles_page",
+                "description": "Change whether each enabled port is simplex or repeater.",
+            },
+            {
+                "id": "port_config",
+                "label": "Port Configuration Menu",
+                "route": "port_config_page",
+                "description": "Return to the multi-port configuration menu.",
+            },
+        ])
+
+        for port_id in enabled_ports:
+            node = nodes.get(port_id, {})
+            role = node.get("type", "simplex")
+
+            reconfigure_targets.extend([
+                {
+                    "id": f"port_node_{port_id}",
+                    "label": f"Port {port_id} Node Details",
+                    "route": "port_node_page",
+                    "route_args": {"port_id": port_id},
+                    "description": f"Change callsign, role, and node details for Port {port_id}.",
+                },
+                {
+                    "id": f"port_squelch_{port_id}",
+                    "label": f"Port {port_id} Squelch / CTCSS",
+                    "route": "port_squelch_detail_page",
+                    "route_args": {"port_id": port_id},
+                    "description": f"Change squelch, COS, or CTCSS settings for Port {port_id}.",
+                },
+                {
+                    "id": f"port_modules_{port_id}",
+                    "label": f"Port {port_id} Modules",
+                    "route": "port_modules_page",
+                    "active_port": port_id,
+                    "description": f"Change enabled modules for Port {port_id}.",
+                },
+                {
+                    "id": f"port_ident_{port_id}",
+                    "label": f"Port {port_id} Ident",
+                    "route": "port_ident_page",
+                    "active_port": port_id,
+                    "description": f"Change ident settings for Port {port_id}.",
+                },
+                {
+                    "id": f"port_cw_{port_id}",
+                    "label": f"Port {port_id} CW Settings",
+                    "route": "port_cw_page",
+                    "active_port": port_id,
+                    "description": f"Change CW pitch, speed, and level settings for Port {port_id}.",
+                },
+                {
+                    "id": f"port_courtesy_{port_id}",
+                    "label": f"Port {port_id} Courtesy Tones",
+                    "route": "port_courtesy_page",
+                    "active_port": port_id,
+                    "description": f"Change courtesy tone settings for Port {port_id}.",
+                },
+            ])
+
+            if role == "repeater":
+                reconfigure_targets.append({
+                    "id": f"port_repeater_{port_id}",
+                    "label": f"Port {port_id} Repeater Settings",
+                    "route": "port_repeater_page",
+                    "active_port": port_id,
+                    "description": f"Change repeater timing and behaviour settings for Port {port_id}.",
+                })
+
+        reconfigure_targets.append({
+            "id": "port_final_review",
+            "label": "Multi-port Final Review",
+            "route": "port_final_review_page",
+            "description": "Review the current multi-port model before rebuilding.",
+        })
+
+    else:
+        reconfigure_targets.extend([
+            {
+                "id": "node",
+                "label": "Node Details",
+                "route": "node_page",
+                "description": "Change callsign, node type, location, and related node identity settings.",
+            },
+            {
+                "id": "interface",
+                "label": "Radio Interface",
+                "route": "interface_page",
+                "description": "Change radio interface settings.",
+            },
+            {
+                "id": "squelch",
+                "label": "Squelch / COS",
+                "route": "squelch_page",
+                "description": "Change squelch, COS, or CTCSS settings.",
+            },
+            {
+                "id": "ident",
+                "label": "Ident",
+                "route": "ident_page",
+                "description": "Change ident settings.",
+            },
+            {
+                "id": "cw",
+                "label": "CW Settings",
+                "route": "cw_page",
+                "description": "Change CW pitch, speed, and level settings.",
+            },
+            {
+                "id": "courtesy",
+                "label": "Courtesy Tones",
+                "route": "courtesy_page",
+                "description": "Change courtesy tone settings.",
+            },
+        ])
+
+        if model.get("node", {}).get("type") == "repeater":
+            reconfigure_targets.append({
+                "id": "repeater",
+                "label": "Repeater Settings",
+                "route": "repeater_page",
+                "description": "Change repeater timing and behaviour settings.",
+            })
+
+        reconfigure_targets.append({
             "id": "review",
             "label": "Review Configuration",
             "route": "review_page",
             "description": "Review the current model before rebuilding.",
-        },
+        })
+
+    reconfigure_targets.extend([
         {
             "id": "build",
             "label": "Build Configuration",
@@ -3500,25 +3615,45 @@ def reconfigure_page():
             "route": "reconfigure_reset_page",
             "description": "Archive the current node model and restart the setup wizard.",
         },
-    ]
+    ])
 
     if request.method == "POST":
         target_id = request.form.get("target", "").strip()
 
         for target in reconfigure_targets:
             if target["id"] == target_id:
-                return redirect(url_for(target["route"]))
+                active_port = target.get("active_port")
+
+                if active_port:
+                    model.setdefault("build", {})
+                    model["build"]["active_port"] = str(active_port)
+                    save_node_model(model)
+
+                route_args = target.get("route_args", {})
+
+                return redirect(
+                    url_for(
+                        target["route"],
+                        **route_args,
+                    )
+                )
 
         return render_template(
             "reconfigure.html",
             reconfigure_targets=reconfigure_targets,
+            is_multi_port=is_multi_port,
+            enabled_ports=enabled_ports,
             error="Please select a valid reconfiguration option.",
+            version_info=get_version_info(),
         )
 
     return render_template(
         "reconfigure.html",
         reconfigure_targets=reconfigure_targets,
+        is_multi_port=is_multi_port,
+        enabled_ports=enabled_ports,
         error=None,
+        version_info=get_version_info(),
     )
 @app.route("/maintenance/restart", methods=["POST"])
 def restart_services_page():
