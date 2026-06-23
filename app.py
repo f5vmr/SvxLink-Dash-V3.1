@@ -3526,72 +3526,14 @@ def reconfigure_page():
                 "route": "port_config_page",
                 "description": "Return to the multi-port configuration menu.",
             },
+            {
+                "id": "port_final_review",
+                "label": "Multi-port Final Review",
+                "route": "port_final_review_page",
+                "description": "Review the current multi-port model before rebuilding.",
+            },
         ])
 
-        for port_id in enabled_ports:
-            node = nodes.get(port_id, {})
-            role = node.get("type", "simplex")
-
-            reconfigure_targets.extend([
-                {
-                    "id": f"port_node_{port_id}",
-                    "label": f"Port {port_id} Node Details",
-                    "route": "port_node_page",
-                    "route_args": {"port_id": port_id},
-                    "description": f"Change callsign, role, and node details for Port {port_id}.",
-                },
-                {
-                    "id": f"port_squelch_{port_id}",
-                    "label": f"Port {port_id} Squelch / CTCSS",
-                    "route": "port_squelch_detail_page",
-                    "route_args": {"port_id": port_id},
-                    "description": f"Change squelch, COS, or CTCSS settings for Port {port_id}.",
-                },
-                {
-                    "id": f"port_modules_{port_id}",
-                    "label": f"Port {port_id} Modules",
-                    "route": "port_modules_page",
-                    "active_port": port_id,
-                    "description": f"Change enabled modules for Port {port_id}.",
-                },
-                {
-                    "id": f"port_ident_{port_id}",
-                    "label": f"Port {port_id} Ident",
-                    "route": "port_ident_page",
-                    "active_port": port_id,
-                    "description": f"Change ident settings for Port {port_id}.",
-                },
-                {
-                    "id": f"port_cw_{port_id}",
-                    "label": f"Port {port_id} CW Settings",
-                    "route": "port_cw_page",
-                    "active_port": port_id,
-                    "description": f"Change CW pitch, speed, and level settings for Port {port_id}.",
-                },
-                {
-                    "id": f"port_courtesy_{port_id}",
-                    "label": f"Port {port_id} Courtesy Tones",
-                    "route": "port_courtesy_page",
-                    "active_port": port_id,
-                    "description": f"Change courtesy tone settings for Port {port_id}.",
-                },
-            ])
-
-            if role == "repeater":
-                reconfigure_targets.append({
-                    "id": f"port_repeater_{port_id}",
-                    "label": f"Port {port_id} Repeater Settings",
-                    "route": "port_repeater_page",
-                    "active_port": port_id,
-                    "description": f"Change repeater timing and behaviour settings for Port {port_id}.",
-                })
-
-        reconfigure_targets.append({
-            "id": "port_final_review",
-            "label": "Multi-port Final Review",
-            "route": "port_final_review_page",
-            "description": "Review the current multi-port model before rebuilding.",
-        })
 
     else:
         reconfigure_targets.extend([
@@ -3668,17 +3610,6 @@ def reconfigure_page():
 
         for target in reconfigure_targets:
             if target["id"] == target_id:
-                active_port = target.get("active_port")
-
-                model.setdefault("build", {})
-                model["build"]["reconfigure_mode"] = True
-                model["build"]["reconfigure_return"] = "reconfigure_page"
-
-                if active_port:
-                    model["build"]["active_port"] = str(active_port)
-
-                save_node_model(model)
-
                 route_args = target.get("route_args", {})
 
                 return redirect(
