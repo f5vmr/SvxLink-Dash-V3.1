@@ -2831,26 +2831,44 @@ def launch():
 @app.route("/status", methods=["GET"])
 def status_page():
     model = load_node_model()
-    
+
     system_info = get_system_info()
 
-    status = get_runtime_status(model)
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if not enabled_ports:
+        enabled_ports = ["1"]
+
+    selected_port = request.args.get("port", enabled_ports[0])
+
+    if selected_port not in enabled_ports:
+        selected_port = enabled_ports[0]
+
+    status = get_runtime_status(
+        model,
+        selected_port=selected_port,
+    )
+
     monitor_tgs = model.get(
         "reflector",
         {}
-        ).get(
-            "monitor_tgs",
+    ).get(
+        "monitor_tgs",
         []
     )
+
     activity = get_reflector_activity()
 
     environment = model.get(
-    "environment",
-    {}
-).get(
-    "region",
-    "british_isles"
-)
+        "environment",
+        {}
+    ).get(
+        "region",
+        "british_isles"
+    )
 
     talkgroups = load_talkgroups(environment)
 
@@ -2863,9 +2881,11 @@ def status_page():
         monitor_tgs=monitor_tgs,
         active_talkgroup=status.get("active_talkgroup"),
         system_info=system_info,
+        enabled_ports=enabled_ports,
+        selected_port=selected_port,
+        port_count=len(enabled_ports),
         version_info=get_version_info(),
     )
-
 @app.route("/sound-levels", methods=["GET", "POST"])
 def sound_levels_page():
     result = None
@@ -3049,7 +3069,27 @@ def authorise_page():
 def api_status_page():
     model = load_node_model()
 
-    status = get_runtime_status(model)
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
+
+    if not enabled_ports:
+        enabled_ports = ["1"]
+
+    selected_port = request.args.get(
+        "port",
+        enabled_ports[0]
+    )
+
+    if selected_port not in enabled_ports:
+        selected_port = enabled_ports[0]
+
+    status = get_runtime_status(
+        model,
+        selected_port=selected_port,
+    )
+
     activity = get_reflector_activity()
     system_info = get_system_info()
 
@@ -3057,6 +3097,9 @@ def api_status_page():
         "status": status,
         "activity": activity,
         "system_info": system_info,
+        "enabled_ports": enabled_ports,
+        "selected_port": selected_port,
+        "port_count": len(enabled_ports),
     })
 @app.route("/talkgroups", methods=["GET", "POST"])
 def talkgroups_page():

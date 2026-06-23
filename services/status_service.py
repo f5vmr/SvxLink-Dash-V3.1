@@ -106,11 +106,11 @@ def get_connected_reflector(model=None):
 
     return "not connected"
 
-def get_radio_state():
+def get_radio_state(selected_port="1"):
         """
         Determine current radio state from recent SvxLink log lines.
     
-        TX state is detected from either Tx1 or MultiTx messages.
+        TX state is detected from either Tx1 messages.
         RX/input state is detected from Rx1 squelch messages.
         """
 
@@ -118,6 +118,9 @@ def get_radio_state():
 
         tx_active = False
         rx_open = False
+        selected_port = str(selected_port or "1")
+        rx_name = f"rx{selected_port}:"
+        tx_name = f"tx{selected_port}:"
 
         if not log_file.exists():
             return {
@@ -145,11 +148,11 @@ def get_radio_state():
 
         for line in reversed(lines[-300:]):
             lower = line.lower()
-
+            if tx_name not in lower:
+                continue
             if "turning the transmitter off" in lower:
                 tx_active = False
                 break
-
             if "turning the transmitter on" in lower:
                 tx_active = True
                 break
@@ -157,14 +160,14 @@ def get_radio_state():
         for line in reversed(lines[-300:]):
             lower = line.lower()
 
-            if "rx1: the squelch is closed" in lower:
+            if f"{rx_name} the squelch is closed" in lower:
                 rx_open = False
                 break
 
-            if "rx1: the squelch is open" in lower:
+            if f"{rx_name} the squelch is open" in lower:
                 rx_open = True
-                break
-
+                break       
+            
         if tx_active:
             label = "Transmitting"
             css_class = "radio-tx"
@@ -280,7 +283,7 @@ def get_active_talkgroup():
 
     return "Standby"
     
-def get_runtime_status(model):
+def get_runtime_status(model, selected_port="1"):
     """
     Collect dashboard runtime information.
     """
@@ -309,8 +312,8 @@ def get_runtime_status(model):
             []
         ),
         "recent_log": get_recent_log_lines(),
-        
-        "radio_state": get_radio_state(),
+        "selected_port": str(selected_port or "1"),
+        "radio_state": get_radio_state(selected_port=selected_port),
         "echolink_state": get_echolink_state(),
     }
 def get_recent_log_lines(limit=40):

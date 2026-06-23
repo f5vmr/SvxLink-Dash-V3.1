@@ -26,6 +26,11 @@
          alt="SvxLink icon">
 
         {{ status.callsign }} Node Status
+        {% if port_count > 1 %}
+            <span class="status-port-title">
+                Port {{ selected_port }}
+            </span>
+        {% endif %}
 
         </h1>
 
@@ -33,7 +38,36 @@
                 Live runtime monitoring
             </p>
         </div>
-         {% include "navbar.html" %}
+        {% include "navbar.html" %}
+
+        {% if port_count > 1 %}
+        <div class="port-status-selector"
+             id="port-status-selector"
+             data-selected-port="{{ selected_port }}">
+            
+            <a class="port-status-arrow"
+               id="port-prev-link"
+               href="#">
+                &#8592;
+            </a>
+        
+            {% for port in enabled_ports %}
+                <a class="port-status-tab {% if port == selected_port %}active{% endif %}"
+                   href="{{ url_for('status_page', port=port) }}"
+                   data-port="{{ port }}">
+                    Port {{ port }}
+                </a>
+            {% endfor %}
+            
+            <a class="port-status-arrow"
+               id="port-next-link"
+               href="#">
+                &#8594;
+            </a>
+        
+        </div>
+        {% endif %}
+        
         <div class="dashboard-grid">
 
             <div class="dashboard-panel">
@@ -404,12 +438,130 @@ function updateStatusPage(data) {
 }
 
 function pollStatus() {
-    fetch("/api/status")
+    const params = new URLSearchParams(window.location.search);
+    const selectedPort = params.get("port") || "{{ selected_port }}";
+
+    fetch("/api/status?port=" + encodeURIComponent(selectedPort))
         .then(response => response.json())
         .then(data => updateStatusPage(data))
         .catch(error => console.log("Status poll failed:", error));
 }
+function setupPortNavigation() {
+    const selector = document.getElementById("port-status-selector");
 
+    if (!selector) {
+        return;
+    }
+
+    const tabs = Array.from(
+        document.querySelectorAll(".port-status-tab")
+    );
+
+    if (tabs.length <= 1) {
+        return;
+    }
+
+    const selectedPort = selector.dataset.selectedPort;
+    let currentIndex = tabs.findIndex(function(tab) {
+        return tab.dataset.port === selectedPort;
+    });
+
+    if (currentIndex < 0) {
+        currentIndex = 0;
+    }
+
+    function goToIndex(index) {
+        if (index < 0) {
+            index = tabs.length - 1;
+        }
+
+        if (index >= tabs.length) {
+            index = 0;
+        }
+
+        window.location.href = tabs[index].href;
+    }
+
+    const previousLink = document.getElementById("port-prev-link");
+    const nextLink = document.getElementById("port-next-link");
+
+    if (previousLink) {
+        previousLink.href = tabs[
+            currentIndex === 0 ? tabs.length - 1 : currentIndex - 1
+        ].href;
+    }
+
+    if (nextLink) {
+        nextLink.href = tabs[
+            currentIndex === tabs.length - 1 ? 0 : currentIndex + 1
+        ].href;
+    }
+
+    document.addEventListener("keydown", function(event) {
+        if (
+            event.target &&
+            ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)
+        ) {
+            return;
+        }
+
+        if (event.key === "ArrowLeft") {
+            goToIndex(currentIndex - 1);
+        }
+
+        if (event.key === "ArrowRight") {
+            goToIndex(currentIndex + 1);
+        }
+    });
+
+    let touchStartX = null;
+    let touchStartY = null;
+
+    document.addEventListener("touchstart", function(event) {
+        if (!event.changedTouches || event.changedTouches.length === 0) {
+            return;
+        }
+
+        touchStartX = event.changedTouches[0].screenX;
+        touchStartY = event.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener("touchend", function(event) {
+        if (
+            touchStartX === null ||
+            touchStartY === null ||
+            !event.changedTouches ||
+            event.changedTouches.length === 0
+        ) {
+            return;
+        }
+
+        const touchEndX = event.changedTouches[0].screenX;
+        const touchEndY = event.changedTouches[0].screenY;
+
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        touchStartX = null;
+        touchStartY = null;
+
+        if (Math.abs(deltaX) < 60) {
+            return;
+        }
+
+        if (Math.abs(deltaY) > 80) {
+            return;
+        }
+
+        if (deltaX > 0) {
+            goToIndex(currentIndex - 1);
+        } else {
+            goToIndex(currentIndex + 1);
+        }
+    }, { passive: true });
+}
+
+setupPortNavigation();
 setInterval(pollStatus, 3000);
 pollStatus();
 </script>

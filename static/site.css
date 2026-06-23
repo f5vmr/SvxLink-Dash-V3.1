@@ -1859,3 +1859,32 @@ footer a:hover {
 .muted-section {
     opacity: 0.55;
 }
+.port-status-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.75rem 0 1.2rem 0;
+    flex-wrap: wrap;
+}
+
+.port-status-tab,
+.port-status-arrow {
+    display: inline-block;
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.port-status-tab.active {
+    box-shadow: 0 0 0 2px currentColor;
+}
+
+.status-port-title {
+    display: block;
+    font-size: 0.8em;
+    margin-top: 0.2rem;
+    font-weight: 500;
+}
