@@ -21,7 +21,7 @@
             The hardware platform is preserved and cannot be casually redefined here.
             Environment, region, node settings, modules, and build stages may be revisited.
         </div>
-        
+
         {% if is_multi_port %}
             <div class="note">
                 This is a multi-port build. Port-specific options are shown for each
@@ -58,7 +58,7 @@
             </div>
 
             <div class="button-row">
-                <a class="button-secondary" href="{{ url_for('maintenance_page') }}">Back</a>
+                <a class="button-secondary" href="{{ url_for('status_page') }}">Back</a>
                 <button class="button-primary" type="submit">Continue</button>
             </div>
         </form>
