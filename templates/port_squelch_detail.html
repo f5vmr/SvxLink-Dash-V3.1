@@ -83,7 +83,7 @@
                 </div>
                 <div class="form-section">
                     <div class="label">GPIOD polarity</div>
-                                
+
                     <div class="field-group">
                         <label class="label" for="sql_gpio_invert">
                             RX COS / squelch input polarity
@@ -93,15 +93,14 @@
                                 id="sql_gpio_invert"
                                 name="sql_gpio_invert">
                             <option value="no"
-                                {% if not node.get("gpio", {}).get("sql", {}).get("invert") %}selected{% endif %}>
+                                {% if not node.get("gpio", {}).get("cos_invert") %}selected{% endif %}>
                                 Active High
                             </option>
                             <option value="yes"
-                                {% if node.get("gpio", {}).get("sql", {}).get("invert") %}selected{% endif %}>
+                                {% if node.get("gpio", {}).get("cos_invert") %}selected{% endif %}>
                                 Active Low
                             </option>
-                        </select>
-                    
+                        </select>                    
                         <div class="note">
                             Use Active Low when the COS input is asserted by pulling the GPIO line low.
                         </div>
@@ -116,11 +115,11 @@
                                 id="ptt_gpio_invert"
                                 name="ptt_gpio_invert">
                             <option value="no"
-                                {% if not node.get("gpio", {}).get("ptt", {}).get("invert") %}selected{% endif %}>
+                                {% if not node.get("gpio", {}).get("ptt_invert") %}selected{% endif %}>
                                 Active High
                             </option>
                             <option value="yes"
-                                {% if node.get("gpio", {}).get("ptt", {}).get("invert") %}selected{% endif %}>
+                                {% if node.get("gpio", {}).get("ptt_invert") %}selected{% endif %}>
                                 Active Low
                             </option>
                         </select>

@@ -1330,19 +1330,22 @@ def port_squelch_detail_page(port_id):
             if method != "ctcss":
                 ctcss_mode = "none"
                 ctcss_freq = ""
-            node.setdefault("gpio", {})
-            node["gpio"].setdefault("sql", {})
-            node["gpio"]["sql"]["invert"] = (
-                request.form.get("sql_gpiod_invert", "0") == "yes"
-            )
-            node.setdefault("gpio", {})
-            node["gpio"].setdefault("sql", {})
-            node["gpio"].setdefault("ptt", {})
 
-            node["gpio"]["sql"]["invert"] = (
+            node.setdefault("gpio", {})
+
+            node["gpio"]["cos_invert"] = (
                 request.form.get("sql_gpio_invert") == "yes"
             )
 
+            node["gpio"]["ptt_invert"] = (
+                request.form.get("ptt_gpio_invert") == "yes"
+            )
+
+            node["squelch"] = {
+                "method": method,
+                "ctcss_mode": ctcss_mode,
+                "ctcss_freq": ctcss_freq or None,
+            }
             node["gpio"]["ptt"]["invert"] = (
                 request.form.get("ptt_gpio_invert") == "yes"
             )
@@ -1852,12 +1855,12 @@ def render_port_rx_section(model, port_id, node):
     if method == "gpiod":
         sql_gpio = gpio.get("cos", f"RX_{port_id}")
 
-        if node.get("gpio", {}).get("sql", {}).get("invert"):
+        if gpio.get("cos_invert"):
             sql_gpio = f"!{sql_gpio}"
 
         lines.extend([
             f"SQL_GPIO={sql_gpio}",
-        ])
+        ])        ])
     if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
         lines.extend([
             f"CTCSS_FQ={ctcss_freq}",
@@ -1885,10 +1888,10 @@ def render_port_tx_section(model, port_id, node):
     ctcss_freq = squelch.get("ctcss_freq")
 
     ptt_gpio = gpio.get("ptt", f"TX_{port_id}")
-
-    if node.get("gpio", {}).get("ptt", {}).get("invert"):
+    
+    if gpio.get("ptt_invert"):
         ptt_gpio = f"!{ptt_gpio}"
-
+    
     lines = [
         f"[{tx_name}]",
         "TYPE=Local",
