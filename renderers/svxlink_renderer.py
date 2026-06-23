@@ -885,10 +885,15 @@ def render_port_rx_section(model, port_id, node):
             rx_label,
         )
 
+        sql_line = resolved.get("line", rx_label)
+
+        if node.get("gpio", {}).get("cos_invert"):
+            sql_line = f"!{sql_line}"
+
         lines.extend([
             "SQL_DET=GPIOD",
             f"SQL_GPIOD_CHIP={resolved.get('chip', '')}",
-            f"SQL_GPIOD_LINE={resolved.get('line', rx_label)}",
+            f"SQL_GPIOD_LINE={sql_line}",
         ])
 
     lines.extend([
@@ -929,6 +934,11 @@ def render_port_tx_section(model, port_id, node):
         tx_label,
     )
 
+    ptt_line = resolved.get("line", tx_label)
+
+    if node.get("gpio", {}).get("ptt_invert"):
+        ptt_line = f"!{ptt_line}"
+
     lines = [
         f"[{tx_name}]",
         "TYPE=Local",
@@ -936,7 +946,7 @@ def render_port_tx_section(model, port_id, node):
         "AUDIO_CHANNEL=0",
         "PTT_TYPE=GPIOD",
         f"PTT_GPIOD_CHIP={resolved.get('chip', '')}",
-        f"PTT_GPIOD_LINE={resolved.get('line', tx_label)}",
+        f"PTT_GPIOD_LINE={ptt_line}",
     ]
 
     if ctcss_mode == "rx_tx" and ctcss_freq:
