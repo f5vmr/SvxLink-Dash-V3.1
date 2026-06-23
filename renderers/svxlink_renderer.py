@@ -595,7 +595,7 @@ def render_active_logic(model):
         "LOGIC_NAME": logic_name,
         "RX_NAME": "Rx1",
         "TX_NAME": "Tx1",
-        "MODULES": build_modules_line(model),
+        "MODULES_LINE": build_modules_line(model),
         "CALLSIGN": model["node"]["callsign"],
 
         "SHORT_IDENT_INTERVAL": short_ident.get("interval", 15),
@@ -678,7 +678,7 @@ def render_port_logic(model, port_id, node):
         "RX_NAME": f"Rx{port_id}",
         "TX_NAME": f"Tx{port_id}",
 
-        "MODULES": build_modules_line_for_node(node),
+        "MODULES_LINE": build_modules_line_for_node(node),
         "CALLSIGN": node.get("callsign", model.get("node", {}).get("callsign", "")),
 
         "SHORT_IDENT_INTERVAL": short_ident.get("interval", 15),
