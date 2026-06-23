@@ -1346,14 +1346,6 @@ def port_squelch_detail_page(port_id):
                 "ctcss_mode": ctcss_mode,
                 "ctcss_freq": ctcss_freq or None,
             }
-            node["gpio"]["ptt"]["invert"] = (
-                request.form.get("ptt_gpio_invert") == "yes"
-            )
-            node["squelch"] = {
-                "method": method,
-                "ctcss_mode": ctcss_mode,
-                "ctcss_freq": ctcss_freq or None,
-            }
 
             node["squelch_configured"] = True
 
