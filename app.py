@@ -1860,7 +1860,7 @@ def render_port_rx_section(model, port_id, node):
 
         lines.extend([
             f"SQL_GPIO={sql_gpio}",
-        ])        ])
+        ])        
     if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
         lines.extend([
             f"CTCSS_FQ={ctcss_freq}",
@@ -1888,10 +1888,10 @@ def render_port_tx_section(model, port_id, node):
     ctcss_freq = squelch.get("ctcss_freq")
 
     ptt_gpio = gpio.get("ptt", f"TX_{port_id}")
-    
+
     if gpio.get("ptt_invert"):
         ptt_gpio = f"!{ptt_gpio}"
-    
+
     lines = [
         f"[{tx_name}]",
         "TYPE=Local",
