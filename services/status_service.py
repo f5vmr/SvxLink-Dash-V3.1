@@ -282,21 +282,45 @@ def get_active_talkgroup():
         return talkgroup
 
     return "Standby"
-    
+def get_status_callsign(model, selected_port="1"):
+    """
+    Return the callsign for the selected dashboard port.
+    """
+
+    selected_port = str(selected_port or "1")
+
+    port_node = (
+        model.get("nodes", {})
+        .get(selected_port, {})
+    )
+
+    return (
+        port_node.get("callsign")
+        or model.get("node", {}).get("callsign")
+        or model.get("ident", {}).get("callsign")
+        or "unknown"
+    )
 def get_runtime_status(model, selected_port="1"):
     """
     Collect dashboard runtime information.
     """
 
+    selected_port = str(selected_port or "1")
+
     return {
-        "callsign": model.get("node", {}).get(
-            "callsign",
-            "unknown"
+        "callsign": get_status_callsign(
+            model,
+            selected_port=selected_port,
         ),
 
-        "node_type": model.get("node", {}).get(
-            "type",
-            "unknown"
+        "node_type": model.get("nodes", {})
+        .get(selected_port, {})
+        .get(
+            "role",
+            model.get("node", {}).get(
+                "type",
+                "unknown"
+            )
         ),
 
         "service_status": svxlink_status(),
@@ -307,12 +331,16 @@ def get_runtime_status(model, selected_port="1"):
 
         "active_talkgroup": get_active_talkgroup(),
 
-        "modules": model.get("modules", {}).get(
+        "modules": model.get("nodes", {})
+        .get(selected_port, {})
+        .get("modules", model.get("modules", {}))
+        .get(
             "enabled",
             []
         ),
+
         "recent_log": get_recent_log_lines(),
-        "selected_port": str(selected_port or "1"),
+        "selected_port": selected_port,
         "radio_state": get_radio_state(selected_port=selected_port),
         "echolink_state": get_echolink_state(),
     }
