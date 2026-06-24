@@ -42,17 +42,18 @@ SUPPORTED_DOWN_TONES = {
     "none",
 }
 SUPPORTED_SQUELCH_METHODS = [
+    "hidraw",
     "gpiod",
     "ctcss",
     "gpiod_ctcss",
     "serial",
     "serial_ctcss",
-    "hidraw",
 ]
 SUPPORTED_INTERFACE_MODES = {
-    "gpiod",
     "hidraw",
+    "gpiod",
     "hybrid",
+    "serial",
 }
 DEFAULT_MODEL = {
     "schema_version": 1,
@@ -72,9 +73,9 @@ DEFAULT_MODEL = {
         "language": "en_US",
     },
     "interface": {
-        "mode": "gpiod",
-        "sql_source": "gpiod",
-        "ptt_source": "gpiod",
+        "mode": "hidraw",
+        "sql_source": "hidraw",
+        "ptt_source": "hidraw",
     },
     "reflector": {
         "enabled": False,
@@ -97,14 +98,14 @@ DEFAULT_MODEL = {
         "gpio": {
             "sql": {
             "chip": "gpiochip0",
-            "line": 203,
+            "line": 23,
             "active": "high",
-            "physical_pin": 7,
+            "physical_pin": 16,
         },
         "ptt": {
             "chip": "gpiochip0",
-            "line": 6,
-            "physical_pin": 12,
+            "line": 24,
+            "physical_pin": 18,
             },
         },
 
