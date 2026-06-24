@@ -21,7 +21,7 @@
             <p class="error">{{ error }}</p>
         {% endif %}
 
-        <form action="/ident" method="post">
+        <form action="/ident" method="post" enctype="multipart/form-data">
             <div class="form-section">
                 <div class="label">Short identification</div>
 
@@ -37,6 +37,37 @@
                     <label class="label" for="short_ident_interval">Short interval minutes</label>
                     <input class="input-field" type="number" id="short_ident_interval" name="short_ident_interval"
                            min="1" value="{{ model.ident.short.interval }}">
+                </div>
+                <div class="field-group">
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="short_announce_enable"
+                            value="1"
+                            {% if model.ident.short.get("announce_enable", false) %}checked{% endif %}
+                        >
+                        Enable short announcement file
+                    </label>
+                </div>
+
+                <div class="field-group">
+                    <label class="label" for="short_announce_file">
+                        Short announcement audio
+                    </label>
+                
+                    <input
+                        class="input-field"
+                        type="file"
+                        id="short_announce_file"
+                        name="short_announce_file"
+                        accept=".wav,audio/wav,audio/x-wav"
+                    >
+                
+                    {% if model.ident.short.get("announce_file") %}
+                        <div class="note">
+                            Current file: {{ model.ident.short.get("announce_file") }}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -55,6 +86,37 @@
                     <label class="label" for="long_ident_interval">Long interval minutes</label>
                     <input class="input-field" type="number" id="long_ident_interval" name="long_ident_interval"
                            min="1" value="{{ model.ident.long.interval }}">
+                </div>
+                <div class="field-group">
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="long_announce_enable"
+                            value="1"
+                            {% if model.ident.long.get("announce_enable", false) %}checked{% endif %}
+                        >
+                        Enable long announcement file
+                    </label>
+                </div>
+                
+                <div class="field-group">
+                    <label class="label" for="long_announce_file">
+                        Long announcement audio
+                    </label>
+                
+                    <input
+                        class="input-field"
+                        type="file"
+                        id="long_announce_file"
+                        name="long_announce_file"
+                        accept=".wav,audio/wav,audio/x-wav"
+                    >
+                
+                    {% if model.ident.long.get("announce_file") %}
+                        <div class="note">
+                            Current file: {{ model.ident.long.get("announce_file") }}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 

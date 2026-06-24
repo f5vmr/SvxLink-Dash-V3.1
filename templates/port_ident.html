@@ -29,7 +29,7 @@
             independently.
         </div>
 
-        <form action="{{ url_for('port_ident_page') }}" method="post">
+        <form action="{{ url_for('port_ident_page') }}" method="post" enctype="multipart/form-data">
             <div class="form-section">
                 <div class="label">Per-port identification</div>
 
@@ -103,10 +103,15 @@
                         <input
                             id="port_{{ port_id }}_short_announce_file"
                             name="port_{{ port_id }}_short_announce_file"
-                            type="text"
-                            value="{{ short_ident.get('announce_file', '') }}"
-                            placeholder="Example: short_announce.wav"
+                            type="file"
+                            accept=".wav,audio/wav,audio/x-wav"
                         >
+
+                        {% if short_ident.get('announce_file') %}
+                            <div class="note">
+                                Current file: {{ short_ident.get('announce_file') }}
+                            </div>
+                        {% endif %}
 
                         <br><br>
 
@@ -167,10 +172,15 @@
                         <input
                             id="port_{{ port_id }}_long_announce_file"
                             name="port_{{ port_id }}_long_announce_file"
-                            type="text"
-                            value="{{ long_ident.get('announce_file', '') }}"
-                            placeholder="Example: long_announce.wav"
+                            type="file"
+                            accept=".wav,audio/wav,audio/x-wav"
                         >
+
+                        {% if long_ident.get('announce_file') %}
+                            <div class="note">
+                                Current file: {{ long_ident.get('announce_file') }}
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>

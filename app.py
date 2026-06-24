@@ -14,7 +14,7 @@ from services.sound_discovery import (
     apply_safe_baseline,
     set_slider_control,
 )
-
+from services.ident_audio_service import save_ident_upload
 from services.svxlink_config_discovery import (
     DEFAULT_SVXLINK_CONFIG,
     discover_audio_sections,
@@ -2161,13 +2161,61 @@ def ident_page():
     model = load_node_model()
     error = None
 
+    model.setdefault("ident", {})
+    model["ident"].setdefault("short", {})
+    model["ident"].setdefault("long", {})
+
+    short_ident = model["ident"]["short"]
+    long_ident = model["ident"]["long"]
+
     if request.method == "POST":
         try:
-            model["ident"]["short"]["mode"] = request.form.get("short_ident_mode")
-            model["ident"]["short"]["interval"] = int(request.form.get("short_ident_interval", "15"))
+            short_ident["mode"] = request.form.get("short_ident_mode")
+            short_ident["interval"] = int(
+                request.form.get("short_ident_interval", "15")
+            )
 
-            model["ident"]["long"]["mode"] = request.form.get("long_ident_mode")
-            model["ident"]["long"]["interval"] = int(request.form.get("long_ident_interval", "60"))
+            long_ident["mode"] = request.form.get("long_ident_mode")
+            long_ident["interval"] = int(
+                request.form.get("long_ident_interval", "60")
+            )
+
+            short_ident["announce_enable"] = (
+                request.form.get("short_announce_enable") == "1"
+            )
+
+            long_ident["announce_enable"] = (
+                request.form.get("long_announce_enable") == "1"
+            )
+
+            short_upload = request.files.get("short_announce_file")
+            long_upload = request.files.get("long_announce_file")
+
+            short_file = save_ident_upload(
+                short_upload,
+                "single_short_ident",
+            )
+
+            long_file = save_ident_upload(
+                long_upload,
+                "single_long_ident",
+            )
+
+            if short_file:
+                short_ident["announce_file"] = short_file
+            else:
+                short_ident["announce_file"] = short_ident.get(
+                    "announce_file",
+                    "",
+                )
+
+            if long_file:
+                long_ident["announce_file"] = long_file
+            else:
+                long_ident["announce_file"] = long_ident.get(
+                    "announce_file",
+                    "",
+                )
 
             save_node_model(model)
             return redirect(url_for("cw_page"))
@@ -2175,8 +2223,15 @@ def ident_page():
         except ValueError:
             error = "Identification intervals must be numeric."
 
-    return render_template("ident.html", model=model, error=error)
+        except Exception as exc:
+            error = f"Announcement file upload failed: {exc}"
 
+    return render_template(
+        "ident.html",
+        model=model,
+        error=error,
+        version_info=get_version_info(),
+    )
 @app.route("/cw", methods=["GET", "POST"])
 def cw_page():
     model = load_node_model()
