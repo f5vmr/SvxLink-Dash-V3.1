@@ -1984,9 +1984,9 @@ def interface_page():
             model["interface"]["ptt_source"] = "gpiod"
  
         uses_gpiod = (
-            model["interface"]["sql_source"] = "gpiod"
+            model["interface"]["sql_source"] == "gpiod"
             or
-            model["interface"]["ptt_source"] = "gpiod"
+            model["interface"]["ptt_source"] == "gpiod"
         )
         if "serial" not in model:
             model["serial"] = {}
