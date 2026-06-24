@@ -1430,8 +1430,10 @@ def port_modules_page():
         version_info=get_version_info(),
     )
 @app.route("/port-ident", methods=["GET", "POST"])
+@app.route("/port-ident", methods=["GET", "POST"])
 def port_ident_page():
     model = load_node_model()
+    error = None
 
     hardware = model.get("hardware", {})
     nodes = model.get("nodes", {})
@@ -1449,81 +1451,114 @@ def port_ident_page():
     ]
 
     if request.method == "POST":
-        for port_id in enabled_port_ids:
-            node = nodes.get(port_id, {})
+        try:
+            for port_id in enabled_port_ids:
+                node = nodes.get(port_id, {})
 
-            short_interval = request.form.get(
-                f"port_{port_id}_short_ident_interval",
-                "15"
-            ).strip()
+                existing_ident = node.get("ident", {})
+                existing_short = existing_ident.get("short", {})
+                existing_long = existing_ident.get("long", {})
 
-            long_interval = request.form.get(
-                f"port_{port_id}_long_ident_interval",
-                "60"
-            ).strip()
+                short_interval = request.form.get(
+                    f"port_{port_id}_short_ident_interval",
+                    "15"
+                ).strip()
 
-            try:
-                short_interval_value = int(short_interval)
-            except ValueError:
-                short_interval_value = 15
+                long_interval = request.form.get(
+                    f"port_{port_id}_long_ident_interval",
+                    "60"
+                ).strip()
 
-            try:
-                long_interval_value = int(long_interval)
-            except ValueError:
-                long_interval_value = 60
+                try:
+                    short_interval_value = int(short_interval)
+                except ValueError:
+                    short_interval_value = 15
 
-            node["ident"] = {
-                "short": {
-                    "interval": short_interval_value,
-                    "voice_enable": request.form.get(
-                        f"port_{port_id}_short_voice_enable"
-                    ) == "1",
-                    "cw_enable": request.form.get(
-                        f"port_{port_id}_short_cw_enable"
-                    ) == "1",
-                    "announce_enable": request.form.get(
-                        f"port_{port_id}_short_announce_enable"
-                    ) == "1",
-                    "announce_file": request.form.get(
-                        f"port_{port_id}_short_announce_file",
+                try:
+                    long_interval_value = int(long_interval)
+                except ValueError:
+                    long_interval_value = 60
+
+                short_upload = request.files.get(
+                    f"port_{port_id}_short_announce_file"
+                )
+
+                long_upload = request.files.get(
+                    f"port_{port_id}_long_announce_file"
+                )
+
+                short_announce_file = save_ident_upload(
+                    short_upload,
+                    f"port{port_id}_short_ident",
+                )
+
+                long_announce_file = save_ident_upload(
+                    long_upload,
+                    f"port{port_id}_long_ident",
+                )
+
+                if not short_announce_file:
+                    short_announce_file = existing_short.get(
+                        "announce_file",
                         ""
-                    ).strip(),
-                },
-                "long": {
-                    "interval": long_interval_value,
-                    "voice_enable": request.form.get(
-                        f"port_{port_id}_long_voice_enable"
-                    ) == "1",
-                    "cw_enable": request.form.get(
-                        f"port_{port_id}_long_cw_enable"
-                    ) == "1",
-                    "announce_enable": request.form.get(
-                        f"port_{port_id}_long_announce_enable"
-                    ) == "1",
-                    "announce_file": request.form.get(
-                        f"port_{port_id}_long_announce_file",
+                    )
+
+                if not long_announce_file:
+                    long_announce_file = existing_long.get(
+                        "announce_file",
                         ""
-                    ).strip(),
-                },
-            }
+                    )
 
-            node["ident_configured"] = True
-            nodes[port_id] = node
+                node["ident"] = {
+                    "short": {
+                        "interval": short_interval_value,
+                        "voice_enable": request.form.get(
+                            f"port_{port_id}_short_voice_enable"
+                        ) == "1",
+                        "cw_enable": request.form.get(
+                            f"port_{port_id}_short_cw_enable"
+                        ) == "1",
+                        "announce_enable": request.form.get(
+                            f"port_{port_id}_short_announce_enable"
+                        ) == "1",
+                        "announce_file": short_announce_file,
+                    },
+                    "long": {
+                        "interval": long_interval_value,
+                        "voice_enable": request.form.get(
+                            f"port_{port_id}_long_voice_enable"
+                        ) == "1",
+                        "cw_enable": request.form.get(
+                            f"port_{port_id}_long_cw_enable"
+                        ) == "1",
+                        "announce_enable": request.form.get(
+                            f"port_{port_id}_long_announce_enable"
+                        ) == "1",
+                        "announce_file": long_announce_file,
+                    },
+                }
 
-        model["nodes"] = nodes
+                node["ident_configured"] = True
+                nodes[port_id] = node
 
-        model.setdefault("build", {})
-        model["build"]["port_ident_configured"] = True
+            model["nodes"] = nodes
 
-        save_node_model(model)
+            model.setdefault("build", {})
+            model["build"]["port_ident_configured"] = True
 
-        return redirect(url_for("port_cw_page"))
+            save_node_model(model)
+
+            return redirect(url_for("port_cw_page"))
+
+        except Exception as exc:
+            error = f"Announcement file upload failed: {exc}"
 
     return render_template(
         "port_ident.html",
         model=model,
         nodes=nodes,
         enabled_ports=enabled_ports,
+        error=error,
         version_info=get_version_info(),
     )
 @app.route("/port-cw", methods=["GET", "POST"])

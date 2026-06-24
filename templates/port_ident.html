@@ -32,6 +32,9 @@
         <form action="{{ url_for('port_ident_page') }}" method="post" enctype="multipart/form-data">
             <div class="form-section">
                 <div class="label">Per-port identification</div>
+                {% if error %}
+                    <p class="error">{{ error }}</p>
+                {% endif %}
 
                 {% for port in enabled_ports %}
                     {% set port_id = port|string %}
