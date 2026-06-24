@@ -15,7 +15,8 @@
                 <h1>Interface Mode</h1>
                 <p>Select how SQL and PTT control will be handled.<br>
                 HIDRAW is by far the easiest to set up. It requires a fully modified sound card<br>
-                or so-called TOADS card that carries the necessary hardware interface connections.</p>
+                or so-called TOADS card that carries the necessary hardware interface connections.<br>
+                If you use one of these then ignore the GPIOD settings that follow. </p>
             </div>
         </div>
 
@@ -39,12 +40,17 @@
                            {% if model.interface.mode == 'gpiod' %}checked{% endif %}>
                     <label for="gpiod">GPIOD - SQL and PTT use GPIO lines</label>
                 </div>
-            
+                <div note>
+                    GPIOD is available on platforms that support GPIO lines.<br> 
+                    The GPIO lines used for SQL and PTT can be configured below.
+                    GPIO 23 (as Rx) and GPIO 24 (as Tx) are good lines to use on the Raspberry Pi<br>
+                    as pins 14 (Earth) 16 and 18 are immediately adjacent.
+                </div>
                 <div class="radio-row">
                     <input type="radio" id="hybrid" name="interface_mode" value="hybrid"
                            {% if model.interface.mode == 'hybrid' %}checked{% endif %}>
                     <label for="hybrid">
-                        Hybrid - SQL uses GPIOD, PTT uses a compatible USB HID radio interface
+                        Hybrid - SQL uses GPIOD, PTT uses a compatible USB Hidraw radio interface
                     </label>
                 </div>
                 {% endif %}
@@ -64,7 +70,7 @@
             
                 <p>
                     Select the GPIO lines used for hardware squelch and PTT.<br>
-                    Available GPIO choices are limited to lines defined for this platform.
+                    Available GPIO choices are limited to gpiochip0 for this platform.
                 </p>
             
                 <div class="field-group">
@@ -126,7 +132,7 @@
             </div>
             {% if model.platform.id == 'nanopi_neo' %}
                 <div class="note">
-                    NanoPi-Neo uses the fixed GPIOD hardware layout supplied in the image.
+                    NanoPi-Neo uses a fixed GPIOD hardware layout supplied in its own image.
                 </div>
             {% endif %}
                 
