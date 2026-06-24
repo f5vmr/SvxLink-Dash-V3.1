@@ -31,6 +31,7 @@ from renderers.svxlink_renderer import (
     render_svxlink_config,
     render_echolink_module,
     render_metar_module,
+    get_primary_callsign,
 )
 
 from services.svxlink_service import (
@@ -146,10 +147,7 @@ def render_all(model):
 # Deployment phase
 # =========================================================
 def render_motd_script(model):
-    callsign = (
-        model.get("node", {})
-        .get("callsign", "UNCONFIGURED")
-    )
+    callsign = get_primary_callsign(model)
 
     return f"""#!/bin/sh
 
@@ -158,7 +156,7 @@ TERM=linux toilet -F metal {callsign}-SVX
 /usr/bin/vcgencmd measure_temp
 
 ## This file gives the login screen of a Raspberry Pi a new look
-## 30062024 - 1.2
+## 24062026 - 3.1
 """
 def deploy_motd_script(content):
     tmp_path = Path("/tmp/10-uname")
@@ -363,7 +361,8 @@ def build_svxlink_configuration(
         result["rendered_files"] = deployed
         motd_script = render_motd_script(model)
         motd_path = deploy_motd_script(motd_script)
-        result["rendered_files"].append(motd_path)
+        deployed.append(motd_path)
+        result["rendered_files"] = deployed
         
         node_info_path = deploy_node_info(model)
         result["rendered_files"].append(node_info_path)
