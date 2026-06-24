@@ -158,7 +158,7 @@ DEFAULT_MODEL = {
         },
 
         "squelch": {
-            "method": "gpiod",
+            "method": "hidraw",
             "ctcss_freq": None,
             "ctcss_tx": False,
         },
