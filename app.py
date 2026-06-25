@@ -665,13 +665,26 @@ def hardware_ports_page():
                 available_ports=available_ports,
                 enabled_ports=model.get("ports", {}).get("enabled", available_ports),
                 error="Select at least one port.",
+                version_info=get_version_info(),
             )
 
         model["ports"] = {
             "available": available_ports,
             "enabled": enabled_ports,
         }
-
+        if profile.get("family") == "ics":
+            try:
+                model = update_model_gpiod_discovery(model)
+            except Exception as exc:
+                return render_template(
+                    "hardware_ports.html",
+                    model=model,
+                    profile=profile,
+                    available_ports=available_ports,
+                    enabled_ports=enabled_ports,
+                    error=f"GPIOD discovery failed after port selection: {exc}",
+                    version_info=get_version_info(),
+                )
         save_node_model(model)
 
 #        if len(enabled_ports) > 1:
