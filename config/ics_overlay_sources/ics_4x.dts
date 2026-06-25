@@ -15,7 +15,7 @@
 
             /* MCP23017 @ 0x26 — expansion */
             mcp26: gpio@26 {
-                compatible = "mcp23017";
+                compatible = "microchip,mcp23017";
                 reg = <0x26>;
                 gpio-controller;
                 #gpio-cells = <2>;
@@ -25,11 +25,9 @@
                     "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
                     "REL_1",  "REL_2",  "EXP_10", "PCM_PDWN",
                     "EXP_12", "EXP_13", "EXP_14", "EXP_15";
-            };
-
             /* MCP23017 @ 0x27 — core RX/TX ports 1-4 */
             mcp27: gpio@27 {
-                compatible = "mcp23017";
+                compatible = "microchip,mcp23017";
                 reg = <0x27>;
                 gpio-controller;
                 #gpio-cells = <2>;
@@ -39,6 +37,14 @@
                     "CT_1", "CT_2", "RX_1", "RX_2",
                     "EN_3", "EN_4", "TX_3", "TX_4",
                     "CT_3", "CT_4", "RX_3", "RX_4";
+
+                pinctrl-names = "default";
+                pinctrl-0 = <&mcp27_rx_pullups>;
+
+                mcp27_rx_pullups: rx_pullups {
+                    pins = "gpio6", "gpio7", "gpio14", "gpio15";
+                    bias-pull-up;
+                };
             };
 
             /* SC16IS752 UART, GPS */
