@@ -7,6 +7,7 @@
     /* ========= Fragment 0: I2C devices ========= */
     fragment@0 {
         target = <&i2c1>;
+
         __overlay__ {
             status = "okay";
 
@@ -25,6 +26,8 @@
                     "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
                     "REL_1",  "REL_2",  "EXP_10", "PCM_PDWN",
                     "EXP_12", "EXP_13", "EXP_14", "EXP_15";
+            };
+
             /* MCP23017 @ 0x27 — core RX/TX ports 1-4 */
             mcp27: gpio@27 {
                 compatible = "microchip,mcp23017";
