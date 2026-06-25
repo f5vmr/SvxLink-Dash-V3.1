@@ -672,6 +672,7 @@ def hardware_ports_page():
             "available": available_ports,
             "enabled": enabled_ports,
         }
+
         if profile.get("family") == "ics":
             try:
                 model = update_model_gpiod_discovery(model)
@@ -685,6 +686,7 @@ def hardware_ports_page():
                     error=f"GPIOD discovery failed after port selection: {exc}",
                     version_info=get_version_info(),
                 )
+
         save_node_model(model)
 
 #        if len(enabled_ports) > 1:
