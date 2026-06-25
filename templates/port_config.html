@@ -59,7 +59,7 @@
 
                 <div class="note">
                     Configure each enabled port. When every port shows as configured,
-                    the Continue button will become available.
+                    the Continue button will become available for the next step.<br>
                 </div>
 
                 {% for port_id, node in nodes.items() %}
@@ -80,7 +80,7 @@
                         COS: {{ node.gpio.cos }}<br>
                         Configured:
                         {% if node.node_details_configured %}
-                            <span class="success-text">Yes</span>
+                            <span class="success-text">Partly</span>
                         {% else %}
                             <span class="warning-text">No</span>
                         {% endif %}
