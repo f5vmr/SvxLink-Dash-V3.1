@@ -74,8 +74,8 @@
                             <span class="warning-text">Not set</span>
                         {% endif %}
                         <br>
-                        RX audio: {{ node.audio.rx_audio }}<br>
-                        TX audio: {{ node.audio.tx_audio }}<br>
+                        RX audio: {{ node.get("audio", {}).get("rx_audio", "Not set") }}<br>
+                        TX audio: {{ node.get("audio", {}).get("tx_audio", "Not set") }}<br>
                         PTT: {{ node.gpio.ptt }}<br>
                         COS: {{ node.gpio.cos }}<br>
                         Configured:

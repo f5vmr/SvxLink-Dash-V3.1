@@ -1133,9 +1133,30 @@ def port_config_page():
 
     nodes = model.get("nodes", {})
 
+    missing_nodes = any(
+        str(port) not in nodes
+        for port in enabled_ports
+    )
+
+    if missing_nodes:
+        model["nodes"] = initialise_port_nodes(model, profile)
+        save_node_model(model)
+        nodes = model.get("nodes", {})
+
     all_ports_configured = bool(enabled_ports) and all(
         nodes.get(str(port), {}).get("node_details_configured")
         for port in enabled_ports
+    )
+
+    return render_template(
+        "port_config.html",
+        model=model,
+        profile=profile,
+        enabled_ports=enabled_ports,
+        port_roles=model.get("port_roles", {}),
+        nodes=nodes,
+        all_ports_configured=all_ports_configured,
+        version_info=get_version_info(),
     )
 
     return render_template(
