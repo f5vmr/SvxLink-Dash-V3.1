@@ -1179,6 +1179,20 @@ def port_node_page(port_id):
     if not node:
         return redirect(url_for("port_config_page"))
 
+    node.setdefault("audio", {})
+    node["audio"].setdefault("rx_audio", f"rx{port_id}")
+    node["audio"].setdefault("tx_audio", f"tx{port_id}")
+
+    node.setdefault("gpio", {})
+    node["gpio"].setdefault("ptt", f"TX_{port_id}")
+    node["gpio"].setdefault("cos", f"RX_{port_id}")
+    node["gpio"].setdefault("enable", f"EN_{port_id}")
+    node["gpio"].setdefault("control", f"CT_{port_id}")
+
+    nodes[port_id] = node
+    model["nodes"] = nodes
+    save_node_model(model)
+
     enabled_ports = [
         str(port)
         for port in model.get("ports", {}).get("enabled", [])
