@@ -74,6 +74,7 @@ from services.ics_prepare_service import (
     check_i2c,
     check_overlay,
     configure_pcm1803,
+    configure_audio_boot,
     get_ics_profiles,
     set_overlay,
     enable_i2c,
@@ -782,19 +783,37 @@ def ics_prepare_page():
 
             if result["ok"]:
                 model.setdefault("build", {})
+                audio_result = configure_audio_boot(selected_profile)
+                
+                if not audio_result["ok"]:
+                    error = (
+                        audio_result["stderr"]
+                        or audio_result["stdout"]
+                        or "Failed to configure ICS audio boot overlays."
+                    )
+                else:
+                    message = (
+                        result["stdout"]
+                        or "Overlay applied. Reboot required before continuing."
+                    )
+                
+                    if audio_result["stdout"]:
+                        message += "\n" + audio_result["stdout"]                
                 model["build"]["resume_after_reboot"] = "/ics_prepare"
 
                 model.setdefault("ics_prepare", {})
                 model["ics_prepare"]["overlay_applied"] = selected_profile
                 model["ics_prepare"]["reboot_required"] = True
                 model["ics_prepare"]["verified"] = False
-
+                model["ics_prepare"]["audio_boot_configured"] = True
                 save_node_model(model)
 
                 message = (
                     result["stdout"]
                     or f"Overlay set for {selected_profile}. Reboot required before continuing."
                 )
+                if audio_result["stdout"]:
+                    message += "\n" + audio_result["stdout"]
             else:
                 error = result["stderr"] or result["stdout"] or "Failed to set ICS overlay."
         elif action == "reboot":

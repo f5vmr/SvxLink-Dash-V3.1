@@ -135,6 +135,17 @@ def set_overlay(profile_id):
         }
 
     return _run_helper("set-overlay", profile["overlay"])
+
+def configure_audio_boot(profile_id):
+    """
+    Configure boot-time audio overlays required by selected ICS profile.
+    """
+
+    return _run_helper(
+        "configure-audio-boot",
+        profile_id,
+    )
+
 def configure_pcm1803(profile_id):
     profile = get_profile(profile_id)
 
