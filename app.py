@@ -41,7 +41,6 @@ from services.model_store import (
     load_node_model,
     save_node_model,
     CTCSS_TONES,
-    normalise_ctcss_tone,
 )
 from services.build_svxlink import build_svxlink_configuration
 
@@ -71,8 +70,6 @@ from services.activity_service import get_reflector_activity
 from services.hardware_service import get_system_info
 from services.ics_prepare_service import (
     build_ics_status,
-    check_i2c,
-    check_overlay,
     configure_pcm1803,
     configure_audio_boot,
     get_ics_profiles,
@@ -2026,36 +2023,36 @@ def port_final_review_page():
 #    return "\n".join(lines)
 
 
-def render_multiport_rx_tx_sections(model):
-    """
-    Render all Rx and Tx sections for enabled ICS ports.
-    """
-
-    nodes = model.get("nodes", {})
-    enabled_ports = model.get("ports", {}).get("enabled", [])
-
-    rx_sections = []
-    tx_sections = []
-
-    for port in enabled_ports:
-        port_id = str(port)
-        node = nodes.get(port_id, {})
-
-        if not node:
-            continue
-
-        rx_sections.append(
-            render_port_rx_section(model, port_id, node)
-        )
-
-        tx_sections.append(
-            render_port_tx_section(model, port_id, node)
-        )
-
-    return {
-        "rx_sections": "\n\n".join(rx_sections),
-        "tx_sections": "\n\n".join(tx_sections),
-    }
+# def render_multiport_rx_tx_sections(model):
+#     """
+#     Render all Rx and Tx sections for enabled ICS ports.
+#     """
+# 
+#     nodes = model.get("nodes", {})
+#     enabled_ports = model.get("ports", {}).get("enabled", [])
+# 
+#     rx_sections = []
+#     tx_sections = []
+# 
+#     for port in enabled_ports:
+#         port_id = str(port)
+#         node = nodes.get(port_id, {})
+# 
+#         if not node:
+#             continue
+# 
+#         rx_sections.append(
+#             render_port_rx_section(model, port_id, node)
+#         )
+# 
+#         tx_sections.append(
+#             render_port_tx_section(model, port_id, node)
+#         )
+# 
+#     return {
+#         "rx_sections": "\n\n".join(rx_sections),
+#         "tx_sections": "\n\n".join(tx_sections),
+#     }
 
 @app.route("/node", methods=["GET", "POST"])
 def node_page():
