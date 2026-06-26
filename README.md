@@ -19,7 +19,9 @@ SvxLink-Dash-V3.1 provides:
 The project is intended for both:
 
 1. Existing SvxLink users wanting a modern configuration/dashboard layer
+
 2. Complete appliance-style SvxLink images for Raspberry Pi, NanoPi-Neo, and a build structure for Linux PC and similar systems.
+NB the current structure is in English only and presented for the https://ukwide.svxlink.net, https://north.america.svxlink.net and the https://au.svxlink.net Svxreflectors
 
 ---
 
@@ -28,7 +30,7 @@ The project is intended for both:
 ## Configuration Builder
 
 - Guided SvxLink configuration workflow
-- Simplex and repeater node support
+- Simplex and repeater node support on multiple ports
 - Reflector support
 - EchoLink support
 - METAR module support
@@ -132,7 +134,7 @@ SvxLink must already be operational.
 Expected components:
 
 ```text
-SvxLink Version 25.5.3 in this case 
+SvxLink Version 26.05 in this case 
 ```
 
 The dashboard assumes:
@@ -140,7 +142,7 @@ The dashboard assumes:
 - SvxLink already functions correctly
 - `/etc/svxlink` is present
 - DTMF PTY control is enabled
-- `/var/run/svxlink/dtmf_svx` exists as separately compiled.
+- `/dev/shm/....Logic` exists..
 
 ---
 
@@ -238,6 +240,7 @@ The installer configures restricted sudo access for:
 ```text
 systemctl restart svxlink
 systemctl is-active svxlink
+and a number of other functions
 ```
 
 via:
@@ -261,6 +264,7 @@ The dashboard provides:
 - Radio Status
 - Squelch State
 - Monitoring TGs
+- Active TGs
 - EchoLink Activity
 - Uptime
 
@@ -484,13 +488,15 @@ This may be added in future versions.
 
 # Credits
 
-SvxLink Software:
+SvxLink Software: Version 26.05
 
 Tobias Blömberg SM0SVX
 
 {{ version_info.dashboard_name }}:
 
-Chris Jackson G4NAB
+was developed by Chris Jackson, G4NAB.
+Additional assistance with Python, Flask, configuration rendering,
+debugging and documentation was provided through ChatGPT by OpenAI.
 
 ---
 
