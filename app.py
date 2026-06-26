@@ -1063,20 +1063,30 @@ def initialise_port_nodes(model, profile):
 
     for port in enabled_ports:
         port_id = str(port)
-        role = port_roles.get(port_id, {}).get("role")
+
+        role_entry = port_roles.get(port_id, {})
+
+        if isinstance(role_entry, dict):
+            role = role_entry.get("role", "simplex")
+        else:
+            role = role_entry or "simplex"
+
         mapping = port_map.get(port_id, {})
 
         if role not in ("simplex", "repeater"):
-            continue
+            role = "simplex"
 
         node = existing_nodes.get(port_id, {}).copy()
 
         node.setdefault("port", port)
-        node.setdefault("role", role)
+        node["role"] = role
         node.setdefault("enabled", True)
         node.setdefault("name", f"Port {port} {role.title()}")
         node.setdefault("callsign", None)
-        node.setdefault("language", model.get("language", {}).get("default", "en_GB"))
+        node.setdefault(
+            "language",
+            model.get("language", {}).get("default", "en_GB")
+        )
         node.setdefault("configured", False)
 
         node.setdefault("audio", {})
@@ -1089,12 +1099,10 @@ def initialise_port_nodes(model, profile):
         node["gpio"].setdefault("enable", mapping.get("enable"))
         node["gpio"].setdefault("control", mapping.get("control"))
 
-        # Keep role current if the role page is deliberately changed
-        node["role"] = role
-
         nodes[port_id] = node
 
     return nodes
+
 @app.route("/port-config", methods=["GET", "POST"])
 def port_config_page():
     model = load_node_model()
@@ -1133,16 +1141,19 @@ def port_config_page():
 
     nodes = model.get("nodes", {})
 
-    missing_nodes = any(
+    nodes_need_initialising = any(
         str(port) not in nodes
+        or not nodes.get(str(port), {}).get("role")
+        or "audio" not in nodes.get(str(port), {})
+        or "gpio" not in nodes.get(str(port), {})
         for port in enabled_ports
     )
 
-    if missing_nodes:
+    if nodes_need_initialising:
         model["nodes"] = initialise_port_nodes(model, profile)
         save_node_model(model)
         nodes = model.get("nodes", {})
-
+        
     all_ports_configured = bool(enabled_ports) and all(
         nodes.get(str(port), {}).get("node_details_configured")
         for port in enabled_ports
@@ -1189,10 +1200,19 @@ def port_node_page(port_id):
     node["gpio"].setdefault("enable", f"EN_{port_id}")
     node["gpio"].setdefault("control", f"CT_{port_id}")
 
+    role_entry = model.get("port_roles", {}).get(port_id, {})
+
+    if isinstance(role_entry, dict):
+        role = role_entry.get("role", "simplex")
+    else:
+        role = role_entry or "simplex"
+
+    node["role"] = node.get("role") or role
+
     nodes[port_id] = node
     model["nodes"] = nodes
     save_node_model(model)
-
+    
     enabled_ports = [
         str(port)
         for port in model.get("ports", {}).get("enabled", [])
