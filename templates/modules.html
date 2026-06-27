@@ -45,8 +45,7 @@
 
             <div class="button-row">
                 <a class="button-secondary"
-                    href="{% if model.node.type == 'repeater' %}{{ url_for('repeater_page') }}{% else %}{{ url_for('ident_page') }}{% endif %}">
-                    Back
+                href="{% if model.get('build', {}).get('return_after_modules') == 'port_ident_page' %}{{ url_for('port_modules_page') }}{% elif model.node.type == 'repeater' %}{{ url_for('repeater_page') }}{% else %}{{ url_for('ident_page') }}{% endif %}">                    Back
                 </a>
                 <button class="button-primary" type="submit">Continue</button>
             </div>
