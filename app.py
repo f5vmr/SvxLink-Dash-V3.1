@@ -1517,11 +1517,13 @@ def port_modules_page():
             global_enabled.discard("ModuleMetarInfo")
 
         model["modules"]["enabled"] = sorted(global_enabled)
-
-        save_node_model(model)
-
         if echolink_port or metar_ports:
+            model["build"]["return_after_modules"] = "port_ident_page"
+            save_node_model(model)
             return redirect(url_for("modules_page"))
+
+        model["build"].pop("return_after_modules", None)
+        save_node_model(model)
 
         return redirect(url_for("port_ident_page"))
     return render_template(
@@ -2558,6 +2560,12 @@ def modules_page():
 
         if metar_enabled:
             return redirect(url_for("metar_default_page"))
+
+        return_after_modules = model.get("build", {}).pop("return_after_modules", None)
+
+        if return_after_modules:
+            save_node_model(model)
+            return redirect(url_for(return_after_modules))
 
         return redirect(url_for("reflector_page"))
 
