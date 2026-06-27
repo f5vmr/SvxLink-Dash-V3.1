@@ -2567,6 +2567,12 @@ def modules_page():
             save_node_model(model)
             return redirect(url_for(return_after_modules))
 
+        return_after_modules = model.get("build", {}).pop("return_after_modules", None)
+
+        if return_after_modules:
+            save_node_model(model)
+            return redirect(url_for(return_after_modules))
+
         return redirect(url_for("reflector_page"))
 
     return render_template("modules.html", model=model)
