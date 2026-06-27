@@ -117,9 +117,11 @@
                 
                     <div class="status-box-row modules-loaded">
                         {% if port_modules %}
-                            {{ port_modules | join(', ') }}
+                            {% for module in port_modules %}
+                                <div>{{ module }}</div>
+                            {% endfor %}
                         {% else %}
-                            None
+                            <div>None</div>
                         {% endif %}
                     </div>
                 
