@@ -2671,9 +2671,18 @@ def metar_airports_page():
             error = "Please select no more than 6 additional airports."
         else:
             model["metar"]["airports"] = selected_airports
-            save_node_model(model)
-            return redirect(url_for("reflector_page"))
 
+            return_after_modules = model.get("build", {}).pop(
+                "return_after_modules",
+                None,
+            )
+
+            save_node_model(model)
+
+            if return_after_modules:
+                return redirect(url_for(return_after_modules))
+
+            return redirect(url_for("reflector_page"))
     return render_template(
         "metar_airports.html",
         model=model,
