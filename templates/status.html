@@ -116,7 +116,11 @@
                     </div>
                 
                     <div class="status-box-row modules-loaded">
-                        {{ status.modules | join(', ') }}
+                        {% if port_modules %}
+                            {{ port_modules | join(', ') }}
+                        {% else %}
+                            None
+                        {% endif %}
                     </div>
                 
                 </div>

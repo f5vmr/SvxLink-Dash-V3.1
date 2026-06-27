@@ -3124,12 +3124,23 @@ def status_page():
     )
 
     talkgroups = load_talkgroups(environment)
+    selected_node = model.get("nodes", {}).get(str(selected_port), {})
+    selected_node_modules = selected_node.get("modules", {})
+
+    port_modules = []
+
+    if selected_node_modules.get("echolink"):
+        port_modules.append("EchoLink")
+
+    if selected_node_modules.get("metar"):
+        port_modules.append("MetarInfo")
 
     return render_template(
         "status.html",
         model=model,
         status=status,
         activity=activity,
+        port_modules=port_modules,
         talkgroups=talkgroups,
         monitor_tgs=monitor_tgs,
         active_talkgroup=status.get("active_talkgroup"),
