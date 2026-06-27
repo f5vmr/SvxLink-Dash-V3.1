@@ -1503,10 +1503,27 @@ def port_modules_page():
         model.setdefault("build", {})
         model["build"]["port_modules_configured"] = True
 
+        model.setdefault("modules", {})
+        global_enabled = set(model["modules"].get("enabled", []))
+
+        if echolink_port:
+            global_enabled.add("ModuleEchoLink")
+        else:
+            global_enabled.discard("ModuleEchoLink")
+
+        if metar_ports:
+            global_enabled.add("ModuleMetarInfo")
+        else:
+            global_enabled.discard("ModuleMetarInfo")
+
+        model["modules"]["enabled"] = sorted(global_enabled)
+
         save_node_model(model)
 
-        return redirect(url_for("port_ident_page"))
+        if echolink_port or metar_ports:
+            return redirect(url_for("modules_page"))
 
+        return redirect(url_for("port_ident_page"))
     return render_template(
         "port_modules.html",
         model=model,
@@ -1515,7 +1532,6 @@ def port_modules_page():
         modules_multi=modules_multi,
         version_info=get_version_info(),
     )
-@app.route("/port-ident", methods=["GET", "POST"])
 @app.route("/port-ident", methods=["GET", "POST"])
 def port_ident_page():
     model = load_node_model()
