@@ -28,7 +28,11 @@
                 reg = <0x27>;
                 gpio-controller;
                 #gpio-cells = <2>;
-
+                interrupt-parent = <&gpio>;
+                interrupts = <12 IRQ_TYPE_EDGE_FALLING>;
+                interrupt-controller;
+                #interrupt-cells = <2>;
+                microchip,irq-mirror;
                 gpio-line-names =
                     "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
                     "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
