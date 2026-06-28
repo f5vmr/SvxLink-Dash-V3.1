@@ -1,6 +1,6 @@
 /dts-v1/;
 /plugin/;
-
+#include <dt-bindings/interrupt-controller/irq.h>
 / {
     compatible = "brcm,bcm2711", "brcm,bcm2835";
 
@@ -20,7 +20,11 @@
                 reg = <0x26>;
                 gpio-controller;
                 #gpio-cells = <2>;
-
+                interrupt-parent = <&gpio>;
+                interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
+                interrupt-controller;
+                #interrupt-cells = <2>;
+                microchip,irq-mirror;
                 gpio-line-names =
                     "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
                     "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
@@ -34,7 +38,11 @@
                 reg = <0x27>;
                 gpio-controller;
                 #gpio-cells = <2>;
-
+                interrupt-parent = <&gpio>;
+                interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
+                interrupt-controller;
+                #interrupt-cells = <2>;
+                microchip,irq-mirror;
                 gpio-line-names =
                     "EN_1", "EN_2", "TX_1", "TX_2",
                     "CT_1", "CT_2", "RX_1", "RX_2",
