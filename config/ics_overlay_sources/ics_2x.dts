@@ -26,6 +26,7 @@
                 reg = <0x20>;
                 gpio-controller;
                 #gpio-cells = <2>;
+                #address-cells = <0>;
                 interrupt-parent = <&gpio>;
                 interrupts = <12 2>;
                 interrupt-controller;
