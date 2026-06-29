@@ -1,6 +1,5 @@
 /dts-v1/;
 /plugin/;
-#include <dt-bindings/interrupt-controller/irq.h>
 / {
     compatible = "brcm,bcm2711", "brcm,bcm2835";
 
@@ -21,7 +20,7 @@
                 gpio-controller;
                 #gpio-cells = <2>;
                 interrupt-parent = <&gpio>;
-                interrupts = <25 IRQ_TYPE_EDGE_FALLING>;
+                interrupts = <25 2>;
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
@@ -39,7 +38,7 @@
                 gpio-controller;
                 #gpio-cells = <2>;
                 interrupt-parent = <&gpio>;
-                interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
+                interrupts = <23 2>;
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
@@ -49,13 +48,7 @@
                     "EN_3", "EN_4", "TX_3", "TX_4",
                     "CT_3", "CT_4", "RX_3", "RX_4";
 
-                pinctrl-names = "default";
-                pinctrl-0 = <&mcp27_rx_pullups>;
-
-                mcp27_rx_pullups: rx_pullups {
-                    pins = "gpio6", "gpio7", "gpio14", "gpio15";
-                    bias-pull-up;
-                };
+            
             };
 
             /* SC16IS752 UART, GPS */
