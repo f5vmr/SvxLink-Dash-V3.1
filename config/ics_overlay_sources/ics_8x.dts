@@ -26,7 +26,7 @@
                 #gpio-cells = <2>;
                 #address-cells = <0>;
                 interrupt-parent = <&gpio>;
-                interrupts = <25 2>;
+                interrupts = <25 8>;
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
@@ -49,7 +49,7 @@
                 #gpio-cells = <2>;
                 #address-cells = <0>;
                 interrupt-parent = <&gpio>;
-                interrupts = <24 2>;
+                interrupts = <24 8>;
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
@@ -79,7 +79,7 @@
                 #gpio-cells = <2>;
                 #address-cells = <0>;
                 interrupt-parent = <&gpio>;
-                interrupts = <23 2>;
+                interrupts = <23 8>;
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
