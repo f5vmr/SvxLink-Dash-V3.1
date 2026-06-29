@@ -58,10 +58,8 @@
                     "CT_5", "CT_6", "RX_5", "RX_6",
                     "EN_7", "EN_8", "TX_7", "TX_8",
                     "CT_7", "CT_8", "RX_7", "RX_8";
-
                 pinctrl-names = "default";
                 pinctrl-0 = <&mcp26_rx_pullups>;
-
                 mcp26_rx_pullups: rx_pullups {
                     pins = "gpio6", "gpio7", "gpio14", "gpio15";
                     bias-pull-up;
@@ -88,7 +86,12 @@
                     "CT_1", "CT_2", "RX_1", "RX_2",
                     "EN_3", "EN_4", "TX_3", "TX_4",
                     "CT_3", "CT_4", "RX_3", "RX_4";
-
+                pinctrl-names = "default";
+                pinctrl-0 = <&mcp27_rx_pullups>;
+                mcp27_rx_pullups: pinconf {
+                    pins = "gpio6", "gpio7", "gpio14", "gpio15";
+                    bias-pull-up;
+                };
             
             
 
