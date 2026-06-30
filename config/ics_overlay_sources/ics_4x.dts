@@ -78,7 +78,69 @@
                     bias-pull-up;
                 };
             };
+                        /* ADS1015 ADC @ 0x48 */
+            ads1015_48: adc@48 {
+                compatible = "ti,ads1015";
+                reg = <0x48>;
+                #address-cells = <1>;
+                #size-cells = <0>;
 
+                channel@0 {
+                    reg = <0>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel@1 {
+                    reg = <1>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel@2 {
+                    reg = <2>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel@3 {
+                    reg = <3>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+            };
+
+            /* ADS1015 ADC @ 0x49 */
+            ads1015_49: adc@49 {
+                compatible = "ti,ads1015";
+                reg = <0x49>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                channel@0 {
+                    reg = <0>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel@1 {
+                    reg = <1>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel@2 {
+                    reg = <2>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+
+                channel@3 {
+                    reg = <3>;
+                    ti,gain = <2>;
+                    ti,datarate = <4>;
+                };
+            };
             /* SC16IS752 UART / GPS */
             sc16: serial@4d {
                 compatible = "nxp,sc16is752";
