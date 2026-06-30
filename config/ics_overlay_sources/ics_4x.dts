@@ -1,10 +1,24 @@
 /dts-v1/;
 /plugin/;
+
 / {
     compatible = "brcm,bcm2711", "brcm,bcm2835";
 
-    /* ========= Fragment 0: I2C devices ========= */
+    /* Fixed clock for SC16IS752 */
     fragment@0 {
+        target-path = "/";
+
+        __overlay__ {
+            sc16_clk: sc16_clk {
+                compatible = "fixed-clock";
+                #clock-cells = <0>;
+                clock-frequency = <3686400>;
+            };
+        };
+    };
+
+    /* I2C devices */
+    fragment@1 {
         target = <&i2c1>;
 
         __overlay__ {
@@ -20,11 +34,14 @@
                 gpio-controller;
                 #gpio-cells = <2>;
                 #address-cells = <0>;
+
                 interrupt-parent = <&gpio>;
                 interrupts = <25 8>;
+
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
+
                 gpio-line-names =
                     "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
                     "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
@@ -39,40 +56,39 @@
                 gpio-controller;
                 #gpio-cells = <2>;
                 #address-cells = <0>;
+
                 interrupt-parent = <&gpio>;
                 interrupts = <23 8>;
+
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
+
                 gpio-line-names =
                     "EN_1", "EN_2", "TX_1", "TX_2",
                     "CT_1", "CT_2", "RX_1", "RX_2",
                     "EN_3", "EN_4", "TX_3", "TX_4",
                     "CT_3", "CT_4", "RX_3", "RX_4";
+
                 pinctrl-names = "default";
                 pinctrl-0 = <&mcp27_rx_pullups>;
+
                 mcp27_rx_pullups: pinconf {
                     pins = "gpio6", "gpio7", "gpio14", "gpio15";
                     bias-pull-up;
                 };
-            
             };
 
-                sc16_clk: sc16_clk {
-                    compatible = "fixed-clock";
-                    #clock-cells = <0>;
-                    clock-frequency = <3686400>;
-                };
+            /* SC16IS752 UART / GPS */
+            sc16: serial@4d {
+                compatible = "nxp,sc16is752";
+                reg = <0x4d>;
 
-                sc16: serial@4d {
-                    compatible = "nxp,sc16is752";
-                    reg = <0x4d>;
+                clocks = <&sc16_clk>;
 
-                    clocks = <&sc16_clk>;
-
-                    interrupt-parent = <&gpio>;
-                    interrupts = <24 2>;
-                };
+                interrupt-parent = <&gpio>;
+                interrupts = <24 2>;
+            };
         };
     };
 };
