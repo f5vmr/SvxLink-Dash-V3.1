@@ -58,11 +58,21 @@
             
             };
 
-            /* SC16IS752 UART, GPS */
-            sc16: serial@4d {
-                compatible = "nxp,sc16is752";
-                reg = <0x4d>;
-            };
+                sc16_clk: sc16_clk {
+                    compatible = "fixed-clock";
+                    #clock-cells = <0>;
+                    clock-frequency = <3686400>;
+                };
+
+                sc16: serial@4d {
+                    compatible = "nxp,sc16is752";
+                    reg = <0x4d>;
+
+                    clocks = <&sc16_clk>;
+
+                    interrupt-parent = <&gpio>;
+                    interrupts = <24 2>;
+                };
         };
     };
 };
