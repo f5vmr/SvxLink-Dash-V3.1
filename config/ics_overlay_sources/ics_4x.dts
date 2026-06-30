@@ -70,13 +70,6 @@
                     "EN_3", "EN_4", "TX_3", "TX_4",
                     "CT_3", "CT_4", "RX_3", "RX_4";
 
-                pinctrl-names = "default";
-                pinctrl-0 = <&mcp27_rx_pullups>;
-
-                mcp27_rx_pullups: pinconf {
-                    pins = "gpio6", "gpio7", "gpio14", "gpio15";
-                    bias-pull-up;
-                };
             };
                         /* ADS1015 ADC @ 0x48 */
             ads1015_48: adc@48 {
