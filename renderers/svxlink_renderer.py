@@ -885,15 +885,23 @@ def render_port_rx_section(model, port_id, node):
             rx_label,
         )
 
-        sql_line = resolved.get("line", rx_label)
+    sql_line = resolved.get("line", rx_label)
 
-        if node.get("gpio", {}).get("cos_invert"):
-            sql_line = f"!{sql_line}"
+    if node.get("gpio", {}).get("cos_invert"):
+        # User selected external COS active-low.
+        # ICS input hardware inverts this, so MCP23017 RX_# is active-high.
+        sql_bias = "PULLDOWN"
+    else:
+        # User selected external COS active-high.
+        # ICS input hardware inverts this, so MCP23017 RX_# is active-low.
+        sql_line = f"!{sql_line}"
+        sql_bias = "PULLUP"
 
         lines.extend([
             "SQL_DET=GPIOD",
             f"SQL_GPIOD_CHIP={resolved.get('chip', '')}",
             f"SQL_GPIOD_LINE={sql_line}",
+            f"SQL_GPIOD_BIAS={sql_bias}",
         ])
 
     lines.extend([
