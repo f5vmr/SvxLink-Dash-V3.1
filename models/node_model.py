@@ -11,8 +11,6 @@ This file defines the authoritative configuration model used by:
 """
 
 from copy import deepcopy
-from email import errors
-from xml.parsers.expat import model
 
 
 SUPPORTED_NODE_TYPES = {"simplex", "repeater"}
@@ -45,15 +43,24 @@ SUPPORTED_SQUELCH_METHODS = [
     "hidraw",
     "gpiod",
     "ctcss",
-    "gpiod_ctcss",
     "serial",
-    "serial_ctcss",
 ]
 SUPPORTED_INTERFACE_MODES = {
     "hidraw",
     "gpiod",
     "hybrid",
     "serial",
+}
+NANOPI_NEO_GPIO_DEFAULTS = {
+    "sql": {
+        "chip": "gpiochip0",
+        "line": 203,
+        "active": "high",
+    },
+    "ptt": {
+        "chip": "gpiochip0",
+        "line": 6,
+    },
 }
 DEFAULT_MODEL = {
     "schema_version": 1,
@@ -95,79 +102,67 @@ DEFAULT_MODEL = {
             "interval": 60,
         },
     },
-        "gpio": {
-            "sql": {
+    "gpio": {
+        "sql": {
             "chip": "gpiochip0",
             "line": 23,
             "active": "high",
-            "physical_pin": 16,
         },
         "ptt": {
             "chip": "gpiochip0",
             "line": 24,
-            "physical_pin": 18,
-            },
         },
-
-        "hidraw": {
-            "device": "/dev/hidraw0",
-            "sql_pin": "VOL_DN",
-            "ptt_pin": "GPIO3",
-        },
-        "serial": {
-            "sql_port": "/dev/ttyS0",
-            "sql_pin": "CTS",
-            "sql_set_pins": "DTR!RTS",
-
-            "ptt_port": "/dev/ttyS0",
-            "ptt_pin": "DTRRTS",
-        },
-        "cw": {
-            "amp": -10,
-            "pitch": 650,
-            "cpm": 95,
-        },
-
-        "audio": {
-            "audio_dev": "alsa:plughw:0",
-            "audio_channel": 0,
-        },
-
-        "time_format": "24",
-
-        "fx_gain_normal": 0,
-        "fx_gain_low": -12,
-
-        "sql_hangtime": 20,
-        "sql_tail_elim": 270,
-
-        "idle_timeout": 10,
-        "sql_timeout": 180,
-        "idle_tone": "chime",
-        "down_tone": "biboop",
-        "tg_timeout": 60,
-
-        "tx_ctcss_mode": "ALWAYS",
-
-        "online_control": {
-            "enabled": False,
-            "command": None,
-        },
-        "courtesy": {
-            "mode": "none",
-        },
-
-        "squelch": {
-            "method": "hidraw",
-            "ctcss_freq": None,
-            "ctcss_tx": False,
-        },
-        "echolink": {
-            "enabled": False,
-            "callsign": None,
-            "password": None,
-            "sysopname": None,
-            "location": None,
+    },
+    "hidraw": {
+        "device": "/dev/hidraw0",
+        "sql_pin": "VOL_DN",
+        "ptt_pin": "GPIO3",
+    },
+    "serial": {
+        "sql_port": "/dev/ttyS0",
+        "sql_pin": "CTS",
+        "sql_set_pins": "DTR!RTS",
+        "ptt_port": "/dev/ttyS0",
+        "ptt_pin": "DTRRTS",
+    },
+    "cw": {
+        "amp": -10,
+        "pitch": 650,
+        "cpm": 95,
+    },
+    "audio": {
+        "audio_dev": "alsa:plughw:0",
+        "audio_channel": 0,
+    },
+    "time_format": "24",
+    "fx_gain_normal": 0,
+    "fx_gain_low": -12,
+    "sql_hangtime": 20,
+    "sql_tail_elim": 270,
+    "idle_timeout": 10,
+    "sql_timeout": 180,
+    "idle_tone": "chime",
+    "down_tone": "biboop",
+    "tg_timeout": 60,
+    "tx_ctcss_mode": "ALWAYS",
+    "online_control": {
+        "enabled": False,
+        "command": None,
+    },
+    "courtesy": {
+        "mode": "none",
+    },
+    "squelch": {
+        "method": "hidraw",
+        "ctcss_freq": None,
+        "ctcss_tx": False,
+    },
+    "echolink": {
+        "enabled": False,
+        "callsign": None,
+        "password": None,
+        "sysopname": None,
+        "location": None,
     },
         "metar": {
             "enabled": False,
@@ -194,14 +189,18 @@ def new_node_model(platform=None):
     model = deepcopy(DEFAULT_MODEL)
 
     if platform is not None:
+        platform_id = platform.get("id")
+
         model["platform"] = {
-            "id": platform.get("id"),
+            "id": platform_id,
             "name": platform.get("name"),
             "supported": bool(platform.get("supported")),
         }
 
-    return model
+        if platform_id == "nanopi_neo":
+            model["gpio"] = deepcopy(NANOPI_NEO_GPIO_DEFAULTS)
 
+    return model
 def is_ics_multiport_model(model):
     hardware = model.get("hardware", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
