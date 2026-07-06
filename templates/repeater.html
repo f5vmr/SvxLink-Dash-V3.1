@@ -43,28 +43,34 @@
                 </div>
             </div>
             <div class="field-group">
-                <label class="label">Idle tone</label>
-            
+                {% set repeater = model.get("repeater", {}) %}
+                {% set idle_tone = repeater.get("idle_tone", "chime") %}
+
+                        
+                <label class="label">Repeater Idle Tone</label>
+                        
                 <select class="input-field" name="idle_tone">
-                    <option value="chime" {% if model.idle_tone == 'chime' %}selected{% endif %}>Chime</option>
-                    <option value="pip" {% if model.idle_tone == 'pip' %}selected{% endif %}>Pip</option>
-                    <option value="silence" {% if model.idle_tone == 'silence' %}selected{% endif %}>Silence</option>
+                    <option value="chime" {% if idle_tone == 'chime' %}selected{% endif %}>Chime</option>
+                    <option value="pip" {% if idle_tone == 'pip' %}selected{% endif %}>Pip</option>
+                    <option value="silence" {% if idle_tone == 'silence' %}selected{% endif %}>None</option>
                 </select>
+            
                 <div class="note">
-                    This is the Tone played  while idle.
+                    This is the tone played while the repeater is idle.
                 </div>
+
             </div>            
             <div class="field-group">
-                <label class="label">Close-down tone</label>
-            
+                {% set repeater = model.get("repeater", {}) %}
+                {% set down_tone = repeater.get("down_tone", "biboop") %}
+
+                <label class="label">Repeater shutoff tone</label>
+
                 <select class="input-field" name="down_tone">
-                    <option value="biboop" {% if model.down_tone == 'biboop' %}selected{% endif %}>Bi-Boop</option>
-                    <option value="va" {% if model.down_tone == 'va' %}selected{% endif %}>VA barred</option>
-                    <option value="none" {% if model.down_tone == 'none' %}selected{% endif %}>None</option>
+                    <option value="none" {% if down_tone == 'none' %}selected{% endif %}>None</option>
+                    <option value="biboop" {% if down_tone == 'biboop' %}selected{% endif %}>Biboop</option>
+                    <option value="va" {% if down_tone == 'va' %}selected{% endif %}>VA</option>
                 </select>
-                <div class="note">
-                    This is the tone played when the repeater closes down after a transmission period.
-                </div>
             </div>
             <div class="field-group">
                 <label class="label" for="sql_timeout">SQL timeout</label>

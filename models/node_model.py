@@ -139,10 +139,6 @@ DEFAULT_MODEL = {
     "fx_gain_low": -12,
     "sql_hangtime": 20,
     "sql_tail_elim": 270,
-    "idle_timeout": 10,
-    "sql_timeout": 180,
-    "idle_tone": "chime",
-    "down_tone": "biboop",
     "tg_timeout": 60,
     "tx_ctcss_mode": "ALWAYS",
     "online_control": {
@@ -151,6 +147,12 @@ DEFAULT_MODEL = {
     },
     "courtesy": {
         "mode": "none",
+    },
+    "repeater": {
+    "idle_tone": "chime",
+    "down_tone": "biboop",
+    "idle_timeout": 10,
+    "sql_timeout": 180,
     },
     "squelch": {
         "method": "hidraw",
