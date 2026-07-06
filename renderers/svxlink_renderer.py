@@ -256,7 +256,7 @@ def render_open_on_ctcss_line(model):
     if not squelch.get("ctcss_freq"):
         return "#OPEN_ON_CTCSS=1000"
 
-    return "OPEN_ON_CTCSS=1000"
+    return "OPEN_ON_CTCSS=600"
 
 # =========================================================
 # RX rendering
@@ -281,20 +281,20 @@ def render_rx_sql_block(model):
             return "SQL_DET=CTCSS"
 
         return "SQL_DET=GPIOD"
-    if squelch_method == "gpiod_ctcss":
-        return "\n".join([
-            "SQL_DET=COMBINE",
-            "SQL_COMBINE=(Rx1:CTCSS)&(Rx1:GPIOD)",
-        ])
+#    if squelch_method == "gpiod_ctcss":
+#        return "\n".join([
+#            "SQL_DET=COMBINE",
+#            "SQL_COMBINE=(Rx1:CTCSS)&(Rx1:GPIOD)",
+#        ])
     if squelch_method == "ctcss":
         return "SQL_DET=CTCSS"
     if squelch_method == "serial":
         return "SQL_DET=SERIAL"
-    if squelch_method == "serial_ctcss":
-        return "\n".join([
-        "SQL_DET=COMBINE",
-        "SQL_COMBINE=(Rx1:CTCSS)&(Rx1:SERIAL)",
-        ])
+#    if squelch_method == "serial_ctcss":
+#        return "\n".join([
+#        "SQL_DET=COMBINE",
+#        "SQL_COMBINE=(Rx1:CTCSS)&(Rx1:SERIAL)",
+#        ])
     return "SQL_DET=GPIOD"
 
 
@@ -316,26 +316,33 @@ def render_rx_ctcss_block(model):
     return "\n".join([
         "CTCSS_MODE=4",
         f"CTCSS_FQ={freq}",
-        "#CTCSS_SNR_OFFSET=0",
+        "CTCSS_SNR_OFFSET=0",
         "#CTCSS_SNR_OFFSETS=88.5:-1.0,136.5:-0.5",
-        "#CTCSS_OPEN_THRESH=15",
-        "#CTCSS_CLOSE_THRESH=9",
-        "#CTCSS_BPF_LOW=60",
-        "#CTCSS_BPF_HIGH=270",
-        "#CTCSS_EMIT_TONE_DETECTED=0",
+        "CTCSS_OPEN_THRESH=15",
+        "CTCSS_CLOSE_THRESH=9",
+        "CTCSS_BPF_LOW=60",
+        "CTCSS_BPF_HIGH=270",
+        "CTCSS_EMIT_TONE_DETECTED=0",
     ])
 
 
 def render_rx_gpiod_block(model):
     """
     Render RX GPIOD block.
+
+    Do not render RX GPIOD when CTCSS is the selected receive
+    squelch method. PTT GPIOD is rendered separately.
     """
+
     interface = model.get("interface", {})
+    squelch_method = model.get("squelch", {}).get("method")
+
+    if squelch_method == "ctcss":
+        return ""
 
     if interface.get("mode") == "hidraw":
         return ""
-    if model.get("squelch", {}).get("method") == "gpiod_ctcss":
-        return ""    
+
     if interface.get("sql_source") != "gpiod":
         return ""
 
@@ -345,7 +352,7 @@ def render_rx_gpiod_block(model):
     line = str(gpio.get("line", 203))
 
     if gpio.get("invert"):
-            line = f"!{line}"
+        line = f"!{line}"
 
     return "\n".join([
         f"SQL_GPIOD_CHIP={chip}",
