@@ -237,6 +237,7 @@ def require_dashboard_auth():
     public_paths = {
         "/status",
         "/api/status",
+        "/wifi",
     }
 
     auth_paths = {
