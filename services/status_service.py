@@ -59,10 +59,13 @@ def get_connected_reflector(model=None):
     reflector_name = "Connected"
 
     if model:
-        reflector_name = (
+        candidate = (
             model.get("reflector", {})
-            .get("name", "Connected")
+            .get("name")
         )
+
+        if candidate and str(candidate).strip().lower() != "none":
+            reflector_name = str(candidate).strip()
 
     if not log_file.exists():
         return "unknown"
