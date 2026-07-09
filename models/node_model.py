@@ -211,6 +211,11 @@ def is_ics_multiport_model(model):
         hardware.get("family") == "ics"
         and len(enabled_ports)
     )
+def is_multiport_model(model):
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+    nodes = model.get("nodes", {})
+
+    return len(enabled_ports) > 1 and bool(nodes)
 def validate_model(model):
     """
     Validate high-level model consistency.
@@ -221,7 +226,7 @@ def validate_model(model):
 
     errors = []
     
-    if is_ics_multiport_model(model):
+    if is_multiport_model(model):
         nodes = model.get("nodes", {})
         enabled_ports = model.get("ports", {}).get("enabled", [])
 
