@@ -989,46 +989,84 @@ def timezone_page():
         timezones=timezones,
         error=error,
     )
-def next_after_timezone(model):
-    hardware = model.get("hardware", {})
-    ports = model.get("ports", {})
-
-    family = hardware.get("family")
-    enabled_ports = ports.get("enabled", [])
-
-    if family == "ics":
-        return url_for("reflector_page")
-
-    return url_for("node_page")
-def is_ics_multiport(model):
-    hardware = model.get("hardware", {})
+    
+def is_multiport_build(model):
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
     return (
-        hardware.get("family") == "ics"
+        model.get("build_intent") == "multichannel"
+        and len(enabled_ports) > 1
     )
 
+def next_after_timezone(model):
+    if is_multiport_build(model):
+        return url_for("reflector_page")
+
+    return url_for("node_page")
+
 def next_after_reflector(model):
-    hardware = model.get("hardware", {})
-    ports = model.get("ports", {})
-
-    family = hardware.get("family")
-    enabled_ports = ports.get("enabled", [])
-
-    if family == "ics":
+    if is_multiport_build(model):
         return url_for("port_roles_page")
 
     return url_for("review_page")
+def initialise_port_nodes(model, profile):
+    ports = model.get("ports", {})
+    enabled_ports = ports.get("enabled", [])
+    port_roles = model.get("port_roles", {})
+    port_map = profile.get("port_map", {})
 
+    existing_nodes = model.get("nodes", {})
+    nodes = {}
+
+    for port in enabled_ports:
+        port_id = str(port)
+
+        role_entry = port_roles.get(port_id, {})
+
+        if isinstance(role_entry, dict):
+            role = role_entry.get("role", "simplex")
+        else:
+            role = role_entry or "simplex"
+
+        if role not in ("simplex", "repeater"):
+            role = "simplex"
+
+        mapping = port_map.get(port_id, {})
+
+        node = existing_nodes.get(port_id, {}).copy()
+
+        node.setdefault("port", port)
+        node["role"] = role
+        node.setdefault("enabled", True)
+        node.setdefault("name", f"Port {port} {role.title()}")
+        node.setdefault("callsign", None)
+        node.setdefault(
+            "language",
+            model.get("language", {}).get("default", "en_GB")
+        )
+        node.setdefault("configured", False)
+
+        node.setdefault("audio", {})
+        node["audio"].setdefault("rx_audio", mapping.get("rx_audio"))
+        node["audio"].setdefault("tx_audio", mapping.get("tx_audio"))
+
+        node.setdefault("gpio", {})
+        node["gpio"].setdefault("ptt", mapping.get("ptt"))
+        node["gpio"].setdefault("cos", mapping.get("cos"))
+        node["gpio"].setdefault("enable", mapping.get("enable"))
+        node["gpio"].setdefault("control", mapping.get("control"))
+
+        nodes[port_id] = node
+
+    return nodes
 @app.route("/port-roles", methods=["GET", "POST"])
 def port_roles_page():
     model = load_node_model()
 
-    hardware = model.get("hardware", {})
     ports = model.get("ports", {})
     enabled_ports = ports.get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("node_page"))
 
     if not enabled_ports:
@@ -1069,67 +1107,15 @@ def port_roles_page():
         error=None,
         version_info=get_version_info(),
     )
-def initialise_port_nodes(model, profile):
-    ports = model.get("ports", {})
-    enabled_ports = ports.get("enabled", [])
-    port_roles = model.get("port_roles", {})
-    port_map = profile.get("port_map", {})
-
-    existing_nodes = model.get("nodes", {})
-    nodes = {}
-
-    for port in enabled_ports:
-        port_id = str(port)
-
-        role_entry = port_roles.get(port_id, {})
-
-        if isinstance(role_entry, dict):
-            role = role_entry.get("role", "simplex")
-        else:
-            role = role_entry or "simplex"
-
-        mapping = port_map.get(port_id, {})
-
-        if role not in ("simplex", "repeater"):
-            role = "simplex"
-
-        node = existing_nodes.get(port_id, {}).copy()
-
-        node.setdefault("port", port)
-        node["role"] = role
-        node.setdefault("enabled", True)
-        node.setdefault("name", f"Port {port} {role.title()}")
-        node.setdefault("callsign", None)
-        node.setdefault(
-            "language",
-            model.get("language", {}).get("default", "en_GB")
-        )
-        node.setdefault("configured", False)
-
-        node.setdefault("audio", {})
-        node["audio"].setdefault("rx_audio", mapping.get("rx_audio"))
-        node["audio"].setdefault("tx_audio", mapping.get("tx_audio"))
-
-        node.setdefault("gpio", {})
-        node["gpio"].setdefault("ptt", mapping.get("ptt"))
-        node["gpio"].setdefault("cos", mapping.get("cos"))
-        node["gpio"].setdefault("enable", mapping.get("enable"))
-        node["gpio"].setdefault("control", mapping.get("control"))
-
-        nodes[port_id] = node
-
-    return nodes
-
 @app.route("/port-config", methods=["GET", "POST"])
 def port_config_page():
     model = load_node_model()
 
     hardware_profile_id = model.get("hardware_profile_id")
-    hardware = model.get("hardware", {})
     ports = model.get("ports", {})
     enabled_ports = ports.get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("node_page"))
 
     if not enabled_ports:
@@ -1170,21 +1156,10 @@ def port_config_page():
         model["nodes"] = initialise_port_nodes(model, profile)
         save_node_model(model)
         nodes = model.get("nodes", {})
-        
+
     all_ports_configured = bool(enabled_ports) and all(
         nodes.get(str(port), {}).get("node_details_configured")
         for port in enabled_ports
-    )
-
-    return render_template(
-        "port_config.html",
-        model=model,
-        profile=profile,
-        enabled_ports=enabled_ports,
-        port_roles=model.get("port_roles", {}),
-        nodes=nodes,
-        all_ports_configured=all_ports_configured,
-        version_info=get_version_info(),
     )
 
     return render_template(
