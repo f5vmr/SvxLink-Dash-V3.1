@@ -82,6 +82,28 @@
                             Use Active Low if the USB HID interface reports COS asserted in the opposite sense.
                         </div>
                     </div>
+                    <div class="field-group">
+                        <label class="label" for="hidraw_ptt_invert">
+                            HIDRAW PTT output polarity
+                        </label>
+                    
+                        <select class="input-field"
+                                id="hidraw_ptt_invert"
+                                name="hidraw_ptt_invert">
+                            <option value="no"
+                                {% if not node.get("hidraw", {}).get("ptt_invert") %}selected{% endif %}>
+                                Active High
+                            </option>
+                            <option value="yes"
+                                {% if node.get("hidraw", {}).get("ptt_invert") %}selected{% endif %}>
+                                Active Low
+                            </option>
+                        </select>
+                    
+                        <div class="note">
+                            Use Active Low if the HIDRAW PTT output keys the transmitter in the opposite sense.
+                        </div>
+                    </div>
                 </div>
 
                 <label>

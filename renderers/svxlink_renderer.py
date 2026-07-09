@@ -884,18 +884,18 @@ def render_port_rx_section(model, port_id, node):
 
     if method == "hidraw":
         hidraw = node.get("hidraw", {})
-    
-        device = (
-            hidraw.get("device")
-            or hidraw.get("sql_device")
-            or f"/dev/hid/cmedia{port_id}"
-        )
-    
+
+        try:
+            hidraw_index = int(port_id) - 1
+        except ValueError:
+            hidraw_index = 0
+
+        device = hidraw.get("device", f"/dev/hidraw{hidraw_index}")
         pin = hidraw.get("sql_pin", "VOL_DN")
-    
+
         if hidraw.get("sql_invert"):
             pin = f"!{pin}"
-    
+
         lines.extend([
             "SQL_DET=HIDRAW",
             f"HID_DEVICE={device}",

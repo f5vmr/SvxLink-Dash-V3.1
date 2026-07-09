@@ -1435,6 +1435,9 @@ def port_squelch_detail_page(port_id):
             node["serial"]["sql_invert"] = (
                 request.form.get("serial_sql_invert") == "yes"
             )
+            node["hidraw"]["ptt_invert"] = (
+                request.form.get("hidraw_ptt_invert") == "yes"
+            )
 
             node["squelch"] = {
                 "method": method,
