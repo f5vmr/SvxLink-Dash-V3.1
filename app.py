@@ -2665,6 +2665,7 @@ def metar_default_page():
         model=model,
         airports=airports,
         error=error,
+        version_info=get_version_info(),
     )
 
 @app.route("/metar-airports", methods=["GET", "POST"])
@@ -2685,12 +2686,22 @@ def metar_airports_page():
         else:
             model["metar"]["airports"] = selected_airports
 
-            return_after_modules = model.get("build", {}).pop(
+            build = model.setdefault("build", {})
+
+            return_after_metar = build.pop(
+                "return_after_metar",
+                None,
+            )
+
+            return_after_modules = build.pop(
                 "return_after_modules",
                 None,
             )
 
             save_node_model(model)
+
+            if return_after_metar:
+                return redirect(url_for(return_after_metar))
 
             if return_after_modules:
                 return redirect(url_for(return_after_modules))
@@ -2702,6 +2713,7 @@ def metar_airports_page():
         airports=airports,
         startdefault=startdefault,
         error=error,
+        version_info=get_version_info(),
     )
     
 @app.route("/reflector", methods=["GET", "POST"])
