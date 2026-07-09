@@ -65,7 +65,7 @@
 
             <div class="button-row">
                 <a class="button-secondary"
-                   href="{{ url_for('modules_page') }}">
+                   href="{% if model.get('build', {}).get('return_after_metar') %}{{ url_for('port_modules_page') }}{% else %}{{ url_for('modules_page') }}{% endif %}">
                     Back
                 </a>
 
