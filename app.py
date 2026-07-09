@@ -993,10 +993,7 @@ def timezone_page():
 def is_multiport_build(model):
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    return (
-        model.get("build_intent") == "multichannel"
-        and len(enabled_ports) > 1
-    )
+    return len(enabled_ports) > 1
 
 def next_after_timezone(model):
     if is_multiport_build(model):
