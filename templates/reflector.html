@@ -91,7 +91,10 @@
             </div>
 
             <div class="button-row">
-                <a class="button-secondary" href="/modules">Back</a>
+                <a class="button-secondary"
+                   href="{% if model.get('ports', {}).get('enabled', [])|length > 1 %}{{ url_for('timezone_page') }}{% else %}{{ url_for('modules_page') }}{% endif %}">
+                    Back
+                </a>
                 <button class="button-primary" type="submit">Continue</button>
             </div>
         </form>
