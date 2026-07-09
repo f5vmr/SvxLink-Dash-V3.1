@@ -1469,7 +1469,6 @@ def port_squelch_detail_page(port_id):
 def port_modules_page():
     model = load_node_model()
 
-    hardware = model.get("hardware", {})
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
@@ -1521,19 +1520,27 @@ def port_modules_page():
             global_enabled.add("ModuleEchoLink")
         else:
             global_enabled.discard("ModuleEchoLink")
-        
+
         if metar_ports:
             global_enabled.add("ModuleMetarInfo")
         else:
             global_enabled.discard("ModuleMetarInfo")
-        
+
         model["modules"]["enabled"] = sorted(global_enabled)
-        
+
+        if metar_ports and not model.get("metar", {}).get("startdefault"):
+            model["build"]["return_after_metar"] = "port_ident_page"
+            model["build"].pop("return_after_modules", None)
+            save_node_model(model)
+            return redirect(url_for("metar_default_page"))
+
         model["build"].pop("return_after_modules", None)
-        
+        model["build"].pop("return_after_metar", None)
+
         save_node_model(model)
-        
+
         return redirect(url_for("port_ident_page"))
+
     return render_template(
         "port_modules.html",
         model=model,
