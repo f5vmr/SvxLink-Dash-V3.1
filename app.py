@@ -1125,6 +1125,7 @@ def port_config_page():
         profile = load_hardware_profile(hardware_profile_id)
     except FileNotFoundError:
         return redirect(url_for("hardware_page"))
+    profile.setdefault("port_map", {})
 
     if request.method == "POST":
         first_port = str(enabled_ports[0])
@@ -1252,7 +1253,7 @@ def port_profile_review_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("interface_page"))
 
     if not nodes:
@@ -1295,9 +1296,8 @@ def port_squelch_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("squelch_page"))
-
     if not nodes:
         return redirect(url_for("port_config_page"))
 
@@ -1322,7 +1322,7 @@ def port_squelch_complete_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("squelch_page"))
 
     all_ports_configured = bool(enabled_ports) and all(
@@ -1347,7 +1347,7 @@ def port_squelch_detail_page(port_id):
     nodes = model.get("nodes", {})
     node = nodes.get(port_id)
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("squelch_page"))
 
     if not node:
@@ -1435,7 +1435,7 @@ def port_modules_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("modules_page"))
 
     if not nodes:
@@ -1516,7 +1516,7 @@ def port_ident_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("ident_page"))
 
     if not nodes:
@@ -1646,7 +1646,7 @@ def port_cw_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("cw_page"))
 
     if not nodes:
@@ -1712,10 +1712,8 @@ def port_courtesy_page():
     hardware = model.get("hardware", {})
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
-
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("courtesy_page"))
-
     if not nodes:
         return redirect(url_for("port_config_page"))
 
@@ -1786,7 +1784,7 @@ def port_repeater_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("repeater_page"))
 
     if not nodes:
@@ -1878,7 +1876,7 @@ def port_final_review_page():
     nodes = model.get("nodes", {})
     enabled_ports = model.get("ports", {}).get("enabled", [])
 
-    if hardware.get("family") != "ics":
+    if not is_multiport_build(model):
         return redirect(url_for("status_page"))
 
     if not nodes:
