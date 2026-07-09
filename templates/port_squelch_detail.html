@@ -21,8 +21,10 @@
 
         <div class="note">
             For normal ICS operation, use the profile COS/GPIOD line and let the
-            radio handle CTCSS. Select SvxLink CTCSS only when SvxLink itself is
-            expected to decode or generate the tone.
+            radio handle CTCSS. For USB radio interfaces, HIDRAW may be used when
+            the interface provides COS/SQL through a CM108/CM119-compatible HID device.
+            Select SvxLink CTCSS only when SvxLink itself is expected to decode or
+            generate the tone.
         </div>
 
         {% if error %}
@@ -44,6 +46,43 @@
         <form action="{{ url_for('port_squelch_detail_page', port_id=port_id) }}" method="post">
             <div class="form-section">
                 <div class="label">Squelch source</div>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="squelch_method"
+                        value="hidraw"
+                        {% if squelch.get("method") == "hidraw" %}checked{% endif %}
+                    >
+                    HIDRAW - CM108/CM119 or TOADS hardware
+                </label>
+
+                <div class="form-section">
+                    <div class="label">HIDRAW SQL sense</div>
+
+                    <div class="field-group">
+                        <label class="label" for="hidraw_sql_invert">
+                            HIDRAW COS / squelch input polarity
+                        </label>
+
+                        <select class="input-field"
+                                id="hidraw_sql_invert"
+                                name="hidraw_sql_invert">
+                            <option value="no"
+                                {% if not node.get("hidraw", {}).get("sql_invert") %}selected{% endif %}>
+                                Active High
+                            </option>
+                            <option value="yes"
+                                {% if node.get("hidraw", {}).get("sql_invert") %}selected{% endif %}>
+                                Active Low
+                            </option>
+                        </select>
+
+                        <div class="note">
+                            Use Active Low if the USB HID interface reports COS asserted in the opposite sense.
+                        </div>
+                    </div>
+                </div>
 
                 <label>
                     <input
@@ -103,6 +142,44 @@
                         </div>
                     </div>
                 </div>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="squelch_method"
+                        value="serial"
+                        {% if squelch.get("method") == "serial" %}checked{% endif %}
+                    >
+                    Serial CTS / COS input
+                </label>
+
+                <div class="form-section">
+                    <div class="label">Serial SQL sense</div>
+
+                    <div class="field-group">
+                        <label class="label" for="serial_sql_invert">
+                            Serial COS / squelch input polarity
+                        </label>
+
+                        <select class="input-field"
+                                id="serial_sql_invert"
+                                name="serial_sql_invert">
+                            <option value="no"
+                                {% if not node.get("serial", {}).get("sql_invert") %}selected{% endif %}>
+                                Active High
+                            </option>
+                            <option value="yes"
+                                {% if node.get("serial", {}).get("sql_invert") %}selected{% endif %}>
+                                Active Low
+                            </option>
+                        </select>
+
+                        <div class="note">
+                            Use Active Low if the serial COS input is asserted in the opposite sense.
+                        </div>
+                    </div>
+                </div>
+
                 <label>
                     <input
                         type="radio"

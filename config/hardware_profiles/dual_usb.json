@@ -26,23 +26,29 @@
   "resume_after_reboot": "environment_page"
   },
   "port_map": {
-  "1": {
-    "rx_audio": "plughw:0",
-    "tx_audio": "plughw:0",
-    "ptt": null,
-    "cos": null,
-    "enable": null,
-    "control": "per_port_selected"
-  },
-  "2": {
-    "rx_audio": "plughw:1",
-    "tx_audio": "plughw:1",
-    "ptt": null,
-    "cos": null,
-    "enable": null,
-    "control": "per_port_selected"
+    "1": {
+      "rx_audio": "plughw:0",
+      "tx_audio": "plughw:0",
+      "hidraw_device": "/dev/hidraw0",
+      "hidraw_sql_pin": "VOL_DN",
+      "hidraw_ptt_pin": "GPIO3",
+      "ptt": null,
+      "cos": null,
+      "enable": null,
+      "control": "per_port_selected"
+    },
+    "2": {
+      "rx_audio": "plughw:1",
+      "tx_audio": "plughw:1",
+      "hidraw_device": "/dev/hidraw1",
+      "hidraw_sql_pin": "VOL_DN",
+      "hidraw_ptt_pin": "GPIO3",
+      "ptt": null,
+      "cos": null,
+      "enable": null,
+      "control": "per_port_selected"
   }
-},
+  },
   "notes": [
     "Use this for two separate USB sound fobs or USB radio interfaces.",
     "Each radio port is expected to have its own USB audio device.",

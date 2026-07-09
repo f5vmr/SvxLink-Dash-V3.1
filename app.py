@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from platform import node
 from pyexpat import model
 
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
@@ -1052,7 +1053,30 @@ def initialise_port_nodes(model, profile):
         node["gpio"].setdefault("cos", mapping.get("cos"))
         node["gpio"].setdefault("enable", mapping.get("enable"))
         node["gpio"].setdefault("control", mapping.get("control"))
+        node.setdefault("hidraw", {})
 
+        try:
+            hidraw_index = int(port_id) - 1
+        except ValueError:
+            hidraw_index = 0
+        
+        node["hidraw"].setdefault(
+            "device",
+            mapping.get("hidraw_device", f"/dev/hidraw{hidraw_index}")
+        )
+        
+        node["hidraw"].setdefault(
+            "sql_pin",
+            mapping.get("hidraw_sql_pin", "VOL_DN")
+        )
+        
+        node["hidraw"].setdefault(
+            "ptt_pin",
+            mapping.get("hidraw_ptt_pin", "GPIO3")
+        )
+        
+        node["hidraw"].setdefault("sql_invert", False)
+        node["hidraw"].setdefault("ptt_invert", False)
         nodes[port_id] = node
 
     return nodes
@@ -1373,9 +1397,11 @@ def port_squelch_detail_page(port_id):
             for value, _label in CTCSS_FREQUENCIES
         }
 
-        if method not in ("gpiod", "ctcss"):
-            error = "Please select a valid squelch source."
+        valid_squelch_methods = {"hidraw", "gpiod", "ctcss", "serial"}
 
+        if method not in valid_squelch_methods:
+            error = "Please select a valid squelch source."
+            
         elif method == "ctcss" and ctcss_mode not in ("rx", "rx_tx"):
             error = "Please select a valid CTCSS behaviour."
 
@@ -1391,6 +1417,8 @@ def port_squelch_detail_page(port_id):
                 ctcss_freq = ""
 
             node.setdefault("gpio", {})
+            node.setdefault("hidraw", {})
+            node.setdefault("serial", {})
 
             node["gpio"]["cos_invert"] = (
                 request.form.get("sql_gpio_invert") == "yes"
@@ -1400,12 +1428,19 @@ def port_squelch_detail_page(port_id):
                 request.form.get("ptt_gpio_invert") == "yes"
             )
 
+            node["hidraw"]["sql_invert"] = (
+                request.form.get("hidraw_sql_invert") == "yes"
+            )
+
+            node["serial"]["sql_invert"] = (
+                request.form.get("serial_sql_invert") == "yes"
+            )
+
             node["squelch"] = {
                 "method": method,
                 "ctcss_mode": ctcss_mode,
                 "ctcss_freq": ctcss_freq or None,
             }
-
             node["squelch_configured"] = True
 
             nodes[port_id] = node

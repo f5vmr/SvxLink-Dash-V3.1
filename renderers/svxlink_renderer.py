@@ -860,7 +860,7 @@ def render_multiport_logic_sections(model):
     }
 def render_port_rx_section(model, port_id, node):
     """
-    Render one Rx section for an ICS port.
+    Render one Rx section for a multi-port node.
     """
 
     audio = node.get("audio", {})
@@ -882,7 +882,36 @@ def render_port_rx_section(model, port_id, node):
         "AUDIO_CHANNEL=0",
     ]
 
-    if method == "ctcss":
+    if method == "hidraw":
+        hidraw = node.get("hidraw", {})
+    
+        device = (
+            hidraw.get("device")
+            or hidraw.get("sql_device")
+            or f"/dev/hid/cmedia{port_id}"
+        )
+    
+        pin = hidraw.get("sql_pin", "VOL_DN")
+    
+        if hidraw.get("sql_invert"):
+            pin = f"!{pin}"
+    
+        lines.extend([
+            "SQL_DET=HIDRAW",
+            f"HID_DEVICE={device}",
+            f"HID_SQL_PIN={pin}",
+        ])
+    elif method == "serial":
+        serial = node.get("serial", {})
+
+        lines.extend([
+            "SQL_DET=SERIAL",
+            "SERIAL_PORT=" + serial.get("sql_port", "/dev/ttyS0"),
+            "SERIAL_PIN=" + serial.get("sql_pin", "CTS"),
+            "SERIAL_SET_PINS=" + serial.get("sql_set_pins", "DTR!RTS"),
+        ])
+
+    elif method == "ctcss":
         lines.append("SQL_DET=CTCSS")
 
     else:
@@ -893,7 +922,7 @@ def render_port_rx_section(model, port_id, node):
         )
 
         sql_line = resolved.get("line", rx_label)
-    
+
         if node.get("gpio", {}).get("cos_invert"):
             # User selected external COS active-low.
             # ICS input hardware inverts this, so MCP23017 RX_# is active-high.
@@ -918,18 +947,21 @@ def render_port_rx_section(model, port_id, node):
 
     if method == "ctcss" and ctcss_mode in ("rx", "rx_tx") and ctcss_freq:
         lines.extend([
+            "CTCSS_MODE=4",
             f"CTCSS_FQ={ctcss_freq}",
             "CTCSS_SNR_OFFSET=0",
             "CTCSS_OPEN_THRESH=15",
             "CTCSS_CLOSE_THRESH=9",
+            "CTCSS_BPF_LOW=60",
+            "CTCSS_BPF_HIGH=270",
+            "CTCSS_EMIT_TONE_DETECTED=0",
         ])
 
     return "\n".join(lines)
 
-
 def render_port_tx_section(model, port_id, node):
     """
-    Render one Tx section for an ICS port.
+    Render one Tx section for a multi-port node.
     """
 
     audio = node.get("audio", {})
@@ -940,29 +972,54 @@ def render_port_tx_section(model, port_id, node):
 
     audio_dev = audio.get("tx_audio", f"alsa:tx{port_id}")
 
+    method = squelch.get("method", "gpiod")
     ctcss_mode = squelch.get("ctcss_mode", "radio")
     ctcss_freq = squelch.get("ctcss_freq")
-
-    resolved = resolve_gpiod_line(
-        model,
-        node,
-        tx_label,
-    )
-
-    ptt_line = resolved.get("line", tx_label)
-
-    if node.get("gpio", {}).get("ptt_invert"):
-        ptt_line = f"!{ptt_line}"
 
     lines = [
         f"[{tx_name}]",
         "TYPE=Local",
         f"AUDIO_DEV={audio_dev}",
         "AUDIO_CHANNEL=0",
-        "PTT_TYPE=GPIOD",
-        f"PTT_GPIOD_CHIP={resolved.get('chip', '')}",
-        f"PTT_GPIOD_LINE={ptt_line}",
     ]
+
+    if method == "hidraw":
+        hidraw = node.get("hidraw", {})
+
+        try:
+            hidraw_index = int(port_id) - 1
+        except ValueError:
+            hidraw_index = 0
+
+        device = hidraw.get("device", f"/dev/hidraw{hidraw_index}")
+        pin = hidraw.get("ptt_pin", "GPIO3")
+
+        if hidraw.get("ptt_invert"):
+            pin = f"!{pin}"
+
+        lines.extend([
+            "PTT_TYPE=Hidraw",
+            f"HID_DEVICE={device}",
+            f"HID_PTT_PIN={pin}",
+        ])
+
+    else:
+        resolved = resolve_gpiod_line(
+            model,
+            node,
+            tx_label,
+        )
+
+        ptt_line = resolved.get("line", tx_label)
+
+        if node.get("gpio", {}).get("ptt_invert"):
+            ptt_line = f"!{ptt_line}"
+
+        lines.extend([
+            "PTT_TYPE=GPIOD",
+            f"PTT_GPIOD_CHIP={resolved.get('chip', '')}",
+            f"PTT_GPIOD_LINE={ptt_line}",
+        ])
 
     if ctcss_mode == "rx_tx" and ctcss_freq:
         lines.extend([
