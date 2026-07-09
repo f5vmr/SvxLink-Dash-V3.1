@@ -1521,21 +1521,18 @@ def port_modules_page():
             global_enabled.add("ModuleEchoLink")
         else:
             global_enabled.discard("ModuleEchoLink")
-
+        
         if metar_ports:
             global_enabled.add("ModuleMetarInfo")
         else:
             global_enabled.discard("ModuleMetarInfo")
-
+        
         model["modules"]["enabled"] = sorted(global_enabled)
-        if echolink_port or metar_ports:
-            model["build"]["return_after_modules"] = "port_ident_page"
-            save_node_model(model)
-            return redirect(url_for("modules_page"))
-
+        
         model["build"].pop("return_after_modules", None)
+        
         save_node_model(model)
-
+        
         return redirect(url_for("port_ident_page"))
     return render_template(
         "port_modules.html",
