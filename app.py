@@ -767,7 +767,7 @@ def ics_prepare_page():
 
                 model.setdefault("ics_prepare", {})
                 model["ics_prepare"]["i2c_enable_requested"] = True
-                model["ics_prepare"]["reboot_required"] = True
+                model["ics_prepare"]["reboot_required"] = False
 
                 save_node_model(model)
 
