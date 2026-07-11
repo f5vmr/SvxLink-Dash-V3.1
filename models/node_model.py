@@ -213,9 +213,11 @@ def is_ics_multiport_model(model):
     )
 def is_multiport_model(model):
     enabled_ports = model.get("ports", {}).get("enabled", [])
-    nodes = model.get("nodes", {})
 
-    return len(enabled_ports) > 1 and bool(nodes)
+    return (
+        is_ics_multiport_model(model)
+        or len(enabled_ports) > 1
+    )
 def validate_model(model):
     """
     Validate high-level model consistency.
@@ -226,7 +228,12 @@ def validate_model(model):
 
     errors = []
     
-    if is_multiport_model(model):
+    multiport = is_multiport_model(model)
+
+    node_type = model.get("node", {}).get("type")
+    callsign = model.get("node", {}).get("callsign")
+
+    if multiport:
         nodes = model.get("nodes", {})
         enabled_ports = model.get("ports", {}).get("enabled", [])
 
@@ -241,20 +248,21 @@ def validate_model(model):
             node = nodes.get(port_id, {})
 
             if node.get("role") not in ("simplex", "repeater"):
-                errors.append(f"Port {port_id} type must be simplex or repeater.")
+                errors.append(
+                    f"Port {port_id} type must be simplex or repeater."
+                )
 
             if not node.get("callsign"):
-                errors.append(f"Port {port_id} callsign is required.")
+                errors.append(
+                    f"Port {port_id} callsign is required."
+                )
 
-        return errors
-    node_type = model.get("node", {}).get("type")
-    callsign = model.get("node", {}).get("callsign")
+    else:
+        if node_type not in SUPPORTED_NODE_TYPES:
+            errors.append("Node type must be simplex or repeater.")
 
-    if node_type not in SUPPORTED_NODE_TYPES:
-        errors.append("Node type must be simplex or repeater.")
-
-    if not callsign:
-        errors.append("Callsign is required.")
+        if not callsign:
+            errors.append("Callsign is required.")
 
     short_ident = model.get("ident", {}).get("short", {})
     long_ident = model.get("ident", {}).get("long", {})
@@ -276,24 +284,13 @@ def validate_model(model):
         elif interval < 1:
             errors.append(f"{ident_name} ident interval must be at least 1 minute.")
 
-    hardware = model.get("hardware", {})
-    profile_id = (
-        model.get("hardware_profile_id")
-        or hardware.get("profile_id")
-        or ""
-    )
-
     enabled_ports = [
         str(port)
         for port in model.get("ports", {}).get("enabled", [])
     ]
 
-    is_multiport = (
-        hardware.get("family") == "ics"
-        or profile_id in ("ics_1x", "ics_2x", "ics_4x", "ics_8x")
-        or len(enabled_ports) > 1
-    )
-
+    is_multiport = multiport
+    
     if is_multiport:
         nodes = model.get("nodes", {})
 
@@ -345,16 +342,17 @@ def validate_model(model):
 
             if down_tone not in SUPPORTED_DOWN_TONES:
                 errors.append("Close-down tone mode is invalid.")
-                
-    interface_mode = model.get("interface", {}).get("mode")
+    
+    if not multiport:            
+        interface_mode = model.get("interface", {}).get("mode")
 
-    if interface_mode not in SUPPORTED_INTERFACE_MODES:
-        errors.append("Interface mode is invalid.")
-        
-    squelch_method = model.get("squelch", {}).get("method")
+        if interface_mode not in SUPPORTED_INTERFACE_MODES:
+            errors.append("Interface mode is invalid.")
 
-    if squelch_method not in SUPPORTED_SQUELCH_METHODS:
-        errors.append("Squelch method is invalid.")
+        squelch_method = model.get("squelch", {}).get("method")
+
+        if squelch_method not in SUPPORTED_SQUELCH_METHODS:
+            errors.append("Squelch method is invalid.")
 
     reflector = model.get("reflector", {})
 
