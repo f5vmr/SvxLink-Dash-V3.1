@@ -380,15 +380,28 @@ def build_svxlink_configuration(
     # =====================================================
     # Deploy logic overrides
     # =====================================================
+    event_model = model
 
+    hardware = model.get("hardware", {})
+    enabled_ports = model.get("ports", {}).get("enabled", [])
+    nodes = model.get("nodes", {})
+
+    if hardware.get("family") == "ics" and enabled_ports:
+        port_id = str(enabled_ports[0])
+        node = nodes.get(port_id, {})
+
+        event_model = model.copy()
+        event_model["courtesy"] = node.get("courtesy", {})
+        event_model["repeater"] = node.get("repeater", {})
+        event_model["cw"] = node.get("cw", model.get("cw", {}))
     try:
         logic_files = deploy_required_logic_files()
         va_cw = apply_va_barred_cw_symbol()
         logic_files.append(va_cw)
-        courtesy_logic = apply_courtesy_tone(model)
+        courtesy_logic = apply_courtesy_tone(event_model)
         logic_files.append(courtesy_logic)
-        if model.get("node", {}).get("type") == "repeater":
-            repeater_logic = apply_repeater_event_customisations(model)
+        if event_model.get("node", {}).get("type") == "repeater":
+            repeater_logic = apply_repeater_event_customisations(event_model)
             logic_files.append(repeater_logic)
         result["logic_files"] = [
             str(x) for x in logic_files

@@ -23,7 +23,12 @@
             Repeater ports normally need courtesy tone decisions. Simplex ports can
             usually be left with courtesy tones disabled unless a roger tone is wanted.
         </div>
-
+        <div class="warning">
+            <strong>Shared tone settings:</strong><br>
+            Courtesy sound, repeater idle tone and repeater shutoff tone are currently
+            shared by all enabled ports. Settings selected for the first configured
+            port will therefore also apply to every subsequent repeater port.
+        </div>
         <form action="{{ url_for('port_courtesy_page') }}" method="post">
             <div class="form-section">
                 <div class="label">Per-port courtesy tone settings</div>
