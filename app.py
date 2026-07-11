@@ -993,8 +993,18 @@ def timezone_page():
     
 def is_multiport_build(model):
     enabled_ports = model.get("ports", {}).get("enabled", [])
+    hardware = model.get("hardware", {})
+    profile_id = (
+        model.get("hardware_profile_id")
+        or hardware.get("profile")
+        or hardware.get("profile_id")
+        or ""
+    )
 
-    return len(enabled_ports) > 1
+    return (
+        profile_id in ("ics_1x","ics_2x", "ics_4x", "ics_8x")
+        or len(enabled_ports) > 1
+    )
 
 def next_after_timezone(model):
     if is_multiport_build(model):
