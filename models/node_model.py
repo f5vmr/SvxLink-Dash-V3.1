@@ -276,25 +276,76 @@ def validate_model(model):
         elif interval < 1:
             errors.append(f"{ident_name} ident interval must be at least 1 minute.")
 
-    roger_mode = model.get("courtesy", {}).get("mode")
+    hardware = model.get("hardware", {})
+    profile_id = (
+        model.get("hardware_profile_id")
+        or hardware.get("profile_id")
+        or ""
+    )
 
-    if roger_mode not in SUPPORTED_ROGER_MODES:
-        errors.append("Roger tone mode is invalid.")
+    enabled_ports = [
+        str(port)
+        for port in model.get("ports", {}).get("enabled", [])
+    ]
 
-    if node_type == "repeater" and roger_mode == "none":
-        errors.append("Repeater mode requires a roger tone.")
+    is_multiport = (
+        hardware.get("family") == "ics"
+        or profile_id in ("ics_1x", "ics_2x", "ics_4x", "ics_8x")
+        or len(enabled_ports) > 1
+    )
 
-    if node_type == "repeater":
-        idle_tone = model.get("repeater", {}).get("idle_tone")
-    
-        if idle_tone not in SUPPORTED_IDLE_TONES:
-            errors.append("Idle tone mode is invalid.")
-    
-        down_tone = model.get("repeater", {}).get("down_tone")
-    
-        if down_tone not in SUPPORTED_DOWN_TONES:
-            errors.append("Close-down tone mode is invalid.")  
+    if is_multiport:
+        nodes = model.get("nodes", {})
 
+        for port_id in enabled_ports:
+            port_node = nodes.get(port_id, {})
+            role = port_node.get("role", "simplex")
+            courtesy = port_node.get("courtesy", {})
+            roger_mode = courtesy.get("mode", "none")
+
+            if roger_mode not in SUPPORTED_ROGER_MODES:
+                errors.append(
+                    f"Port {port_id}: roger tone mode is invalid."
+                )
+
+            if role == "repeater" and roger_mode == "none":
+                errors.append(
+                    f"Port {port_id}: repeater mode requires a roger tone."
+                )
+
+            if role == "repeater":
+                idle_tone = courtesy.get("idle_tone", "none")
+                down_tone = courtesy.get("down_tone", "none")
+
+                if idle_tone not in SUPPORTED_IDLE_TONES:
+                    errors.append(
+                        f"Port {port_id}: idle tone mode is invalid."
+                    )
+
+                if down_tone not in SUPPORTED_DOWN_TONES:
+                    errors.append(
+                        f"Port {port_id}: close-down tone mode is invalid."
+                    )
+
+    else:
+        roger_mode = model.get("courtesy", {}).get("mode")
+
+        if roger_mode not in SUPPORTED_ROGER_MODES:
+            errors.append("Roger tone mode is invalid.")
+
+        if node_type == "repeater" and roger_mode == "none":
+            errors.append("Repeater mode requires a roger tone.")
+
+        if node_type == "repeater":
+            idle_tone = model.get("repeater", {}).get("idle_tone")
+            down_tone = model.get("repeater", {}).get("down_tone")
+
+            if idle_tone not in SUPPORTED_IDLE_TONES:
+                errors.append("Idle tone mode is invalid.")
+
+            if down_tone not in SUPPORTED_DOWN_TONES:
+                errors.append("Close-down tone mode is invalid.")
+                
     interface_mode = model.get("interface", {}).get("mode")
 
     if interface_mode not in SUPPORTED_INTERFACE_MODES:
