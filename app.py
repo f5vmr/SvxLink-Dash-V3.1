@@ -1407,8 +1407,10 @@ def port_squelch_detail_page(port_id):
             for value, _label in CTCSS_FREQUENCIES
         }
 
-        valid_squelch_methods = {"hidraw", "gpiod", "ctcss", "serial"}
-
+        if hardware.get("family") == "ics":
+            valid_squelch_methods = {"gpiod", "ctcss"}
+        else:
+            valid_squelch_methods = {"hidraw", "gpiod", "ctcss", "serial"}
         if method not in valid_squelch_methods:
             error = "Please select a valid squelch source."
             
@@ -1468,6 +1470,7 @@ def port_squelch_detail_page(port_id):
     return render_template(
         "port_squelch_detail.html",
         model=model,
+        hardware=hardware,
         port_id=port_id,
         node=node,
         squelch=node.get("squelch", {}),
