@@ -492,7 +492,7 @@ SvxLink Software: Version 26.05
 
 Tobias Blömberg SM0SVX
 
-{{ version_info.dashboard_name }}:
+Version 3.1
 
 was developed by Chris Jackson, G4NAB.
 Additional assistance with Python, Flask, configuration rendering,
