@@ -78,12 +78,12 @@ Protected editing environment with authentication:
 
 Tested platforms currently include:
 
-Raspberry Pi / Raspberry Pi OS Bookworm
+Raspberry Pi / Raspberry Pi OS Bookworm / Raspberry Pi OS Trixie
 NanoPi Neo / Armbian Bookworm
 Linux PC Bookworm LTS
 
 Other Debian-based systems may also function correctly.
-Debian Trixie for Raspberry Pi 0-2W lacks support for Wireless Access Point systems.
+
 
 ---
 
