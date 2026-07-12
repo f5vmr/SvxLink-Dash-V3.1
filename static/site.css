@@ -237,20 +237,7 @@ textarea.input-field {
   color: var(--text-color);
   font: inherit;
 }
-select.input-field,
-.select-field {
-  appearance: auto;
-  -webkit-appearance: menulist;
-  color-scheme: light;
-  background-color: var(--input-bg-color);
-  color: var(--text-color);
-}
 
-select.input-field option,
-.select-field option {
-  background-color: #ffffff;
-  color: #000000;
-}
 .input-field:focus,
 .select-field:focus,
 select.input-field:focus,
