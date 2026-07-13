@@ -80,7 +80,7 @@ from services.ics_prepare_service import (
 from services.log_service import get_svxlink_log_path
 from services.gpio_service import (
     flatten_gpio_lines,
-    update_model_gpiod_discovery,
+    prepare_gpio_lines,
 )
 from services.node_info_service import write_node_info_json
 from renderers.svxlink_renderer import (
@@ -2125,9 +2125,15 @@ def interface_page():
     model = load_node_model()
     error = None
 
-    gpio_lines = flatten_gpio_lines()
     platform_id = model.get("platform", {}).get("id", "unknown")
     supports_gpiod = platform_id in ("raspberry_pi", "nanopi_neo")
+
+    gpio_data = prepare_gpio_lines(platform_id)
+
+    gpio_lines = flatten_gpio_lines(
+        data=gpio_data,
+        chip_filter="gpiochip0",
+    )
 
     if request.method == "POST":
         interface_mode = request.form.get("interface_mode")

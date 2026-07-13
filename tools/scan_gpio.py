@@ -1,56 +1,36 @@
 #!/usr/bin/env python3
 
 """
-Scan available GPIO lines for {{ version_info.dashboard_name }}.
-
-Currently provides a Raspberry Pi focused GPIO list:
-gpiochip0, GPIO2-GPIO27.
+Prepare the Raspberry Pi GPIO selection map.
 """
 
-import json
+import sys
 from pathlib import Path
 
 
-OUTPUT_FILE = Path("/opt/dashboard/config/gpio_lines.json")
+DASHBOARD_ROOT = Path(__file__).resolve().parents[1]
 
+if str(DASHBOARD_ROOT) not in sys.path:
+    sys.path.insert(0, str(DASHBOARD_ROOT))
 
-def build_raspberry_pi_gpio_lines():
-    lines = []
-
-    for line in range(2, 28):
-        lines.append({
-            "chip": "gpiochip0",
-            "line": line,
-            "label": f"GPIO{line}",
-            "available": True,
-        })
-
-    return {
-        "platform": "raspberry_pi",
-        "gpiochips": [
-            {
-                "chip": "gpiochip0",
-                "label": "Raspberry Pi GPIO",
-                "lines": lines,
-            }
-        ],
-    }
+from services.gpio_service import prepare_gpio_lines
 
 
 def main():
-    OUTPUT_FILE.parent.mkdir(
-        parents=True,
-        exist_ok=True,
+    data = prepare_gpio_lines(
+        "raspberry_pi",
+        force=True,
     )
 
-    data = build_raspberry_pi_gpio_lines()
-
-    OUTPUT_FILE.write_text(
-        json.dumps(data, indent=4),
-        encoding="utf-8",
+    line_count = sum(
+        len(chip.get("lines", []))
+        for chip in data.get("gpiochips", [])
     )
 
-    print(f"Wrote GPIO line map to {OUTPUT_FILE}")
+    print(
+        f"Wrote {line_count} GPIO choices "
+        "to /opt/dashboard/config/gpio_lines.json"
+    )
 
 
 if __name__ == "__main__":

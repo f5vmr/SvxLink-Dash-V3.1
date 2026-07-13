@@ -11,6 +11,34 @@ from pathlib import Path
 
 GPIO_LINES_FILE = Path("/opt/dashboard/config/gpio_lines.json")
 
+def build_raspberry_pi_gpio_lines():
+    """
+    Build the selectable Raspberry Pi GPIO list used by the setup wizard.
+    """
+
+    lines = []
+
+    for line in range(2, 28):
+        lines.append({
+            "chip": "gpiochip0",
+            "line": line,
+            "label": f"GPIO{line}",
+            "consumer": "",
+            "direction": "",
+            "active": "",
+            "available": True,
+        })
+
+    return {
+        "platform": "raspberry_pi",
+        "gpiochips": [
+            {
+                "chip": "gpiochip0",
+                "label": "Raspberry Pi GPIO",
+                "lines": lines,
+            }
+        ],
+    }
 
 def load_gpio_lines():
     """
@@ -35,23 +63,39 @@ def load_gpio_lines():
         }
 
 
-def flatten_gpio_lines():
+def flatten_gpio_lines(data=None, available_only=False, chip_filter=None):
     """
     Return GPIO lines as a simple list for templates.
     """
 
-    data = load_gpio_lines()
+    if data is None:
+        data = load_gpio_lines()
+
     rows = []
 
     for chip in data.get("gpiochips", []):
         chip_name = chip.get("chip", "")
 
+        if chip_filter and chip_name != chip_filter:
+            continue
+
         for line in chip.get("lines", []):
+            available = line.get("available", True)
+
+            if available_only and not available:
+                continue
+
+            line_number = line.get("line")
+            label = line.get("label") or f"GPIO{line_number}"
+
             rows.append({
                 "chip": line.get("chip", chip_name),
-                "line": line.get("line"),
-                "label": line.get("label", ""),
-                "available": line.get("available", True),
+                "line": line_number,
+                "label": label,
+                "consumer": line.get("consumer", ""),
+                "direction": line.get("direction", ""),
+                "active": line.get("active", ""),
+                "available": available,
             })
 
     return rows
@@ -169,7 +213,47 @@ def save_gpio_lines(data):
         json.dumps(data, indent=2),
         encoding="utf-8",
     )
+def prepare_gpio_lines(platform_id, force=False):
+    """
+    Prepare the GPIO map required by the selected platform.
 
+    Raspberry Pi:
+        Uses the fixed selectable GPIO2-GPIO27 map.
+
+    NanoPi-Neo:
+        Uses its fixed image configuration and does not need selectable lines.
+    """
+
+    if platform_id == "raspberry_pi":
+        existing = load_gpio_lines()
+
+        if (
+            not force
+            and existing.get("platform") == "raspberry_pi"
+            and existing.get("gpiochips")
+        ):
+            return existing
+
+        data = build_raspberry_pi_gpio_lines()
+        save_gpio_lines(data)
+        return data
+
+    if platform_id == "nanopi_neo":
+        data = {
+            "platform": "nanopi_neo",
+            "gpiochips": [],
+        }
+
+        save_gpio_lines(data)
+        return data
+
+    data = {
+        "platform": platform_id or "unknown",
+        "gpiochips": [],
+    }
+
+    save_gpio_lines(data)
+    return data
 
 def refresh_gpio_lines():
     """
