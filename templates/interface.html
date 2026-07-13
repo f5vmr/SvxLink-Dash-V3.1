@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Interface Mode</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
-
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='site.css') }}">
 </head>
+
 <body>
 <main class="page">
     <section class="card">
+
         <div class="page-header">
-            <img class="page-icon" src="{{ url_for('static', filename='svxlink.ico') }}" alt="SvxLink icon">
+            <img class="page-icon"
+                 src="{{ url_for('static', filename='svxlink.ico') }}"
+                 alt="SvxLink icon">
+
             <div class="page-heading">
                 <h1>Interface Mode</h1>
-                <p>Select how SQL and PTT control will be handled.<br>
-                HIDRAW is by far the easiest to set up. It requires a fully modified sound card<br>
-                or so-called TOADS card that carries the necessary hardware interface connections.<br>
-                If you use one of these then ignore the GPIOD settings that follow. </p>
+
+                <p>
+                    Select how SQL and PTT control will be handled.<br>
+                    HIDRAW is normally the easiest option when using a fully
+                    modified sound card or TOADS interface.
+                </p>
             </div>
         </div>
 
@@ -25,130 +32,335 @@
         {% endif %}
 
         <form action="/interface" method="post">
+
             <div class="option-group">
+
                 <div class="radio-row">
-                    <input type="radio" id="hidraw" name="interface_mode" value="hidraw"
-                           {% if model.interface.mode in [None, 'hidraw'] %}checked{% endif %}>
+                    <input type="radio"
+                           id="hidraw"
+                           name="interface_mode"
+                           value="hidraw"
+                           {% if model.interface.mode in [None, 'hidraw'] %}
+                               checked
+                           {% endif %}>
+
                     <label for="hidraw">
-                        HIDRAW - SQL and PTT use a compatible USB HID radio interface
+                        HIDRAW — SQL and PTT use a compatible USB HID radio interface
                     </label>
                 </div>
-            
+
                 {% if supports_gpiod %}
+                    <div class="radio-row">
+                        <input type="radio"
+                               id="gpiod"
+                               name="interface_mode"
+                               value="gpiod"
+                               {% if model.interface.mode == 'gpiod' %}
+                                   checked
+                               {% endif %}>
+
+                        <label for="gpiod">
+                            GPIOD — SQL and PTT use GPIO lines
+                        </label>
+                    </div>
+
+                    <div class="radio-row">
+                        <input type="radio"
+                               id="hybrid"
+                               name="interface_mode"
+                               value="hybrid"
+                               {% if model.interface.mode == 'hybrid' %}
+                                   checked
+                               {% endif %}>
+
+                        <label for="hybrid">
+                            Hybrid — SQL uses GPIOD and PTT uses HIDRAW
+                        </label>
+                    </div>
+                {% endif %}
+
                 <div class="radio-row">
-                    <input type="radio" id="gpiod" name="interface_mode" value="gpiod"
-                           {% if model.interface.mode == 'gpiod' %}checked{% endif %}>
-                    <label for="gpiod">GPIOD - SQL and PTT use GPIO lines</label>
-                </div>
-                
-                <div class="radio-row">
-                    <input type="radio" id="hybrid" name="interface_mode" value="hybrid"
-                           {% if model.interface.mode == 'hybrid' %}checked{% endif %}>
-                    <label for="hybrid">
-                        Hybrid - SQL uses GPIOD, PTT uses a compatible USB Hidraw radio interface
+                    <input type="radio"
+                           id="serial"
+                           name="interface_mode"
+                           value="serial"
+                           {% if model.interface.mode == 'serial' %}
+                               checked
+                           {% endif %}>
+
+                    <label for="serial">
+                        Serial — SQL and PTT use serial control pins
                     </label>
                 </div>
+
+            </div>
+
+
+            {% if supports_gpiod %}
+
+                {% if model.platform.id == 'nanopi_neo' %}
+
+                    <div id="gpio-fixed-section"
+                         class="form-section"
+                         hidden>
+
+                        <h3>GPIO Line Configuration</h3>
+
+                        <div class="note">
+                            NanoPi-Neo uses the fixed GPIOD hardware layout
+                            supplied in its image.
+                        </div>
+                    </div>
+
+                {% else %}
+
+                    <div id="gpio-section"
+                         class="form-section"
+                         hidden>
+
+                        <h3>GPIO Line Configuration</h3>
+
+                        <p>
+                            Select the GPIO lines used for hardware squelch
+                            and PTT.
+                        </p>
+
+                        <p>
+                            GPIO 23 for RX and GPIO 24 for TX are useful
+                            Raspberry Pi choices because pins 14, 16 and 18
+                            provide adjacent ground, RX and TX connections.
+                        </p>
+
+                        <div id="sql-gpio-group"
+                             class="field-group">
+
+                            <label class="label"
+                                   for="sql_gpio_line">
+                                SQL GPIO line
+                            </label>
+
+                            <select class="input-field"
+                                    id="sql_gpio_line"
+                                    name="sql_gpio_line">
+
+                                {% for gpio in gpio_lines %}
+                                    <option value="{{ gpio.line }}"
+                                            {% if model.gpio.sql.line|string == gpio.line|string %}
+                                                selected
+                                            {% endif %}>
+                                        {{ gpio.label }} — {{ gpio.chip }}
+                                    </option>
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <div id="ptt-gpio-group"
+                             class="field-group">
+
+                            <label class="label"
+                                   for="ptt_gpio_line">
+                                PTT GPIO line
+                            </label>
+
+                            <select class="input-field"
+                                    id="ptt_gpio_line"
+                                    name="ptt_gpio_line">
+
+                                {% for gpio in gpio_lines %}
+                                    <option value="{{ gpio.line }}"
+                                            {% if model.gpio.ptt.line|string == gpio.line|string %}
+                                                selected
+                                            {% endif %}>
+                                        {{ gpio.label }} — {{ gpio.chip }}
+                                    </option>
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                    </div>
+
                 {% endif %}
-            
-                <div class="radio-row">
-                    <input type="radio" id="serial" name="interface_mode" value="serial"
-                           {% if model.interface.mode == 'serial' %}checked{% endif %}>
-                    <label for="serial">Serial - SQL and PTT use serial control pins</label>
-                </div>
-            
-            </div>
-
-            {% if supports_gpiod and model.platform.id != 'nanopi_neo' %}
-            <div class="form-section">
-            
-                <h3>GPIO Line Configuration</h3>
-            
-                <p>
-                    GPIOD is available on platforms that support GPIO lines.<br> 
-                    The GPIO lines used for SQL and PTT can be configured below.<br>
-                    GPIO 23 (as Rx) and GPIO 24 (as Tx) are good lines to use on the Raspberry Pi<br>
-                    as pins 14 (Earth) 16 and 18 are immediately adjacent.<br>
-                    
-                    Select the GPIO lines used for hardware squelch and PTT.<br>
-                    Available GPIO choices are limited to gpiochip0 for this platform.
-                </p>
-            
-                <div class="field-group">
-                    <label class="label">SQL GPIO line</label>
-                
-                    <select class="input-field" name="sql_gpio_line">
-                        {% for gpio in gpio_lines %}
-                            <option value="{{ gpio.line }}"
-                                    {% if model.gpio.sql.line|string == gpio.line|string %}selected{% endif %}>
-                                {{ gpio.label }} — {{ gpio.chip }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-            
-                <div class="field-group">
-                    <label class="label">PTT GPIO line</label>
-                
-                    <select class="input-field" name="ptt_gpio_line">
-                        {% for gpio in gpio_lines %}
-                            <option value="{{ gpio.line }}"
-                                    {% if model.gpio.ptt.line|string == gpio.line|string %}selected{% endif %}>
-                                {{ gpio.label }} — {{ gpio.chip }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-            </div>
-
             {% endif %}
-            <div class="form-section">
-                <h3>Serial PTT Configuration</h3>
+
+
+            <div id="serial-section"
+                 class="form-section"
+                 hidden>
+
+                <h3>Serial SQL and PTT Configuration</h3>
 
                 <p>
-                    Only required when Serial is selected. The operator must know the Linux
-                    serial device and PTT pin expression used by the interface.
+                    Enter the Linux serial device and control-pin expressions
+                    used by the radio interface.
                 </p>
-            
+
                 <div class="field-group">
-                    <label class="label">PTT serial device</label>
+                    <label class="label"
+                           for="serial_sql_port">
+                        SQL serial device
+                    </label>
+
                     <input class="input-field"
+                           id="serial_sql_port"
+                           type="text"
+                           name="serial_sql_port"
+                           value="{{ model.get('serial', {}).get('sql_port', '/dev/ttyS0') }}">
+                </div>
+
+                <div class="field-group">
+                    <label class="label"
+                           for="serial_sql_pin">
+                        SQL pin expression
+                    </label>
+
+                    <input class="input-field"
+                           id="serial_sql_pin"
+                           type="text"
+                           name="serial_sql_pin"
+                           value="{{ model.get('serial', {}).get('sql_pin', 'CTS') }}">
+                </div>
+
+                <div class="field-group">
+                    <label class="label"
+                           for="serial_ptt_port">
+                        PTT serial device
+                    </label>
+
+                    <input class="input-field"
+                           id="serial_ptt_port"
                            type="text"
                            name="serial_ptt_port"
                            value="{{ model.get('serial', {}).get('ptt_port', '/dev/ttyS0') }}">
                 </div>
-            
+
                 <div class="field-group">
-                    <label class="label">PTT pin expression</label>
+                    <label class="label"
+                           for="serial_ptt_pin">
+                        PTT pin expression
+                    </label>
+
                     <input class="input-field"
+                           id="serial_ptt_pin"
                            type="text"
                            name="serial_ptt_pin"
-                           value="{{ model.get('serial', {}).get('ptt_pin', 'DTRRTS') }}">
+                           value="{{ model.get('serial', {}).get('ptt_pin', 'RTS') }}">
                 </div>
-            
+
                 <div class="note">
-                    Examples: DTR, RTS, DTRRTS, !DTR!RTS, DTR!RTS
+                    Examples: CTS, RTS, DTR, !CTS, !RTS, DTR!RTS
                 </div>
             </div>
-            {% if model.platform.id == 'nanopi_neo' %}
-                <div class="note">
-                    NanoPi-Neo uses a fixed GPIOD hardware layout supplied in its own image.
-                </div>
-            {% endif %}
-                
+
+
             <div class="button-row">
-                <a class="button-secondary" href="/node">Back</a>
-                <button class="button-primary" type="submit">Continue</button>
+                <a class="button-secondary"
+                   href="/node">
+                    Back
+                </a>
+
+                <button class="button-primary"
+                        type="submit">
+                    Continue
+                </button>
             </div>
+
         </form>
     </section>
+
     <footer class="site-footer">
-    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
-    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
-    Dashboard {{ version_info.dashboard_name }}|
-    SvxLink Package {{ version_info.package }} |
-    SvxLink {{ version_info.engine }}
+        SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+        SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+        Dashboard {{ version_info.dashboard_name }} |
+        SvxLink Package {{ version_info.package }} |
+        SvxLink {{ version_info.engine }}
     </footer>
 </main>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modeInputs = document.querySelectorAll(
+        'input[name="interface_mode"]'
+    );
+
+    const gpioSection =
+        document.getElementById("gpio-section");
+
+    const gpioFixedSection =
+        document.getElementById("gpio-fixed-section");
+
+    const sqlGpioGroup =
+        document.getElementById("sql-gpio-group");
+
+    const pttGpioGroup =
+        document.getElementById("ptt-gpio-group");
+
+    const serialSection =
+        document.getElementById("serial-section");
+
+
+    function setSectionState(section, visible) {
+        if (!section) {
+            return;
+        }
+
+        section.hidden = !visible;
+
+        section.querySelectorAll("input, select, textarea").forEach(
+            function (control) {
+                control.disabled = !visible;
+            }
+        );
+    }
+
+
+    function selectedMode() {
+        const selected = document.querySelector(
+            'input[name="interface_mode"]:checked'
+        );
+
+        return selected ? selected.value : "hidraw";
+    }
+
+
+    function updateInterfaceSections() {
+        const mode = selectedMode();
+
+        const usesGpiod =
+            mode === "gpiod" || mode === "hybrid";
+
+        const usesSerial =
+            mode === "serial";
+
+        setSectionState(gpioSection, usesGpiod);
+        setSectionState(gpioFixedSection, usesGpiod);
+        setSectionState(serialSection, usesSerial);
+
+        if (sqlGpioGroup) {
+            setSectionState(sqlGpioGroup, usesGpiod);
+        }
+
+        if (pttGpioGroup) {
+            setSectionState(
+                pttGpioGroup,
+                mode === "gpiod"
+            );
+        }
+    }
+
+
+    modeInputs.forEach(function (input) {
+        input.addEventListener(
+            "change",
+            updateInterfaceSections
+        );
+    });
+
+    updateInterfaceSections();
+});
+</script>
+
 </body>
 </html>

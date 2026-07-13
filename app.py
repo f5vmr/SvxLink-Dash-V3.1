@@ -2125,10 +2125,21 @@ def interface_page():
     model = load_node_model()
     error = None
 
+    gpio_lines = flatten_gpio_lines()
+    platform_id = model.get("platform", {}).get("id", "unknown")
+    supports_gpiod = platform_id in ("raspberry_pi", "nanopi_neo")
+
     if request.method == "POST":
         interface_mode = request.form.get("interface_mode")
-        if interface_mode not in ("hidraw", "gpiod", "hybrid", "serial"):            
+
+        if interface_mode not in ("hidraw", "gpiod", "hybrid", "serial"):
             interface_mode = "hidraw"
+
+        model.setdefault("interface", {})
+        model.setdefault("serial", {})
+        model.setdefault("gpio", {})
+        model["gpio"].setdefault("sql", {})
+        model["gpio"].setdefault("ptt", {})
 
         model["interface"]["mode"] = interface_mode
 
@@ -2144,38 +2155,59 @@ def interface_page():
             model["interface"]["sql_source"] = "serial"
             model["interface"]["ptt_source"] = "serial"
 
-        elif interface_mode == "gpiod":
+        else:
             model["interface"]["sql_source"] = "gpiod"
             model["interface"]["ptt_source"] = "gpiod"
- 
-        uses_gpiod = (
+
+        uses_sql_gpiod = (
             model["interface"]["sql_source"] == "gpiod"
-            or
+        )
+
+        uses_ptt_gpiod = (
             model["interface"]["ptt_source"] == "gpiod"
         )
-        if "serial" not in model:
-            model["serial"] = {}
 
         if interface_mode == "serial":
+            model["serial"]["sql_port"] = request.form.get(
+                "serial_sql_port",
+                "/dev/ttyS0",
+            ).strip()
+
+            model["serial"]["sql_pin"] = request.form.get(
+                "serial_sql_pin",
+                "CTS",
+            ).strip().upper()
+
             model["serial"]["ptt_port"] = request.form.get(
                 "serial_ptt_port",
-                "/dev/ttyS0"
-                ).strip         ()
+                "/dev/ttyS0",
+            ).strip()
 
             model["serial"]["ptt_pin"] = request.form.get(
                 "serial_ptt_pin",
-                "DTRRTS"
-                ).strip().upper()
+                "RTS",
+            ).strip().upper()
 
-        sql_line = request.form.get("sql_gpio_line") if uses_gpiod else None
-        ptt_line = request.form.get("ptt_gpio_line") if uses_gpiod else None
+        sql_line = (
+            request.form.get("sql_gpio_line")
+            if uses_sql_gpiod
+            else None
+        )
 
-        if uses_gpiod and sql_line and ptt_line and sql_line == ptt_line:
+        ptt_line = (
+            request.form.get("ptt_gpio_line")
+            if uses_ptt_gpiod
+            else None
+        )
+
+        if (
+            uses_sql_gpiod
+            and uses_ptt_gpiod
+            and sql_line
+            and ptt_line
+            and sql_line == ptt_line
+        ):
             error = "SQL and PTT cannot use the same GPIO line."
-
-            gpio_lines = flatten_gpio_lines()
-            platform_id = model.get("platform", {}).get("id", "unknown")
-            supports_gpiod = platform_id in ("raspberry_pi", "nanopi_neo")
 
             return render_template(
                 "interface.html",
@@ -2185,20 +2217,16 @@ def interface_page():
                 supports_gpiod=supports_gpiod,
             )
 
-        if uses_gpiod and sql_line:
+        if uses_sql_gpiod and sql_line:
             model["gpio"]["sql"]["chip"] = "gpiochip0"
             model["gpio"]["sql"]["line"] = int(sql_line)
 
-        if uses_gpiod and ptt_line:
+        if uses_ptt_gpiod and ptt_line:
             model["gpio"]["ptt"]["chip"] = "gpiochip0"
             model["gpio"]["ptt"]["line"] = int(ptt_line)
 
         save_node_model(model)
         return redirect(url_for("squelch_page"))
-
-    gpio_lines = flatten_gpio_lines()
-    platform_id = model.get("platform", {}).get("id", "unknown")
-    supports_gpiod = platform_id in ("raspberry_pi", "nanopi_neo")
 
     return render_template(
         "interface.html",
