@@ -81,6 +81,7 @@ from services.log_service import get_svxlink_log_path
 from services.gpio_service import (
     flatten_gpio_lines,
     prepare_gpio_lines,
+    update_model_gpiod_discovery,
 )
 from services.node_info_service import write_node_info_json
 from renderers.svxlink_renderer import (
