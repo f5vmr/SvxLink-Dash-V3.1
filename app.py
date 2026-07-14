@@ -1127,6 +1127,17 @@ def port_roles_page():
             }
 
         model["port_roles"] = port_roles
+
+        nodes = model.get("nodes", {})
+
+        for port in enabled_ports:
+            port_id = str(port)
+            node = nodes.get(port_id, {})
+
+            node["role"] = port_roles[port_id]["role"]
+            nodes[port_id] = node
+
+        model["nodes"] = nodes
         save_node_model(model)
 
         return redirect(url_for("port_config_page"))
