@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 
-ICS_HELPER = "/usr/local/sbin/svxlink_dash_enable_i2c"
+ICS_HELPER = "/usr/local/sbin/svxlink_dash_ics_prepare"
 OVERLAY_DIR = Path("/boot/firmware/overlays")
 CONFIG_FILE = Path("/boot/firmware/config.txt")
 
