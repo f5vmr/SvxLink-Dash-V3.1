@@ -30,6 +30,7 @@
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
+                drive-open-drain;
                 gpio-line-names =
                     "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
                     "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
@@ -53,6 +54,7 @@
                 interrupt-controller;
                 #interrupt-cells = <2>;
                 microchip,irq-mirror;
+                drive-open-drain;
                 gpio-line-names =
                     "EN_5", "EN_6", "TX_5", "TX_6",
                     "CT_5", "CT_6", "RX_5", "RX_6",

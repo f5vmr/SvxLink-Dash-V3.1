@@ -31,6 +31,7 @@
             mcp26: gpio@26 {
                 compatible = "microchip,mcp23017";
                 reg = <0x26>;
+
                 gpio-controller;
                 #gpio-cells = <2>;
                 #address-cells = <0>;
@@ -40,7 +41,9 @@
 
                 interrupt-controller;
                 #interrupt-cells = <2>;
+
                 microchip,irq-mirror;
+                drive-open-drain;
 
                 gpio-line-names =
                     "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
@@ -53,25 +56,28 @@
             mcp27: gpio@27 {
                 compatible = "microchip,mcp23017";
                 reg = <0x27>;
+
                 gpio-controller;
                 #gpio-cells = <2>;
                 #address-cells = <0>;
 
                 interrupt-parent = <&gpio>;
-                interrupts = <23 2>;
+                interrupts = <23 8>;
 
                 interrupt-controller;
                 #interrupt-cells = <2>;
+
                 microchip,irq-mirror;
+                drive-open-drain;
 
                 gpio-line-names =
                     "EN_1", "EN_2", "TX_1", "TX_2",
                     "CT_1", "CT_2", "RX_1", "RX_2",
                     "EN_3", "EN_4", "TX_3", "TX_4",
                     "CT_3", "CT_4", "RX_3", "RX_4";
-
             };
-                        /* ADS1015 ADC @ 0x48 */
+
+            /* ADS1015 ADC @ 0x48 */
             ads1015_48: adc@48 {
                 compatible = "ti,ads1015";
                 reg = <0x48>;
@@ -134,6 +140,7 @@
                     ti,datarate = <4>;
                 };
             };
+
             /* SC16IS752 UART / GPS */
             sc16: serial@4d {
                 compatible = "nxp,sc16is752";
