@@ -98,24 +98,32 @@ def save_ident_upload(upload: FileStorage, output_name: str):
         upload.save(tmp.name)
         tmp_path = Path(tmp.name)
 
-    try:
-        subprocess.run(
-            [
-                "sox",
-                str(tmp_path),
-                "-r",
-                "16000",
-                "-b",
-                "16",
-                "-c",
-                "1",
-                str(output_path),
-            ],
-            text=True,
-            capture_output=True,
-            check=True,
-        )
+        try:
+            result = subprocess.run(
+                [
+                    "sox",
+                    str(tmp_path),
+                    "-r", "16000",
+                    "-b", "16",
+                    "-c", "1",
+                    str(output_path),
+                ],
+                text=True,
+                capture_output=True,
+                check=True,
+            )
 
+        except subprocess.CalledProcessError as exc:
+            detail = (
+                exc.stderr.strip()
+                or exc.stdout.strip()
+                or f"SoX exited with status {exc.returncode}"
+            )
+
+            raise RuntimeError(
+                f"SoX conversion failed for {output_path}: {detail}"
+            ) from exc
+            
         validation = validate_ident_wav(output_path)
 
         if not validation["ok"]:
