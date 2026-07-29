@@ -51,6 +51,7 @@ svxlink ALL=(root) NOPASSWD: \
     /usr/bin/install, \
     /usr/bin/pkill, \
     /usr/local/sbin/svxlink-dash-enable-i2c, \
+    /usr/bin/nmcli, \
     /usr/bin/sh
 EOF
 
