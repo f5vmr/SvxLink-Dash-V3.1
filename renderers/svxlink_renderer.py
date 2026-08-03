@@ -330,8 +330,11 @@ def render_rx_gpiod_block(model):
     """
     Render RX GPIOD block.
 
-    Do not render RX GPIOD when CTCSS is the selected receive
-    squelch method. PTT GPIOD is rendered separately.
+    Active-high COS uses PULLDOWN.
+    Active-low COS uses PULLUP.
+
+    Do not render RX GPIOD when CTCSS is selected.
+    PTT GPIOD is rendered separately.
     """
 
     interface = model.get("interface", {})
@@ -350,15 +353,19 @@ def render_rx_gpiod_block(model):
 
     chip = gpio.get("chip", "gpiochip0")
     line = str(gpio.get("line", 203))
+    inverted = bool(gpio.get("invert", False))
 
-    if gpio.get("invert"):
+    if inverted:
         line = f"!{line}"
+        bias = "PULLUP"
+    else:
+        bias = "PULLDOWN"
 
     return "\n".join([
         f"SQL_GPIOD_CHIP={chip}",
         f"SQL_GPIOD_LINE={line}",
+        f"SQL_GPIOD_BIAS={bias}",
     ])
-
 
 def render_rx_hidraw_block(model):
     """
