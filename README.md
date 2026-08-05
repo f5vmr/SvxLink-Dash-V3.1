@@ -4,7 +4,7 @@ A modern Flask-based configuration and runtime dashboard for SvxLink systems.
 
 SvxLink-Dash-V3.1 provides:
 
-- Guided SvxLink configuration
+- Guided SvxLink configuration using SvxLink V26.05.1 from Tobias Blomberg SM0SVX
 - Runtime operational dashboard
 - Reflector management
 - EchoLink and METAR module configuration
