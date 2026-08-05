@@ -2346,7 +2346,9 @@ def squelch_page():
         model["hidraw"]["sql_invert"] = (
             request.form.get("hidraw_sql_invert") == "yes"
         )
-
+        model["hidraw"]["ptt_invert"] = (
+            request.form.get("hidraw_ptt_invert") == "yes"
+        )
         model["gpio"]["sql"]["invert"] = (
             request.form.get("sql_gpio_invert") == "yes"
         )

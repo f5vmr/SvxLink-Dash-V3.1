@@ -94,7 +94,25 @@
                 </option>
             </select>
         </div>
+        <div class="field-group">
+            <label class="label">HIDRAW PTT sense</label>
         
+            <div class="note">
+                This setting may need to be inverted depending upon the USB interface hardware.<br>
+                Active Low will render the HIDRAW PTT pin as !GPIO3.
+            </div>
+        
+            <select class="input-field" name="hidraw_ptt_invert">
+                <option value="no"
+                        {% if not model.get('hidraw', {}).get('ptt_invert') %}selected{% endif %}>
+                    Active High
+                </option>
+                <option value="yes"
+                        {% if model.get('hidraw', {}).get('ptt_invert') %}selected{% endif %}>
+                    Active Low
+                </option>
+            </select>
+        </div>        
         <div class="field-group">
             <label class="label">GPIOD SQL sense</label>
             <div note>
