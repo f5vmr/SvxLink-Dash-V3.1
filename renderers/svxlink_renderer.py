@@ -487,7 +487,10 @@ def render_tx_ptt_block(model):
         hid = model.get("hidraw", {})
 
         device = hid.get("device", "/dev/hidraw0")
-        pin = hid.get("ptt_pin", "GPIO3")
+        pin = str(hid.get("ptt_pin", "GPIO3")).lstrip("!")
+        
+        if hid.get("ptt_invert"):
+            pin = f"!{pin}"
 
         return "\n".join([
             "PTT_TYPE=Hidraw",
