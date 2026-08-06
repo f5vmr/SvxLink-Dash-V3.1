@@ -5,13 +5,14 @@ Platform detection and profile selection for {{ version_info.dashboard_name }}.
 """
 
 from pathlib import Path
-import hw_platforms as py_platform
+import platform as py_platform
 
 from .nanopi import PROFILE as NANOPI_PROFILE
 from .raspberry import PROFILE as RASPBERRY_PROFILE
-
+from .linux_server import PROFILE as LINUX_SERVER_PROFILE
 
 SUPPORTED_PROFILES = {
+    "linux_server": LINUX_SERVER_PROFILE,
     "nanopi_neo": NANOPI_PROFILE,
     "raspberry_pi": RASPBERRY_PROFILE,
 }
@@ -19,10 +20,10 @@ SUPPORTED_PROFILES = {
 
 def detect_platform_id():
     """
-    Detect supported platform from /proc/device-tree/model.
+    Detect the current hardware platform.
 
     Returns:
-        str: raspberry_pi, nanopi_neo, or unknown
+        str: raspberry_pi, nanopi_neo, linux_server, or unknown
     """
 
     model_text = ""
@@ -31,19 +32,23 @@ def detect_platform_id():
         model_text = Path("/proc/device-tree/model").read_text(
             encoding="utf-8",
             errors="ignore",
-        ).lower()
-    except FileNotFoundError:
+        ).strip().lower()
+    except (FileNotFoundError, PermissionError, OSError):
         pass
 
     if "raspberry pi" in model_text:
         return "raspberry_pi"
 
-    if "nanopi neo" in model_text or "friendlyarm nanopi" in model_text:
+    if (
+        "nanopi neo" in model_text
+        or "friendlyarm nanopi" in model_text
+    ):
         return "nanopi_neo"
 
+    if py_platform.system().lower() == "linux":
+        return "linux_server"
+
     return "unknown"
-
-
 def get_platform_profile(platform_id=None):
     """
     Return platform profile.
