@@ -339,6 +339,7 @@ def discover_sound_cards() -> List[Dict[str, Any]]:
 
     return [
         {
+            **asdict(card),
             "audio_dev": (
             f"alsa:plughw:CARD={card.name},DEV=0"
             ),
