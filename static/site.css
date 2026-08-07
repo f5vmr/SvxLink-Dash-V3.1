@@ -1207,27 +1207,20 @@ footer a:hover {
 }
 .system-info-panel {
     margin-top: 1rem;
-    padding: 0.6rem;
+    padding: 0;
     text-align: center;
-    background: #e9e9e9;
-    border: 1px solid #cccccc;
+    border: 2px solid #000000;
     border-radius: 8px;
-    font-size: 0.8rem;
+    overflow: hidden;
+    background: #f1f1f1;
     color: #002d62;
+    font-size: 0.8rem;
     font-weight: bold;
 }
 
 .system-info-panel span {
     display: inline-block;
     margin: 0.25rem 0.5rem;
-}
-.system-info-panel {
-    margin-top: 1rem;
-    padding: 0;
-    border: 2px solid #000000;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #f1f1f1;
 }
 
 .system-info-title {
@@ -1860,4 +1853,253 @@ footer a:hover {
     font-size: 0.8em;
     margin-top: 0.2rem;
     font-weight: 500;
+}
+/* =========================================================
+   Dark mode
+   ========================================================= */
+
+html.dark-mode {
+    --bg-color: #10151c;
+    --bg-color-2: #171e27;
+
+    --text-color: #e6edf3;
+    --muted-color: #aab4c0;
+
+    --highlight-color: #69a7ff;
+    --highlight-hover: #8bbaff;
+
+    --card-bg-color: #1b232d;
+    --card-bg-color-2: #202a35;
+
+    --input-bg-color: #121922;
+    --input-border-color: #465362;
+    --border-color: #364250;
+
+    --error-color: #ff7373;
+    --success-color: #66cc87;
+    --warning-color: #e5b84b;
+}
+
+/* Live dashboard */
+
+html.dark-mode .dashboard-container {
+    background: #10151c;
+    color: #e6edf3;
+}
+
+html.dark-mode .dashboard-panel {
+    background: #1b232d;
+    border-color: #465362;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+html.dark-mode .status-box {
+    background: #202a35;
+    border-color: #596777;
+}
+
+html.dark-mode .status-box-row {
+    border-color: #596777;
+}
+
+html.dark-mode .dashboard-table {
+    background: #111820;
+    color: #e6edf3;
+}
+
+html.dark-mode .dashboard-table th {
+    border-color: #596777;
+    text-shadow: none;
+}
+
+html.dark-mode .dashboard-table td {
+    border-color: #465362;
+    color: #e6edf3;
+}
+
+html.dark-mode .dashboard-table tr:nth-child(even) td {
+    background: #202a35;
+}
+
+html.dark-mode .dashboard-table tr:nth-child(odd) td {
+    background: #18212b;
+}
+
+/* Runtime state colours */
+
+html.dark-mode .status-good,
+html.dark-mode .reflector-connected,
+html.dark-mode .monitoring-tgs,
+html.dark-mode .uptime-good,
+html.dark-mode .radio-standby {
+    background: #173a27;
+    color: #75d69a;
+}
+
+html.dark-mode .status-warn,
+html.dark-mode .modules-loaded {
+    background: #493a16;
+    color: #f2c55c;
+}
+
+html.dark-mode .status-bad,
+html.dark-mode .reflector-disconnected {
+    background: #492126;
+    color: #ff858d;
+}
+
+html.dark-mode .squelch-closed,
+html.dark-mode .radio-rx {
+    background: #493019;
+    color: #ffb86b;
+}
+
+html.dark-mode .squelch-open {
+    background: #183952;
+    color: #83c9ff;
+}
+
+html.dark-mode .radio-tx {
+    background: #a72929;
+    color: #ffffff;
+}
+
+/* Activity indication */
+
+@keyframes activityFlashDark {
+    0% {
+        background: #574510;
+    }
+
+    50% {
+        background: #8a6d00;
+    }
+
+    100% {
+        background: #574510;
+    }
+}
+
+html.dark-mode .activity-active td {
+    animation-name: activityFlashDark;
+    color: #ffffff;
+}
+
+/* Dashboard controls */
+
+html.dark-mode .tg-button-row {
+    background: #1b232d;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+html.dark-mode .dtmf-command,
+html.dark-mode .manual-dtmf-input {
+    background: #252b18;
+    border-color: #c9b400;
+    color: #ffe768;
+}
+
+html.dark-mode .manual-dtmf-panel {
+    background: #1b232d;
+    border-color: #596777;
+}
+
+html.dark-mode .manual-dtmf-title {
+    color: #8fc5ff;
+}
+
+html.dark-mode .manual-dtmf-help {
+    color: #c9d2dc;
+}
+
+html.dark-mode .system-info-panel {
+    background: #1b232d;
+    border-color: #596777;
+    color: #8fc5ff;
+}
+
+html.dark-mode .system-info-row span {
+    background: #202a35;
+    border-color: #465362;
+    color: #8fc5ff;
+}
+
+/* Footer */
+
+html.dark-mode .dashboard-footer,
+html.dark-mode .site-footer {
+    color: #aab4c0;
+    border-color: #364250;
+}
+
+html.dark-mode .dashboard-container .site-footer {
+    background: #10151c;
+    color: #aab4c0;
+    border-color: #364250;
+}
+
+/* Sound-level table */
+
+html.dark-mode .sound-table {
+    background: #1b232d;
+    color: #e6edf3;
+}
+
+html.dark-mode .sound-table th,
+html.dark-mode .sound-table td {
+    border-color: #465362;
+}
+
+html.dark-mode .sound-table td {
+    background: #202a35;
+    color: #e6edf3;
+}
+
+html.dark-mode .sound-control-meta {
+    color: #aab4c0;
+}
+/* Status-page theme control */
+
+.theme-toggle {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1000;
+
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #596777;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #1c1b29;
+
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: bold;
+
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.theme-toggle:hover {
+    border-color: var(--highlight-color);
+}
+
+.theme-toggle:focus-visible {
+    outline: 3px solid var(--highlight-color);
+    outline-offset: 2px;
+}
+
+html.dark-mode .theme-toggle {
+    background: #202a35;
+    color: #e6edf3;
+    border-color: #596777;
+}
+
+@media (max-width: 700px) {
+    .theme-toggle {
+        right: 0.5rem;
+        bottom: 0.5rem;
+        padding: 0.4rem 0.6rem;
+    }
 }
