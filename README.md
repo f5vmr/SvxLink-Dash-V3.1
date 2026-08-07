@@ -114,7 +114,7 @@ Run:
 
 ```bash
 cd /tmp
-wget https://raw.githubusercontent.com/f5vmr/{{ version_info.dashboard_name }}/main/install/install-dashboard.sh
+wget https://raw.githubusercontent.com/f5vmr/SvxLink-Dash-V3.1/main/install/install-dashboard.sh
 chmod +x install-dashboard.sh
 sudo ./install-dashboard.sh
 ```
@@ -122,7 +122,7 @@ sudo ./install-dashboard.sh
 After installation:
 
 ```text
-http://<node-ip>:5000/
+http://svxlink.local:5000/
 ```
 
 ---
@@ -134,7 +134,7 @@ SvxLink must already be operational.
 Expected components:
 
 ```text
-SvxLink Version 26.05 in this case 
+SvxLink Version 26.05.1 in this case 
 ```
 
 The dashboard assumes:
@@ -444,7 +444,7 @@ or the configured log file from:
 Verify:
 
 ```text
-/var/run/svxlink/dtmf_svx
+/dev/shm/simplex_dtmf_ctrl or /dev/shm/repeater_dtmf_ctrl
 ```
 
 exists and is writable by user `svxlink`.
@@ -453,7 +453,7 @@ exists and is writable by user `svxlink`.
 
 # Reflector Protocol Notice
 
-{{ version_info.dashboard_name }} is written primarily for the following SvxReflector Protocol 2 networks running SvxLink Version 25:
+SvxLink-Dash-V3.1 is written primarily for the following SvxReflector Protocol 2 networks running SvxLink Version 25:
 
 - UKWide
 - North America
