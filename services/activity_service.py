@@ -93,8 +93,6 @@ def get_reflector_activity(limit=10):
             "time": log_time,
             "callsign": callsign,
             "tg": tg,
-            "m": "ACTIVE" if is_active else "OFF",
-            "a": "SVXRef",
             "active": is_active,
         })
 
