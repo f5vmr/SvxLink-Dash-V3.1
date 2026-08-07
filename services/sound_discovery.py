@@ -339,12 +339,49 @@ def discover_sound_cards() -> List[Dict[str, Any]]:
 
     return [
         {
-            **asdict(card),
-            "controls": [asdict(control) for control in card.controls or []],
+            "audio_dev": (
+            f"alsa:plughw:CARD={card.name},DEV=0"
+            ),
+            "controls": [
+                asdict(control) for control in card.controls or []],
         }
         for card in cards
     ]
+def discover_default_audio_dev() -> Optional[str]:
+    """
+    Return the preferred duplex ALSA device for a generic SvxLink node.
 
+    Prefer USB audio over onboard HDA devices. Return None when no
+    playback-and-capture device is available.
+    """
+    cards = discover_sound_cards()
+
+    candidates = [
+        card
+        for card in cards
+        if card.get("has_playback")
+        and card.get("has_capture")
+    ]
+
+    if not candidates:
+        return None
+
+    usb_candidates = [
+        card
+        for card in candidates
+        if "usb" in (
+            f"{card.get('name', '')} "
+            f"{card.get('description', '')}"
+        ).lower()
+    ]
+
+    selected = (
+        usb_candidates[0]
+        if usb_candidates
+        else candidates[0]
+    )
+
+    return selected.get("audio_dev")
 def percent_to_raw(control: AlsaControl, percent: int) -> Optional[int]:
     if control.min_value is None or control.max_value is None:
         return None

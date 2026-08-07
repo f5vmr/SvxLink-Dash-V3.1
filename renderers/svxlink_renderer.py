@@ -1306,7 +1306,10 @@ def render_svxlink_config(model):
         "REFLECTOR_LOGIC_SECTION": render_reflector_logic(model),
 
         "LINK_TO_REFLECTOR_SECTION": render_link_to_reflector(model),
-
+        "AUDIO_DEV": (
+            model.get("audio", {}).get("audio_dev")
+            or "alsa:plughw:0"
+        ),
         "RX_SQL_BLOCK": render_rx_sql_block(model),
         "RX_CTCSS_BLOCK": render_rx_ctcss_block(model),
         "RX_GPIOD_BLOCK": render_rx_gpiod_block(model),
@@ -1316,7 +1319,6 @@ def render_svxlink_config(model):
 
         "TX_PTT_BLOCK": render_tx_ptt_block(model),
         "TX_CTCSS_BLOCK": render_tx_ctcss_block(model),
-
         "SQL_HANGTIME": model.get("sql_hangtime", 20),
         "SQL_TAIL_ELIM": model.get("sql_tail_elim", 270),
 

@@ -12,6 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
                                                                                        
 from services.sound_discovery import (
     discover_sound_cards,
+    discover_default_audio_dev,
     apply_safe_baseline,
     set_slider_control,
 )
@@ -543,6 +544,20 @@ def hardware_page():
             "status": "pending" if profile.get("preparation", {}).get("required") else "not_required",
             "resume_after_reboot": profile.get("preparation", {}).get("resume_after_reboot"),
         }
+        if hardware_profile_id == "generic_single":
+            model.setdefault("audio", {})
+
+            current_audio_dev = (
+            model["audio"].get("audio_dev", "").strip()
+        )
+
+            # Upgrade the old numeric default while preserving any
+            # explicit custom or previously discovered device.
+            if current_audio_dev in ("", "alsa:plughw:0"):
+                detected_audio_dev = discover_default_audio_dev()
+
+                if detected_audio_dev:
+                    model["audio"]["audio_dev"] = detected_audio_dev
 
         save_node_model(model)
 
