@@ -103,7 +103,7 @@ Tested with:
 
 The installer automatically:
 
-- Downloads {{ version_info.dashboard_name }} into `/opt/dashboard`
+- Downloads SvxLink-Dash-V3.1 into `/opt/dashboard`
 - Installs required Python packages
 - Configures permissions
 - Installs the systemd service
