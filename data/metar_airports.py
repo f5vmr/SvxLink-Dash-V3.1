@@ -21,7 +21,7 @@ UK_AIRPORTS = {
     "EGBD": "Belfast City",
 }
 NA_AIRPORTS = {
-    "KAIH": "Washington Dulles",
+    "KIAD": "Washington Dulles",
     "KATL": "Hartsfield-Jackson Atlanta",
     "KAUS": "Austin-Bergstrom",
     "KBNA": "Nashville International",
