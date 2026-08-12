@@ -1020,7 +1020,7 @@ def render_port_tx_section(model, port_id, node):
 
         ptt_line = resolved.get("line", tx_label)
 
-        if node.get("gpio", {}).get("ptt_invert"):
+        if not node.get("gpio", {}).get("ptt_invert"):
             ptt_line = f"!{ptt_line}"
 
         lines.extend([
