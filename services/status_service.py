@@ -190,23 +190,26 @@ def get_radio_state(selected_port="1"):
     }
 def get_echolink_state():
     """
-    Determine current EchoLink activity from recent SvxLink log lines.
+    Determine the current EchoLink connection state from SvxLink's
+    most recent EchoLink QSO state transition.
     """
 
     log_file = get_svxlink_log_path()
 
+    idle_state = {
+        "active": False,
+        "label": "Idle",
+        "station": "",
+        "class": "status-good",
+    }
+
     if not log_file.exists():
-        return {
-            "active": False,
-            "label": "Idle",
-            "station": "",
-            "class": "status-good",
-        }
+        return idle_state
 
     try:
         lines = log_file.read_text(
             encoding="utf-8",
-            errors="ignore"
+            errors="ignore",
         ).splitlines()
 
     except Exception:
@@ -217,19 +220,23 @@ def get_echolink_state():
             "class": "status-warn",
         }
 
-    for line in reversed(lines[-500:]):
+    qso_pattern = re.compile(
+        r"([A-Za-z0-9-]+):\s+"
+        r"EchoLink QSO state changed to "
+        r"(CONNECTED|DISCONNECTED)\b"
+    )
 
-        if "EchoLink: no connected stations" in line:
-            return {
-                "active": False,
-                "label": "Idle",
-                "station": "",
-                "class": "status-good",
-            }
+    # The latest QSO state transition is authoritative.
+    for line in reversed(lines[-1000:]):
+        match = qso_pattern.search(line)
 
-        if "EchoLink: single connected station =" in line:
-            station = line.split("=", 1)[-1].strip()
+        if not match:
+            continue
 
+        station = match.group(1).upper()
+        state = match.group(2)
+
+        if state == "CONNECTED":
             return {
                 "active": True,
                 "label": "Connected",
@@ -237,12 +244,10 @@ def get_echolink_state():
                 "class": "status-warn",
             }
 
-    return {
-        "active": False,
-        "label": "Idle",
-        "station": "",
-        "class": "status-good",
-    }
+        return idle_state
+
+    return idle_state
+
 def get_active_talkgroup():
     """
     Determine the currently selected SvxReflector talkgroup
