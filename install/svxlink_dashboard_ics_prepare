@@ -1,0 +1,237 @@
+#!/bin/bash
+set -e
+
+CONFIG="/boot/firmware/config.txt"
+OVERLAY_DIR="/boot/firmware/overlays"
+
+usage() {
+    echo "Usage:"
+    echo "  $0 check-i2c"
+    echo "  $0 enable-i2c"
+    echo "  $0 set-overlay ics_1x|ics_2x|ics_4x|ics_8x"
+    echo "  $0 check-overlay"
+    echo "  $0 gpio-names"
+    echo "  $0 configure-pcm1803 ics_1x|ics_2x|ics_4x|ics_8x"
+}
+
+require_config() {
+    if [ ! -f "$CONFIG" ]; then
+        echo "ERROR: Raspberry Pi boot config not found at $CONFIG"
+        exit 1
+    fi
+}
+
+check_i2c() {
+    echo "Checking I2C status..."
+
+    if grep -qE '^[[:space:]]*dtparam=(i2c_arm|arm_i2c)=on' "$CONFIG"; then
+        echo "CONFIG: I2C enabled in $CONFIG"
+    else
+        echo "CONFIG: I2C not enabled in $CONFIG"
+    fi
+
+    if ls /dev/i2c-* >/dev/null 2>&1; then
+        echo "DEVICE: I2C device(s) present:"
+        ls /dev/i2c-*
+    else
+        echo "DEVICE: No /dev/i2c-* devices found"
+        exit 2
+    fi
+}
+enable_i2c() {
+    require_config
+
+    echo "Enabling I2C..."
+
+    echo "Backing up $CONFIG to $CONFIG.svxlink-dash-i2c.bak"
+    cp "$CONFIG" "$CONFIG.svxlink-dash-i2c.bak"
+
+    if grep -qE '^[[:space:]]*#?[[:space:]]*dtparam=(i2c_arm|arm_i2c)=' "$CONFIG"; then
+        sed -i -E \
+            's/^[[:space:]]*#?[[:space:]]*dtparam=(i2c_arm|arm_i2c)=.*/dtparam=i2c_arm=on/' \
+            "$CONFIG"
+    else
+        {
+            echo
+            echo "# Enabled by SvxLink Dashboard ICS preparation"
+            echo "dtparam=i2c_arm=on"
+        } >> "$CONFIG"
+    fi
+
+    modprobe i2c-dev || true
+
+    echo "I2C enable request complete. Reboot recommended."
+}
+install_asound_config() {
+    PROFILE="$1"
+    SOURCE="/opt/dashboard/config/asound/asound_${PROFILE#ics_}.conf"
+
+    if [ ! -f "$SOURCE" ]; then
+        echo "ERROR: ALSA configuration not found: $SOURCE"
+        exit 1
+    fi
+
+    install -m 0644 "$SOURCE" /etc/asound.conf
+    echo "Installed $SOURCE as /etc/asound.conf"
+}
+set_overlay() {
+    require_config
+
+    OVERLAY="$1"
+
+    case "$OVERLAY" in
+        ics_1x|ics_2x|ics_4x|ics_8x)
+            ;;
+        *)
+            echo "ERROR: Invalid ICS overlay: $OVERLAY"
+            echo "Allowed: ics_1x, ics_2x, ics_4x, ics_8x"
+            exit 1
+            ;;
+    esac
+
+    if [ ! -f "$OVERLAY_DIR/$OVERLAY.dtbo" ]; then
+        echo "ERROR: Overlay file not found: $OVERLAY_DIR/$OVERLAY.dtbo"
+        exit 1
+    fi
+
+    echo "Backing up $CONFIG to $CONFIG.svxlink-dash.bak"
+    cp "$CONFIG" "$CONFIG.svxlink-dash.bak"
+
+    echo "Removing old/conflicting ICS overlay lines..."
+
+    sed -i \
+        -e '/^[[:space:]]*dtoverlay=ics_/d' \
+        -e '/^[[:space:]]*dtoverlay=ics-/d' \
+        -e '/^[[:space:]]*dtoverlay=ics[0-9]/d' \
+        -e '/^[[:space:]]*dtoverlay=ics-repeater/d' \
+        "$CONFIG"
+
+    echo "dtoverlay=$OVERLAY" >> "$CONFIG"
+
+    install_asound_config "$OVERLAY"
+
+    echo "ICS overlay set to $OVERLAY. Reboot required."
+}
+configure_audio_boot() {
+    PROFILE="$1"
+    CONFIG="/boot/firmware/config.txt"
+
+    START_MARKER="# BEGIN SvxLink-Dash ICS MCH audio"
+    END_MARKER="# END SvxLink-Dash ICS MCH audio"
+
+    if [ ! -f "$CONFIG" ]; then
+        echo "ERROR: $CONFIG not found"
+        exit 1
+    fi
+
+    # Remove any existing managed block first
+    sed -i "/$START_MARKER/,/$END_MARKER/d" "$CONFIG"
+
+    case "$PROFILE" in
+        ics_4x|ics_8x)
+            cat >> "$CONFIG" <<EOF
+
+$START_MARKER
+dtparam=i2s=on
+$END_MARKER
+EOF
+            echo "ICS MCH audio boot overlays enabled for $PROFILE."
+            echo "Reboot required."
+            ;;
+        ics_1x|ics_2x)
+            echo "ICS MCH audio boot overlays removed for $PROFILE."
+            echo "Reboot required if this changed the active boot configuration."
+            ;;
+        *)
+            echo "ERROR: Invalid ICS profile for audio boot configuration: $PROFILE"
+            exit 1
+            ;;
+    esac
+}
+configure_pcm1803_service() {
+    PROFILE="$1"
+    SERVICE="pcm1803_enable.service"
+
+    case "$PROFILE" in
+        ics_4x|ics_8x)
+            echo "Enabling PCM1803 service for $PROFILE..."
+            systemctl enable "$SERVICE"
+            echo "PCM1803 service enabled. It will run on the next boot."
+            ;;
+
+        ics_1x|ics_2x)
+            echo "Disabling PCM1803 service for $PROFILE..."
+            systemctl stop "$SERVICE" 2>/dev/null || true
+            systemctl disable "$SERVICE" 2>/dev/null || true
+            echo "PCM1803 service disabled for this profile."
+            ;;
+
+        *)
+            echo "ERROR: Invalid ICS profile for PCM1803 service: $PROFILE"
+            exit 1
+            ;;
+    esac
+}
+check_overlay() {
+    require_config
+
+    echo "Current ICS overlay lines in $CONFIG:"
+    grep -nE '^[[:space:]]*dtoverlay=.*ics' "$CONFIG" || echo "No ICS overlay lines found."
+
+    echo
+    echo "Installed ICS overlay files:"
+    ls -lh "$OVERLAY_DIR"/ics_*.dtbo 2>/dev/null || echo "No /boot/firmware/overlays/ics_*.dtbo files found."
+}
+gpio_names() {
+    echo "Checking named GPIO lines..."
+
+    if ! command -v gpioinfo >/dev/null 2>&1; then
+        echo "ERROR: gpioinfo is not installed"
+        exit 1
+    fi
+    gpioinfo | grep -E 'EN_|TX_|CT_|RX_|EXP_|PCM_PDWN' || {
+        echo "No ICS GPIO line names found."
+        echo "If the correct overlay has just been applied, reboot and try again."
+        exit 2
+    }
+}
+
+case "$1" in
+    check-i2c)
+        check_i2c
+        ;;
+
+    enable-i2c)
+        enable_i2c
+        ;;
+
+    set-overlay)
+        if [ -z "$2" ]; then
+            usage
+            exit 1
+        fi
+        set_overlay "$2"
+        ;;
+    configure-audio-boot)
+        configure_audio_boot "$2"
+        ;;
+    configure-pcm1803)
+        if [ -z "$2" ]; then
+            usage
+            exit 1
+        fi
+        configure_pcm1803_service "$2"
+        ;;
+    check-overlay)
+        check_overlay
+        ;;
+
+    gpio-names)
+	gpio_names
+	;;
+    *)
+        usage
+        exit 1
+        ;;
+esac
+
