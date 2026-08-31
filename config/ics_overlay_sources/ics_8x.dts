@@ -34,7 +34,7 @@
                 gpio-line-names =
                     "EXP_1",  "EXP_2",  "EXP_3",  "EXP_4",
                     "EXP_5",  "EXP_6",  "EXP_7",  "EXP_8",
-                    "EXP_9",  "EXP_10", "EXP_11", "EXP_12",
+                    "EXP_9",  "EXP_10", "EXP_11", "PCM_PDWN",
                     "EXP_13", "EXP_14", "EXP_15", "EXP_16";
             };
 
