@@ -32,8 +32,8 @@ chmod +x "$INSTALL_DIR/install/fix-permissions.sh"
 #-----------------------
 # ICS_preparatory stage
 #-----------------------
-ICS_HELPER_SOURCE="/opt/dashboard/install/svxlink_dash_ics_prepare"
-ICS_HELPER_DEST="/usr/local/sbin/svxlink_dash_ics_prepare"
+ICS_HELPER_SOURCE="/opt/dashboard/install/svxlink_dashboard_ics_prepare"
+ICS_HELPER_DEST="/usr/local/sbin/svxlink_dashboard_ics_prepare"
 
 if [ ! -f "$ICS_HELPER_DEST" ]; then
     echo "Installing SvxLink Dashboard ICS preparation helper..."
@@ -89,7 +89,7 @@ svxlink ALL=(root) NOPASSWD: \
     /usr/bin/systemd-run, \
     /usr/bin/install, \
     /usr/bin/pkill, \
-    /usr/local/sbin/svxlink-dash-enable-i2c, \
+    /usr/local/sbin/svxlink_dashboard_ics_prepare, \
     /usr/bin/nmcli, \
     /usr/bin/sh
 EOF
