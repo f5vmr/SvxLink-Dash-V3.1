@@ -51,6 +51,15 @@ def is_tx_section(section: str) -> bool:
     return re.fullmatch(r"Tx\d+", section.strip(), re.IGNORECASE) is not None
 
 
+def discover_macros(config_file: str = DEFAULT_SVXLINK_CONFIG) -> Dict[str, str]:
+    parser = read_svxlink_config(config_file)
+
+    if not parser.has_section("Macros"):
+        return {}
+
+    return section_to_dict(parser, "Macros")
+
+
 def discover_audio_sections(config_file: str = DEFAULT_SVXLINK_CONFIG) -> Dict[str, Any]:
     parser = read_svxlink_config(config_file)
 

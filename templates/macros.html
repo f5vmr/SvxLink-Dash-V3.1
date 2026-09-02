@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <title>Macros</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='svxlink.ico') }}">
+</head>
+
+<body>
+<main class="page">
+
+<section class="card dashboard-container">
+
+    <div class="dashboard-header">
+        <h1>Macros</h1>
+        <p>
+            Edit SvxLink DTMF macros.
+        </p>
+    </div>
+
+    {% include "navbar.html" %}
+
+    {% if saved %}
+        <p class="success">
+            Macros saved successfully.
+        </p>
+    {% endif %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <div class="form-section">
+        <p>
+            Macros provide short DTMF dial codes for longer SvxLink commands.
+            For example, D1# activates macro 1.
+        </p>
+        <p>
+            Up to {{ macro_limit }} macros may be configured.
+        </p>
+        <p>
+            Reflector Talkgroup selects a talkgroup, Reflector Reset clears the
+            active talkgroup, Recall Last Talkgroup restores the most recently
+            used talkgroup, Module Command sends a command to an SvxLink module,
+            and Custom Command preserves any other valid macro command.
+        </p>
+    </div>
+
+    <form method="post">
+
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>Macro</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for row in macro_rows %}
+                <tr>
+                    <td>
+                        D
+                        <input class="dtmf-command"
+                               type="text"
+                               name="number_{{ loop.index0 }}"
+                               value="{{ row.number }}">
+                        #
+                    </td>
+
+                    <td>
+                        <select class="dtmf-command"
+                                name="type_{{ loop.index0 }}">
+
+                            <option value="reflector_tg"
+                                    {% if row.type == "reflector_tg" %}selected{% endif %}>
+                                Reflector Talkgroup
+                            </option>
+
+                            <option value="reflector_reset"
+                                    {% if row.type == "reflector_reset" %}selected{% endif %}>
+                                Reflector Reset
+                            </option>
+
+                            <option value="reflector_recall"
+                                    {% if row.type == "reflector_recall" %}selected{% endif %}>
+                                Recall Last Talkgroup
+                            </option>
+
+                            <option value="module"
+                                    {% if row.type == "module" %}selected{% endif %}>
+                                Module Command
+                            </option>
+
+                            <option value="custom"
+                                    {% if row.type == "custom" %}selected{% endif %}>
+                                Custom Command
+                            </option>
+
+                        </select>
+                    </td>
+
+                    <td>
+                        <div class="macro-value macro-value-reflector-tg">
+                            Talkgroup:
+                            <input class="dtmf-command"
+                                   type="text"
+                                   name="talkgroup_{{ loop.index0 }}"
+                                   value="{{ row.talkgroup }}">
+                        </div>
+
+                        <div class="macro-value macro-value-module">
+                            Module:
+                            <input class="dtmf-command"
+                                   type="text"
+                                   name="module_{{ loop.index0 }}"
+                                   value="{{ row.module }}">
+
+                            Module Command:
+                            <input class="dtmf-command"
+                                   type="text"
+                                   name="module_command_{{ loop.index0 }}"
+                                   value="{{ row.module_command }}">
+                        </div>
+
+                        <div class="macro-value macro-value-custom">
+                            Custom Command:
+                            <input class="dtmf-command"
+                                   type="text"
+                                   name="command_{{ loop.index0 }}"
+                                   value="{{ row.command }}">
+                        </div>
+
+                        <div class="macro-value macro-value-reset">
+                            No additional value required.
+                        </div>
+
+                        <div class="macro-value macro-value-recall">
+                            No additional value required.
+                        </div>
+                    </td>
+
+                    <td>
+                        <input type="checkbox"
+                               name="remove_{{ loop.index0 }}"
+                               value="yes">
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="tg-button-row">
+            <button class="tg-button tg-green" type="submit">
+                Save Macros
+            </button>
+        </div>
+
+    </form>
+
+<footer class="site-footer">
+    SvxLink Software &copy; Tobias Blömberg SM0SVX<br>
+    SvxLink Configurator and Dashboard &copy; Chris Jackson G4NAB<br>
+    Dashboard SvxLink-Dash-V3.1|
+    SvxLink Package {{ version_info.package }} |
+    SvxLink {{ version_info.engine }}
+</footer>
+
+</section>
+
+</main>
+<script>
+function updateMacroRow(select) {
+    const row = select.closest("tr");
+    const type = select.value;
+
+    row.querySelectorAll(".macro-value").forEach(function(element) {
+        element.style.display = "none";
+    });
+
+    if (type === "reflector_tg") {
+        row.querySelector(".macro-value-reflector-tg").style.display = "";
+    } else if (type === "reflector_reset") {
+        row.querySelector(".macro-value-reset").style.display = "";
+    } else if (type === "reflector_recall") {
+        row.querySelector(".macro-value-recall").style.display = "";
+    } else if (type === "module") {
+        row.querySelector(".macro-value-module").style.display = "";
+    } else {
+        row.querySelector(".macro-value-custom").style.display = "";
+    }
+}
+
+document.querySelectorAll('select[name^="type_"]').forEach(function(select) {
+    select.addEventListener("change", function() {
+        updateMacroRow(select);
+    });
+
+    updateMacroRow(select);
+});
+</script>
+</body>
+</html>

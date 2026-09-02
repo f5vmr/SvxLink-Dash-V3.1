@@ -546,41 +546,18 @@ def render_tx_ctcss_block(model):
 
 def render_macros(model):
     """
-    Render reflector macro section.
+    Render macros section.
     """
 
-    reflector = model.get("reflector", {})
+    macros = model.get("macros", {})
 
-    if not reflector.get("enabled"):
+    if not macros:
         return "[Macros]"
 
-    host = reflector.get("host", "")
-
-    if "uk.wide" in host or "yorkshire" in host:
-
-        macro_lines = "\n".join([
-            "1=::91235#",
-            "2=::912350#",
-            "6=::9123561#",
-            "9=::910#",
-        ])
-
-    elif "australia" in host:
-
-        macro_lines = "\n".join([
-            "1=::9505#",
-            "9=::910#",
-        ])
-
-    elif "north.america" in host:
-
-        macro_lines = "\n".join([
-            "1=::93100#",
-            "9=::910#",
-        ])
-
-    else:
-        macro_lines = ""
+    macro_lines = "\n".join(
+        f"{number}={command}"
+        for number, command in macros.items()
+    )
 
     return render_config_template(
         "macros.template",

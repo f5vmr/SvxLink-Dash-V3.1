@@ -9,6 +9,7 @@ from pathlib import Path
 
 from models.node_model import new_node_model
 from hw_platforms import get_platform_profile
+from services.svxlink_config_discovery import discover_macros
 
 
 APP_ROOT = Path("/opt/dashboard")
@@ -109,9 +110,19 @@ def load_node_model():
         return model
 
     try:
-        return json.loads(
+        model = json.loads(
             MODEL_FILE.read_text(encoding="utf-8")
         )
+
+        if "macros" not in model:
+            try:
+                model["macros"] = discover_macros()
+            except FileNotFoundError:
+                model["macros"] = {}
+
+            save_node_model(model)
+
+        return model
 
     except json.JSONDecodeError:
         corrupt_file = MODEL_FILE.with_suffix(".json.corrupt")

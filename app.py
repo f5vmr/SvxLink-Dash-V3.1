@@ -66,6 +66,10 @@ from services.wifi_service import (
 )
 
 from services.talkgroup_service import load_talkgroups, save_talkgroups
+from services.macro_service import (
+    classify_macro_command,
+    build_macro_command,
+)
 from services.dtmf_service import send_dtmf
 from services.status_service import get_runtime_status
 from services.activity_service import get_reflector_activity
@@ -174,7 +178,10 @@ CTCSS_FREQUENCIES = [
     ("250.3", "250.3 Hz"),
     ("254.1", "254.1 Hz"),
 ]
-
+# =========================================================
+# Macro Limit
+# =========================================================
+MACRO_LIMIT = 16
 # =========================================================
 # SvxLink paths
 # =========================================================
@@ -3548,6 +3555,146 @@ def talkgroups_page():
         model=model,
         talkgroups=talkgroups,
         saved=saved,
+    )
+@app.route("/macros", methods=["GET", "POST"])
+def macros_page():
+    saved = request.args.get("saved")
+
+    if not session.get("authorised"):
+        return redirect(url_for("authorise_page", next=request.path))
+
+    model = load_node_model()
+
+    macros = model.get("macros", {})
+    error = None
+
+    if len(macros) > MACRO_LIMIT:
+        error = (
+            f"This configuration contains more than {MACRO_LIMIT} macros. "
+            "Reduce the list before editing it in the dashboard."
+        )
+
+    if request.method == "POST" and len(macros) <= MACRO_LIMIT:
+        updated = {}
+        seen = set()
+
+        for index in range(MACRO_LIMIT):
+            remove = request.form.get(f"remove_{index}") == "yes"
+
+            if remove:
+                continue
+
+            number = request.form.get(f"number_{index}", "").strip()
+            macro_type = request.form.get(
+                f"type_{index}",
+                "custom",
+            ).strip()
+
+            talkgroup = request.form.get(
+                f"talkgroup_{index}",
+                "",
+            ).strip()
+
+            module = request.form.get(
+                f"module_{index}",
+                "",
+            ).strip()
+
+            module_command = request.form.get(
+                f"module_command_{index}",
+                "",
+            ).strip()
+
+            custom_command = request.form.get(
+                f"command_{index}",
+                "",
+            ).strip()
+
+            row_has_content = any([
+                number,
+                talkgroup,
+                module,
+                module_command,
+                custom_command,
+            ])
+
+            if not row_has_content:
+                continue
+
+            if not number:
+                error = "Each configured macro requires a macro number."
+                break
+
+            if number in seen:
+                error = f"Macro {number} is defined more than once."
+                break
+
+            try:
+                command = build_macro_command(
+                    macro_type,
+                    talkgroup=talkgroup,
+                    module=module,
+                    module_command=module_command,
+                    custom_command=custom_command,
+                )
+            except ValueError as exc:
+                error = f"Macro {number}: {exc}"
+                break
+
+            seen.add(number)
+            updated[number] = command
+
+        if error is None:
+            model["macros"] = updated
+            save_node_model(model)
+
+            result = build_svxlink_configuration(
+                model,
+                restart=True,
+            )
+
+            if not result.get("success"):
+                error = "Macros saved, but SvxLink rebuild/restart failed."
+            else:
+                return redirect(url_for("macros_page", saved="1"))
+
+        macros = updated
+
+    macro_rows = []
+
+    for number, command in macros.items():
+        macro = classify_macro_command(command)
+
+        macro_rows.append({
+            "number": number,
+            "command": (
+                command
+                if macro.get("type", "custom") == "custom"
+                else ""
+            ),
+            "type": macro.get("type", "custom"),
+            "talkgroup": macro.get("talkgroup", ""),
+            "module": macro.get("module", ""),
+            "module_command": macro.get("module_command", ""),
+        })
+
+    while len(macro_rows) < MACRO_LIMIT:
+        macro_rows.append({
+            "number": "",
+            "command": "",
+            "type": "custom",
+            "talkgroup": "",
+            "module": "",
+            "module_command": "",
+        })
+
+    return render_template(
+        "macros.html",
+        model=model,
+        macro_rows=macro_rows,
+        macro_limit=MACRO_LIMIT,
+        saved=saved,
+        error=error,
     )
 @app.route("/monitor-tgs", methods=["GET", "POST"])
 def monitor_tgs_page():
