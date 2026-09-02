@@ -246,9 +246,18 @@
                         <select id="mode"
                                 name="mode"
                                 class="input-field">
-                            <option value="txcal">TX calibration</option>
-                            <option value="rxcal">RX calibration</option>
-                            <option value="measure">Measure deviation</option>
+                            <option value="txcal"
+                                    {% if devcal_values.mode == "txcal" %}selected{% endif %}>
+                                TX calibration
+                            </option>
+                            <option value="rxcal"
+                                    {% if devcal_values.mode == "rxcal" %}selected{% endif %}>
+                                RX calibration
+                            </option>
+                            <option value="measure"
+                                    {% if devcal_values.mode == "measure" %}selected{% endif %}>
+                                Measure deviation
+                            </option>
                         </select>
 
                         <label for="section">Config section</label>
@@ -259,7 +268,8 @@
                             {% if audio_sections.tx_sections %}
                                 <optgroup label="Transmitters">
                                     {% for tx in audio_sections.tx_sections %}
-                                        <option value="{{ tx.section }}">
+                                        <option value="{{ tx.section }}"
+                                                {% if devcal_values.section == tx.section %}selected{% endif %}>
                                             {{ tx.section }} — {{ tx.AUDIO_DEV }} ch {{ tx.AUDIO_CHANNEL }}
                                         </option>
                                     {% endfor %}
@@ -269,7 +279,8 @@
                             {% if audio_sections.rx_sections %}
                                 <optgroup label="Receivers">
                                     {% for rx in audio_sections.rx_sections %}
-                                        <option value="{{ rx.section }}">
+                                        <option value="{{ rx.section }}"
+                                                {% if devcal_values.section == rx.section %}selected{% endif %}>
                                             {{ rx.section }} — {{ rx.AUDIO_DEV }} ch {{ rx.AUDIO_CHANNEL }}
                                         </option>
                                     {% endfor %}
@@ -395,7 +406,21 @@
                             <input type="hidden"
                                    name="action"
                                    value="toggle_devcal_tx">
+                            <input type="hidden" name="mode" value="{{ devcal_values.mode }}">
+                            <input type="hidden" name="section" value="{{ devcal_values.section }}">
+                            <input type="hidden" name="modfqs" value="{{ devcal_values.modfqs }}">
+                            <input type="hidden" name="caldev" value="{{ devcal_values.caldev }}">
+                            <input type="hidden" name="maxdev" value="{{ devcal_values.maxdev }}">
+                            <input type="hidden" name="headroom" value="{{ devcal_values.headroom }}">
+                            <input type="hidden" name="audiodev" value="{{ devcal_values.audiodev }}">
 
+                            {% if devcal_values.flat %}
+                                <input type="hidden" name="flat" value="on">
+                            {% endif %}
+
+                            {% if devcal_values.wide %}
+                                <input type="hidden" name="wide" value="on">
+                            {% endif %}
                             {% if devcal_tx_state == "on" %}
 
                                 <button class="devcal-tx-on"
