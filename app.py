@@ -965,6 +965,8 @@ def environment_page():
             model["metar"]["region"] = metar_region
 
             save_node_model(model)
+            if request.form.get("reconfigure") == "1":
+                return redirect(url_for("build_page"))
 
             return redirect(url_for("timezone_page"))
 
@@ -1004,6 +1006,9 @@ def timezone_page():
             }
 
             save_node_model(model)
+
+            if request.form.get("reconfigure") == "1":
+                return redirect(url_for("build_page"))
 
             return redirect(next_after_timezone(model))
 
@@ -1310,6 +1315,9 @@ def port_node_page(port_id):
 
             save_node_model(model)
 
+            if request.form.get("reconfigure") == "1":
+                return redirect(url_for("build_page"))
+
             return redirect(url_for("port_config_page"))
 
     return render_template(
@@ -1508,6 +1516,9 @@ def port_squelch_detail_page(port_id):
 
             save_node_model(model)
 
+            if request.form.get("reconfigure") == "1":
+                return redirect(url_for("build_page"))
+
             return redirect(url_for("port_squelch_page"))
     return render_template(
         "port_squelch_detail.html",
@@ -1584,7 +1595,11 @@ def port_modules_page():
         model["modules"]["enabled"] = sorted(global_enabled)
 
         if metar_ports and not model.get("metar", {}).get("startdefault"):
-            model["build"]["return_after_metar"] = "port_ident_page"
+            if request.form.get("reconfigure") == "1":
+                model["build"]["return_after_metar"] = "build_page"
+            else:
+                model["build"]["return_after_metar"] = "port_ident_page"
+
             model["build"].pop("return_after_modules", None)
             save_node_model(model)
             return redirect(url_for("metar_default_page"))
@@ -1593,6 +1608,9 @@ def port_modules_page():
         model["build"].pop("return_after_metar", None)
 
         save_node_model(model)
+
+        if request.form.get("reconfigure") == "1":
+            return redirect(url_for("build_page"))
 
         return redirect(url_for("port_ident_page"))
 
@@ -1722,6 +1740,9 @@ def port_ident_page():
 
             save_node_model(model)
 
+            if request.form.get("reconfigure") == "1":
+                return redirect(url_for("build_page"))
+
             return redirect(url_for("port_cw_page"))
 
         except Exception as exc:
@@ -1793,6 +1814,9 @@ def port_cw_page():
 
         save_node_model(model)
 
+        if request.form.get("reconfigure") == "1":
+            return redirect(url_for("build_page"))
+
         return redirect(url_for("port_courtesy_page"))
 
     return render_template(
@@ -1863,6 +1887,9 @@ def port_courtesy_page():
         model["build"]["port_courtesy_configured"] = True
 
         save_node_model(model)
+
+        if request.form.get("reconfigure") == "1":
+            return redirect(url_for("build_page"))
 
         return redirect(url_for("port_repeater_page"))
 
@@ -2169,6 +2196,8 @@ def node_page():
             )
 
             save_node_model(model)
+            if request.form.get("reconfigure") == "1":
+                return redirect(url_for("build_page"))
             return redirect(url_for("interface_page"))
 
     return render_template("node.html", model=model, error=error)
@@ -2286,6 +2315,8 @@ def interface_page():
             model["gpio"]["ptt"]["line"] = int(ptt_line)
 
         save_node_model(model)
+        if request.form.get("reconfigure") == "1":
+            return redirect(url_for("build_page"))
         return redirect(url_for("squelch_page"))
 
     return render_template(
@@ -2395,6 +2426,10 @@ def squelch_page():
             request.form.get("sql_gpio_invert") == "yes"
         )
         save_node_model(model)
+
+        if request.form.get("reconfigure") == "1":
+            return redirect(url_for("build_page"))
+
         return redirect(url_for("ident_page"))
 
     platform_id = model.get("platform", {}).get("id", "unknown")
@@ -2473,6 +2508,8 @@ def ident_page():
                 )
 
             save_node_model(model)
+            if request.form.get("reconfigure") == "1":
+                return redirect(url_for("build_page"))
             return redirect(url_for("cw_page"))
 
         except ValueError:
@@ -2521,7 +2558,8 @@ def cw_page():
                 }
 
                 save_node_model(model)
-
+                if request.form.get("reconfigure") == "1":
+                    return redirect(url_for("build_page"))
                 return redirect(url_for("courtesy_page"))
 
     return render_template(
@@ -2571,6 +2609,8 @@ def courtesy_page():
                 }
 
                 save_node_model(model)
+                if request.form.get("reconfigure") == "1":
+                    return redirect(url_for("build_page"))
                 if model.get("node", {}).get("type") == "repeater":
                     return redirect(url_for("repeater_page"))
                 return redirect(url_for("modules_page"))
@@ -2637,7 +2677,8 @@ def repeater_page():
                 }
 
                 save_node_model(model)
-
+                if request.form.get("reconfigure") == "1":
+                    return redirect(url_for("build_page"))
                 return redirect(url_for("modules_page"))
 
     return render_template(
@@ -4114,7 +4155,10 @@ def reconfigure_page():
 
         for target in reconfigure_targets:
             if target["id"] == target_id:
-                route_args = target.get("route_args", {})
+                route_args = dict(target.get("route_args", {}))
+
+                if target["id"] not in ("build", "full_reset"):
+                    route_args["reconfigure"] = "1"
 
                 return redirect(
                     url_for(

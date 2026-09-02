@@ -28,7 +28,9 @@
     {% endif %}
 
     <form action="/squelch" method="post">
-
+        {% if request.args.get("reconfigure") == "1" %}
+            <input type="hidden" name="reconfigure" value="1">
+        {% endif %}
         <div class="option-group">
             <div class="radio-row">
                 <input type="radio"

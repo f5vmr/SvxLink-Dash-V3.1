@@ -30,6 +30,9 @@
         </div>
 
         <form action="{{ url_for('port_ident_page') }}" method="post" enctype="multipart/form-data">
+            {% if request.args.get("reconfigure") == "1" %}
+                <input type="hidden" name="reconfigure" value="1">
+            {% endif %}
             <div class="form-section">
                 <div class="label">Per-port identification</div>
                 {% if error %}

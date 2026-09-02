@@ -87,7 +87,12 @@
 
                         <br><br>
 
-                        <a class="button-secondary" href="{{ url_for('port_node_page', port_id=port_id) }}">
+                        <a class="button-secondary"
+                           href="{{ url_for(
+                               'port_node_page',
+                               port_id=port_id,
+                               reconfigure='1' if request.args.get('reconfigure') == '1' else None
+                           ) }}">
                             Configure Port {{ port_id }}
                         </a>
                     </div>
@@ -99,7 +104,13 @@
                 <a class="button-secondary" href="{{ url_for('port_config_page') }}">Refresh</a>
 
                 {% if all_ports_configured %}
-                    <a class="button-primary" href="{{ url_for('port_squelch_page') }}">Continue</a>
+                    <a class="button-primary"
+                       href="{{ url_for(
+                           'port_squelch_page',
+                           reconfigure='1' if request.args.get('reconfigure') == '1' else None
+                       ) }}">
+                        Continue
+                    </a>
                 {% else %}
                     <button class="button-primary" type="button" disabled>Continue</button>
                 {% endif %}

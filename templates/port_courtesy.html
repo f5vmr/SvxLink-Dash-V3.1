@@ -30,6 +30,9 @@
             port will therefore also apply to every subsequent port.
         </div>
         <form action="{{ url_for('port_courtesy_page') }}" method="post">
+            {% if request.args.get("reconfigure") == "1" %}
+                <input type="hidden" name="reconfigure" value="1">
+            {% endif %}
             <div class="form-section">
                 <div class="label">Per-port courtesy tone settings</div>
 
