@@ -1244,6 +1244,8 @@ def port_node_page(port_id):
     node.setdefault("audio", {})
     node["audio"].setdefault("rx_audio", f"rx{port_id}")
     node["audio"].setdefault("tx_audio", f"tx{port_id}")
+    node["audio"].setdefault("deemphasis", False)
+    node["audio"].setdefault("preemphasis", False)
 
     node.setdefault("gpio", {})
     node["gpio"].setdefault("ptt", f"TX_{port_id}")
@@ -1284,6 +1286,12 @@ def port_node_page(port_id):
         else:
             node["callsign"] = callsign
             node["name"] = name or node.get("name") or f"Port {port_id} {node.get('role', '').title()}"
+            node["audio"]["deemphasis"] = (
+                request.form.get("deemphasis") == "1"
+            )
+            node["audio"]["preemphasis"] = (
+                request.form.get("preemphasis") == "1"
+            )
             node["node_details_configured"] = True
             node["configured"] = True
 
@@ -2130,6 +2138,10 @@ def node_page():
     model = load_node_model()
     error = None
 
+    model.setdefault("audio", {})
+    model["audio"].setdefault("deemphasis", False)
+    model["audio"].setdefault("preemphasis", False)
+
     if request.method == "POST":
         node_type = request.form.get("node_type")
         callsign = request.form.get("callsign", "").strip().upper()
@@ -2141,6 +2153,14 @@ def node_page():
         else:
             model["node"]["type"] = node_type
             model["node"]["callsign"] = callsign
+
+            model["audio"]["deemphasis"] = (
+                request.form.get("deemphasis") == "1"
+            )
+            model["audio"]["preemphasis"] = (
+                request.form.get("preemphasis") == "1"
+            )
+
             save_node_model(model)
             return redirect(url_for("interface_page"))
 

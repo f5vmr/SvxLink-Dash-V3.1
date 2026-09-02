@@ -51,7 +51,41 @@
                        autocomplete="off"
                        oninput="this.value = this.value.toUpperCase();">
             </div>
+            <div class="form-section">
+                <div class="label">Audio Response</div>
 
+                <div class="radio-row">
+                    <input
+                        type="checkbox"
+                        id="deemphasis"
+                        name="deemphasis"
+                        value="1"
+                        {% if model.get("audio", {}).get("deemphasis", False) %}checked{% endif %}
+                    >
+                    <label for="deemphasis">
+                        Enable receive de-emphasis
+                    </label>
+                </div>
+
+                <div class="radio-row">
+                    <input
+                        type="checkbox"
+                        id="preemphasis"
+                        name="preemphasis"
+                        value="1"
+                        {% if model.get("audio", {}).get("preemphasis", False) %}checked{% endif %}
+                    >
+                    <label for="preemphasis">
+                        Enable transmit pre-emphasis
+                    </label>
+                </div>
+
+                <div class="note">
+                    Enable these SvxLink audio filters when required by the
+                    radio audio path, particularly when using flat or
+                    discriminator audio.
+                </div>
+            </div>
             <div class="button-row">
                 <a class="button-secondary" href="/timezone">Back</a>
                 <button class="button-primary" type="submit">Continue</button>

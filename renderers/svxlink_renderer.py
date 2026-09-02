@@ -890,6 +890,7 @@ def render_port_rx_section(model, port_id, node):
         "TYPE=Local",
         f"AUDIO_DEV={audio_dev}",
         "AUDIO_CHANNEL=0",
+        f"DEEMPHASIS={1 if audio.get('deemphasis', False) else 0}",
     ]
 
     if method == "hidraw":
@@ -989,6 +990,7 @@ def render_port_tx_section(model, port_id, node):
         "TYPE=Local",
         f"AUDIO_DEV={audio_dev}",
         "AUDIO_CHANNEL=0",
+        f"PREEMPHASIS={1 if audio.get('preemphasis', False) else 0}",
     ]
 
     if method == "hidraw":
@@ -1310,6 +1312,8 @@ def render_svxlink_config(model):
             model.get("audio", {}).get("audio_dev")
             or "alsa:plughw:0"
         ),
+        "DEEMPHASIS": 1 if model.get("audio", {}).get("deemphasis", False) else 0,
+        "PREEMPHASIS": 1 if model.get("audio", {}).get("preemphasis", False) else 0,
         "RX_SQL_BLOCK": render_rx_sql_block(model),
         "RX_CTCSS_BLOCK": render_rx_ctcss_block(model),
         "RX_GPIOD_BLOCK": render_rx_gpiod_block(model),
