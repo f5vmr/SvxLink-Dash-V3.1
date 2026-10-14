@@ -1,4 +1,4 @@
-# SvxLink-Dash-V3.1
+# SvxLink-Dash-V3.1 Now superceded by SvxLink-Dash-V4.1
 
 A modern Flask-based configuration and runtime dashboard for SvxLink systems.
 
